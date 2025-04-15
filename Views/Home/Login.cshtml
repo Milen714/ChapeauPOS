@@ -1,0 +1,19 @@
+﻿@model ChapeauPOS.Models.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+<h1>@ViewData["Title"]</h1>
+
+<form action="/Home/Login" method="POST">
+    <article class="form-group">
+        <label for="UserName">User Name</label>
+        <input type="text" class="form-control" asp-for="UserName" required />
+    </article>
+    <article class="form-group">
+        <label for="Password">Password</label>
+        <input type="password" class="form-control" asp-for="Password" required />
+    </article>
+    <button type="submit" class="btn btn-primary">Send</button>
+
+
+</form>
