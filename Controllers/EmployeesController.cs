@@ -15,6 +15,15 @@ namespace ChapeauPOS.Controllers
         {
             // Retrieve all employees from the repository
             List<Employee> employees = _employeeRepository.GetAllEmployees();
+
+            string? employeeId = Request.Cookies["EmployeeID"];
+            string? role = Request.Cookies["Role"];
+            if (employeeId == null || role == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+            ViewBag.LoggedInEmployee = employeeId;
+            ViewBag.Role = role;
             return View(employees);
         }
     }

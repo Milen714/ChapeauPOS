@@ -4,11 +4,32 @@
 }
 <h1>@ViewData["Title"]</h1>
 
-
+@if(ViewBag.ErrorMessage != null)
+{
+    <div class="alert-danger"> @ViewBag.ErrorMessage</div>
+}
 @foreach (Employee employee in  ViewBag.Employees)
 {
+    string employeeIcon = "";
+    if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
+    {
+        employeeIcon = "ManagerIcon";
+    }
+    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Waiter"))
+    {
+        employeeIcon = "WaiterIcon";
+    }
+    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Bartender"))
+    {
+        employeeIcon = "BartenderIcon";
+    }
+    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Cook"))
+    {
+        employeeIcon = "CookIcon";
+    }
     <div class="card">
 		<div class="card-body">
+            <div class="@employeeIcon"></div>
 			<h5 class="card-title">@employee.FirstName @employee.LastName</h5>
 			<p class="card-text">Role: @employee.Role</p>
             <a class="conf_button" >Login</a>

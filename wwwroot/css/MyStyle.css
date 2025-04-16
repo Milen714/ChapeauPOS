@@ -73,3 +73,26 @@ a{
     font-weight: 600;
     background-color: var(--highlightcolor-washedGreen);
 }
+/* 
+    *Login Page Styles
+ */
+.ManagerIcon{
+    width: 99px;
+    height: 113px;
+    background-image : url('/assets/ManagerLarge99x113.svg');
+}
+.WaiterIcon {
+    width: 99px;
+    height: 113px;
+    background-image: url('/assets/WaitressLarge99x113.svg')
+}
+.BartenderIcon {
+    width: 99px;
+    height: 113px;
+    background-image: url('/assets/BartenderLarge99x113.svg')
+}
+.CookIcon {
+    width: 99px;
+    height: 113px;
+    background-image: url('/assets/CookLarge99x113.svg')
+}

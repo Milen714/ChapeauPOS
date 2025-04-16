@@ -1,8 +1,17 @@
 ﻿@model IEnumerable<ChapeauPOS.Models.Employee>
 
-	@{
+@{
 	ViewData["Title"] = "Employees";
+
+	int loggedInEmployeeId = -1;
+	if (ViewBag.LoggedInEmployee != null)
+	{
+		loggedInEmployeeId = int.Parse(ViewBag.LoggedInEmployee);
+	}
 }
+
+
+
 <h1>@ViewData["Title"]</h1>
 <table class="table">
 	<thead>
@@ -21,22 +30,27 @@
 	</thead>
 
 	<tbody>	
-		@foreach (var item in Model)
+		@foreach (Employee employee in Model)
 	{
-		<tr>
+		string loggedInStyle = "";
+		if(employee.EmployeeId == loggedInEmployeeId)
+			{
+				loggedInStyle = "background-color: #87CEEB;";
+			}
+			<tr style="@loggedInStyle">
 			<td>
-				@item.FirstName
+				@employee.FirstName
 			</td>
 			<td>
-				@item.LastName
+				@employee.LastName
 			</td>
 			<td>
-				@item.Role
+				@employee.Role
 			</td>
 			<td>
-				<a asp-action="Edit" asp-route-id="@item.EmployeeId">Edit</a> |
-				<a asp-action="Details" asp-route-id="@item.EmployeeId">Details</a> |
-				<a asp-action="Delete" asp-route-id="@item.EmployeeId">Delete</a>
+				<a asp-action="Edit" asp-route-id="@employee.EmployeeId">Edit</a> |
+				<a asp-action="Details" asp-route-id="@employee.EmployeeId">Details</a> |
+				<a asp-action="Delete" asp-route-id="@employee.EmployeeId">Delete</a>
 			</td>
 		</tr>
 	}

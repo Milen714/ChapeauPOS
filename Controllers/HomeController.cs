@@ -22,17 +22,25 @@ namespace ChapeauPOS.Controllers
 		}
 
 		[HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string errorMessage)
         {
             List<Employee> employees = _employeeRepository.GetAllEmployees();
             ViewBag.Employees = employees;
+            ViewBag.ErrorMessage = errorMessage;
             return View();
         }
         [HttpPost]
         public IActionResult Login(LoginModel loginModel)
         {
             Employee employee = _employeeRepository.GetEmployeeByIdAndPassword(loginModel);
-			if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
+            if(employee.EmployeeId == 0)
+			{
+				string errorMessage = "Invalid Password entered Please try again";
+				return RedirectToAction("Login", new { errorMessage });
+			}
+			Response.Cookies.Append("Role", employee.Role.ToString());
+            Response.Cookies.Append("EmployeeID", employee.EmployeeId.ToString());
+            if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
 			{
 				Console.WriteLine("Manager logged in");
                 return RedirectToAction("Index", "Employees");
