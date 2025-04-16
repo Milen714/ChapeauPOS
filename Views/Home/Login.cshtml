@@ -8,6 +8,7 @@
 {
     <div class="alert-danger"> @ViewBag.ErrorMessage</div>
 }
+<div class="LoginPage_body">
 @foreach (Employee employee in  ViewBag.Employees)
 {
     string employeeIcon = "";
@@ -27,8 +28,8 @@
     {
         employeeIcon = "CookIcon";
     }
-    <div class="card">
-		<div class="card-body">
+    <div class="Login_card">
+		<div class="Login_card_body">
             <div class="@employeeIcon"></div>
 			<h5 class="card-title">@employee.FirstName @employee.LastName</h5>
 			<p class="card-text">Role: @employee.Role</p>
@@ -57,6 +58,7 @@
 		</div>
 	</div>
 }
+</div>
 
 <script>
     const loginButtons = document.getElementsByClassName("conf_button");

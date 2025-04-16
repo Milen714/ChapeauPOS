@@ -76,10 +76,29 @@ a{
 /* 
     *Login Page Styles
  */
-.ManagerIcon{
+.LoginPage_body{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
+}
+.Login_card {
+    padding: 1em;
+    border: 1px black solid;
+    border-radius: 0.7em;
+}
+.Login_card_body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+.ManagerIcon {
     width: 99px;
     height: 113px;
-    background-image : url('/assets/ManagerLarge99x113.svg');
+    background-image: url('/assets/ManagerLarge99x113.svg');
 }
 .WaiterIcon {
     width: 99px;

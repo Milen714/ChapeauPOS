@@ -48,17 +48,18 @@ namespace ChapeauPOS.Controllers
             else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Waiter"))
 			{
                 Console.WriteLine("Waiter logged in");
+                return RedirectToAction("Index", "Home");
             }
             else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Cook"))
             {
                 Console.WriteLine("Cook logged in");
+                return RedirectToAction("Index", "Home");
             }
             else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Bartender"))
             {
                 Console.WriteLine("Bartender logged in");
                 return RedirectToAction("Index", "Home");
             }
-
                 return View(loginModel);
         }
 
