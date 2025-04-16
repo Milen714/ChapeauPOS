@@ -1,0 +1,75 @@
+﻿:root {
+    --mainColor-darkGrey: #232323;
+    --mainColor-lighterGrey: #2D2D2C;
+    --mainColor-Grey: #121212;
+    --mainColor-Black: #000000;
+    --highlightcolor-lIGHTPurple: #C5BEF6;
+    --inputFieldColor-lightGrey: #383838;
+    --highlightcolor-washedGreen: #A9EBCE;
+    --highlightcolor-lightYellow: #D3D641;
+    --highlightcolor-dangerRED: #F32013;
+    --highlightcolor-lightRed: #FF6961;
+    --highlightcolor-lightGrey: #454545;
+    --highlightcolor-lightGreen: #B9FF3B;
+    --highlightcolor-darkGreen: #0A332C;
+    --notificationcolor-wpGreen: #00A884;
+    --logo-font: "Lobster", sans-serif;
+    --nav-font: "Alata", sans-serif;
+    --headers-font: "Poppins", sans-serif;
+    --paragraphs-font: "Nunito Sans", sans-serif;
+}
+
+/*  *PopUp Styles
+
+*/
+a{
+    cursor: pointer;
+}
+.popupOverlay {
+    display: none;
+    position: fixed;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    justify-content: center;
+    align-items: center;
+}
+.popupContainer {
+    position: absolute;
+    top: 40%;
+    left: 42%;
+    width: 300px;
+    height: 300px;
+}
+/* 
+    *Button Styles
+ */
+.add_entity, .conf_button, .confirmation_cancelation {
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: black;
+    text-decoration: none;
+    font-family: var(--nav-font);
+    font-weight: 600;
+    background-color: var(--highlightcolor-lIGHTPurple);
+}
+.confirmation_cancelation {
+    background-color: var(--highlightcolor-dangerRED);
+}
+
+.add_entity_main {
+    padding: 10px 20px;
+    margin-top: 5px;
+    border-radius: 10px;
+    border: none;
+    color: black;
+    text-decoration: none;
+    font-family: var(--nav-font);
+    font-weight: 600;
+    background-color: var(--highlightcolor-washedGreen);
+}

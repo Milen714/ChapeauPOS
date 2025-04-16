@@ -4,16 +4,56 @@
 }
 <h1>@ViewData["Title"]</h1>
 
-<form action="/Home/Login" method="POST">
-    <article class="form-group">
-        <label for="UserName">User Name</label>
-        <input type="text" class="form-control" asp-for="UserName" required />
-    </article>
-    <article class="form-group">
-        <label for="Password">Password</label>
-        <input type="password" class="form-control" asp-for="Password" required />
-    </article>
-    <button type="submit" class="btn btn-primary">Send</button>
 
+@foreach (Employee employee in  ViewBag.Employees)
+{
+    <div class="card">
+		<div class="card-body">
+			<h5 class="card-title">@employee.FirstName @employee.LastName</h5>
+			<p class="card-text">Role: @employee.Role</p>
+            <a class="conf_button" >Login</a>
 
-</form>
+            <div class="popupOverlay">
+                <div class="popupContainer">
+                    <div class="popupHeader">
+						<h2>Login</h2>
+						<button class="confirmation_cancelation">X</button>
+					</div>
+					<p>Are you sure you want to login as @employee.FirstName @employee.LastName?</p>
+					<p>Enter your password:</p>
+                <form action="/Home/Login" method="POST">
+                    <article class="form-group">
+                            <input type="hidden" name="EmployeeID" value="@employee.EmployeeId" required />
+                    </article>
+                    <article class="form-group">
+                        <label for="Password">Password</label>
+                        <input type="password" class="form-control" asp-for="Password" required />
+                    </article>
+                    <button type="submit" class="btn btn-primary">Login as @employee.FirstName</button>
+                </form>
+                 </div>
+            </div>
+		</div>
+	</div>
+}
+
+<script>
+    const loginButtons = document.getElementsByClassName("conf_button");
+    const popupOverlays = document.getElementsByClassName("popupOverlay");
+    const confirmationButton = document.getElementById("confirmation_button");
+    const confirmationCancelation = document.getElementsByClassName("confirmation_cancelation");
+
+    for (let i = 0; i < loginButtons.length; i++)
+    {
+        loginButtons[i].addEventListener("click", function () {
+            popupOverlays[i].style.display = "block";
+        });
+    }
+    for (let i = 0; i < loginButtons.length; i++) {
+        confirmationCancelation[i].addEventListener("click", function () {
+            popupOverlays[i].style.display = "none";
+        });
+    }
+    
+</script>
+

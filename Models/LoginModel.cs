@@ -2,15 +2,15 @@
 {
     public class LoginModel
     {
-        public string UserName { get; set; }
+        public int EmployeeID { get; set; }
         public string Password { get; set; }
-        public bool RememberMe { get; set; }
+        
 
-        public LoginModel(string username, string password, bool rememberMe)
+        public LoginModel(int employeeId, string password)
         {
-            UserName = username;
+            EmployeeID = employeeId;
             Password = password;
-            RememberMe = rememberMe;
+            
         }
 
         public LoginModel()
