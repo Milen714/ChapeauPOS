@@ -1,0 +1,58 @@
+﻿@model IEnumerable<ChapeauPOS.Models.Employee>
+
+@{
+	ViewData["Title"] = "Employees";
+
+	int loggedInEmployeeId = -1;
+	if (ViewBag.LoggedInEmployee != null)
+	{
+		loggedInEmployeeId = int.Parse(ViewBag.LoggedInEmployee);
+	}
+}
+
+
+
+<h1>@ViewData["Title"]</h1>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				FirstName
+			</th>
+			<th>
+				LastName
+			</th>
+			<th>
+				Role
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+
+	<tbody>	
+		@foreach (Employee employee in Model)
+	{
+		string loggedInStyle = "";
+		if(employee.EmployeeId == loggedInEmployeeId)
+			{
+				loggedInStyle = "background-color: #87CEEB;";
+			}
+			<tr style="@loggedInStyle">
+			<td>
+				@employee.FirstName
+			</td>
+			<td>
+				@employee.LastName
+			</td>
+			<td>
+				@employee.Role
+			</td>
+			<td>
+				<a asp-action="Edit" asp-route-id="@employee.EmployeeId">Edit</a> |
+				<a asp-action="Details" asp-route-id="@employee.EmployeeId">Details</a> |
+				<a asp-action="Delete" asp-route-id="@employee.EmployeeId">Delete</a>
+			</td>
+		</tr>
+	}
+	</tbody>
+	</table>

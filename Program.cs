@@ -1,3 +1,5 @@
+using ChapeauPOS.Repositories;
+
 namespace ChapeauPOS
 {
 	public class Program
@@ -8,8 +10,9 @@ namespace ChapeauPOS
 
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
 
-			var app = builder.Build();
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
