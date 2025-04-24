@@ -22,5 +22,7 @@ namespace ChapeauPOS.Repositories
         /// </summary>
         /// <param name="employee">The employee to update.</param>
         void UpdateEmployee(Employee employee);
+        void AddEmployee(Employee employee);
+
     }
 }

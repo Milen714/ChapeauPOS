@@ -1,19 +1,23 @@
+using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
 using ChapeauPOS.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace ChapeauPOS.Controllers
 {
-	public class HomeController : Controller
+	public class HomeController : BaseController
 	{
 		private readonly ILogger<HomeController> _logger;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly PasswordHasher<string> _passwordHasher;
 
         public HomeController(ILogger<HomeController> logger, IEmployeeRepository employeeRepository)
 		{
 			_logger = logger;
             _employeeRepository = employeeRepository;
+            _passwordHasher = new PasswordHasher<string>();
         }
 
 		public IActionResult Index()
@@ -38,8 +42,12 @@ namespace ChapeauPOS.Controllers
 				string errorMessage = "Invalid Password entered Please try again";
 				return RedirectToAction("Login", new { errorMessage });
 			}
-			Response.Cookies.Append("Role", employee.Role.ToString());
-            Response.Cookies.Append("EmployeeID", employee.EmployeeId.ToString());
+            else
+            {
+                HttpContext.Session.SetObject("LoggedInUser", employee);
+            }
+            
+
             if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
 			{
 				Console.WriteLine("Manager logged in");
@@ -62,7 +70,28 @@ namespace ChapeauPOS.Controllers
             }
                 return View(loginModel);
         }
-
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("LoggedInUser");
+            return RedirectToAction("Login", "Home");
+        }
+        [HttpPost]
+        public IActionResult SetTheme(string? theme)
+        {
+            if (theme != null)
+            {
+                CookieOptions options = new CookieOptions()
+                {
+                    Expires = DateTime.Now.AddDays(5),
+                    Path = "/",
+                    Secure = true,
+                    HttpOnly = true,
+                    IsEssential = true
+                };
+                Response.Cookies.Append("PreferedTheme", theme, options);
+            }
+            return RedirectToAction("Index", "Home");
+        }
         public IActionResult Privacy()
 		{
 			return View();

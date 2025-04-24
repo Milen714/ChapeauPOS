@@ -1,0 +1,39 @@
+﻿@model ChapeauPOS.Models.Employee
+@{
+	ViewData["Title"] = "Add New Employee";
+}
+<h1>@ViewData["Title"]</h1>
+
+<form action="/Employees/AddNewEmployee" method="POST">
+    
+    <article class="input_group">
+        <label for="FirstName">FirstName</label>
+        <input type="text" class="input_field" asp-for="FirstName" required />
+    </article>
+    <article class="input_group">
+        <label for="LastName">Last Name</label>
+        <input type="text" class="input_field" asp-for="LastName" required />
+    </article>
+    <article class="input_group">
+        <label for="Email">Email</label>
+        <input type="email" class="input_field" asp-for="Email" value="@Model.Email" required />
+    </article>
+    <article class="input_group">
+        <label for="Role">Role</label>
+        <select id="Role" name="Role" class="input_field">
+            <option value="Waiter">Waiter</option>
+            <option value="Bartender">Bartender</option>
+            <option value="Cook">Cook</option>
+        </select>
+        </article>
+    <article class="input_group">
+        <label for="Password">Password</label>
+        <input type="password" class="input_field" asp-for="Password" value="@Model.Password" required />
+    </article>
+       
+   
+
+    <button type="submit" class="add_entity_main">Add Employee</button>
+
+
+</form>

@@ -6,7 +6,7 @@
 	int loggedInEmployeeId = -1;
 	if (ViewBag.LoggedInEmployee != null)
 	{
-		loggedInEmployeeId = int.Parse(ViewBag.LoggedInEmployee);
+		loggedInEmployeeId = ViewBag.LoggedInEmployee.EmployeeId;
 	}
 }
 

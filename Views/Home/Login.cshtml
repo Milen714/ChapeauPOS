@@ -8,6 +8,12 @@
 {
     <div class="alert-danger"> @ViewBag.ErrorMessage</div>
 }
+@{
+    if (TempData["ErrorMessage"] != null)
+	{
+		<div class="alert alert-danger"> @TempData["ErrorMessage"]</div>
+	}
+}
 <div class="LoginPage_body">
 @foreach (Employee employee in  ViewBag.Employees)
 {

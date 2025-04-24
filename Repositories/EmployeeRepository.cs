@@ -1,4 +1,5 @@
 ﻿using ChapeauPOS.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 
 namespace ChapeauPOS.Repositories
@@ -46,24 +47,67 @@ namespace ChapeauPOS.Repositories
             {
                 string query = " SELECT EmployeeID, FirstName, LastName, Password, Email, Role " +
                                " FROM Employees " +
-                               " WHERE EmployeeID = @EmployeeID AND Password = @Password ";
+                               " WHERE EmployeeID = @EmployeeID ";
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@EmployeeID", loginModel.EmployeeID);
-                command.Parameters.AddWithValue("@Password", loginModel.Password);
+                //command.Parameters.AddWithValue("@Password", loginModel.Password);
                 command.Connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
+                    // Read the employee data from the database
+                    // The password is hashed, so we need to verify it using PasswordHasher
                     employee = ReadEmployee(reader);
+                    string storedHashedPassword = employee.Password;
+                    var hasher = new PasswordHasher<string>();
+                    var result = hasher.VerifyHashedPassword(null, storedHashedPassword, loginModel.Password);
+
+                    if (result == PasswordVerificationResult.Failed)
+                    {
+                        employee.EmployeeId = 0; // Set to 0 if password verification fails
+                    }
+                    else
+                    {
+                        employee.Password = storedHashedPassword; // Keep the hashed password
+                    }
                 }
                 reader.Close();
             }
             return employee;
         }
 
+        
+
         void IEmployeeRepository.UpdateEmployee(Employee employee)
         {
             throw new NotImplementedException();
+        }
+
+        void IEmployeeRepository.AddEmployee(Employee employee)
+        {
+
+            var hasher = new PasswordHasher<string>();
+            string hashedPassword = hasher.HashPassword(null, employee.Password);
+            try
+            {
+                using (SqlConnection connection = new SqlConnection (_connectionString))
+                {
+                    connection.Open();
+                    string query = "INSERT INTO Employees (FirstName, LastName, Password, Email, Role) " +
+                                   "VALUES (@FirstName, @LastName, @Password, @Email, @Role)";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@FirstName", employee.FirstName);
+                    command.Parameters.AddWithValue("@LastName", employee.LastName);
+                    command.Parameters.AddWithValue("@Password", hashedPassword);
+                    command.Parameters.AddWithValue("@Email", employee.Email);
+                    command.Parameters.AddWithValue("@Role", employee.Role.ToString());
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
         }
     }
 }
