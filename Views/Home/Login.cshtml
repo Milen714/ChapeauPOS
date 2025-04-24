@@ -6,7 +6,7 @@
 
 @if(ViewBag.ErrorMessage != null)
 {
-    <div class="alert-danger"> @ViewBag.ErrorMessage</div>
+    <div class="alert alert-danger"> @ViewBag.ErrorMessage</div>
 }
 @{
     if (TempData["ErrorMessage"] != null)
@@ -18,22 +18,22 @@
 @foreach (Employee employee in  ViewBag.Employees)
 {
     string employeeIcon = "";
-    if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
-    {
-        employeeIcon = "ManagerIcon";
-    }
-    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Waiter"))
-    {
-        employeeIcon = "WaiterIcon";
-    }
-    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Bartender"))
-    {
-        employeeIcon = "BartenderIcon";
-    }
-    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Cook"))
-    {
-        employeeIcon = "CookIcon";
-    }
+        switch (employee.Role)
+        {
+            case Roles.Manager:
+                employeeIcon = "ManagerIcon";
+                break;
+            case Roles.Waiter:
+                employeeIcon = "WaiterIcon";
+                break;
+            case Roles.Bartender:
+                employeeIcon = "BartenderIcon";
+                break;
+            case Roles.Cook:
+                employeeIcon = "CookIcon";
+                break;
+
+        }
     <div class="Login_card">
 		<div class="Login_card_body">
             <div class="@employeeIcon"></div>

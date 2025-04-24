@@ -47,29 +47,24 @@ namespace ChapeauPOS.Controllers
                 HttpContext.Session.SetObject("LoggedInUser", employee);
             }
             
-
-            if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
-			{
-				Console.WriteLine("Manager logged in");
-                return RedirectToAction("Index", "Employees");
-            }
-            else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Waiter"))
-			{
-                Console.WriteLine("Waiter logged in");
-                return RedirectToAction("Index", "Home");
-            }
-            else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Cook"))
-            {
-                Console.WriteLine("Cook logged in");
-                return RedirectToAction("Index", "Home");
-            }
-            else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Bartender"))
-            {
-                Console.WriteLine("Bartender logged in");
-                return RedirectToAction("Index", "Home");
-            }
+            switch(employee.Role)
+                {
+                case Roles.Manager:
+                    Console.WriteLine("Manager logged in");
+                    return RedirectToAction("Index", "Employees");
+                case Roles.Waiter:
+                    Console.WriteLine("Waiter logged in");
+                    return RedirectToAction("Index", "Home");
+                case Roles.Cook:
+                    Console.WriteLine("Cook logged in");
+                    return RedirectToAction("Index", "Home");
+                case Roles.Bartender:
+                    Console.WriteLine("Bartender logged in");
+                    return RedirectToAction("Index", "Home");
+                }
                 return View(loginModel);
         }
+
         public IActionResult Logout()
         {
             HttpContext.Session.Remove("LoggedInUser");

@@ -58,6 +58,9 @@
                                         <li class="nav-item">
                                             <a class="nav-link text-dark" asp-area="" asp-controller="Employees" asp-action="Index">StockManagement</a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Tables" asp-action="Index">Restaurant Overview</a>
+                                        </li>
                                         break;
                                     case Roles.Waiter:
                                         <li class="nav-item">
@@ -65,6 +68,9 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Restaurant Overview</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Tables" asp-action="Index">Restaurant Overview</a>
                                         </li>
                                         break;
                                     case Roles.Bartender:
@@ -77,7 +83,7 @@
                                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">KitchenView</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Restaurant Overview</a>
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="Tables" asp-action="Index">Restaurant Overview</a>
                                         </li>
                                         break;
                                 }

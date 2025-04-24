@@ -1,0 +1,23 @@
+﻿@model IEnumerable<ChapeauPOS.Models.Table>
+@{
+	ViewData["Title"] = "Tables";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<div>
+	@{
+		foreach(Table table in Model)
+		{
+			<div>
+				<div class="table_card">
+					<div class="table_card_body">
+						<h5 class="card-title">Table @table.TableNumber</h5>
+						<p class="card-text">Status: @table.TableStatus</p>
+					</div>
+				</div>
+			</div>
+		}
+	}
+</div>

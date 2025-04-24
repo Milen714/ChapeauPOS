@@ -29,7 +29,6 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Login", "Home");
             }
             ViewBag.LoggedInEmployee = loggedInEmployee;
-            //ViewBag.Role = role;
             return View(employees);
         }
         public IActionResult AddNewEmployee()

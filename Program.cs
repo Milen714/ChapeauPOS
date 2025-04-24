@@ -11,6 +11,7 @@ namespace ChapeauPOS
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+			builder.Services.AddSingleton<ITableRepository, TableRepository>();
 
             builder.Services.AddSession(options =>
             {

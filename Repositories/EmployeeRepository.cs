@@ -85,7 +85,7 @@ namespace ChapeauPOS.Repositories
 
         void IEmployeeRepository.AddEmployee(Employee employee)
         {
-
+            // Hash the password before storing it
             var hasher = new PasswordHasher<string>();
             string hashedPassword = hasher.HashPassword(null, employee.Password);
             try
