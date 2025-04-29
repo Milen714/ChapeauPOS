@@ -115,3 +115,25 @@ a{
     height: 113px;
     background-image: url('/assets/CookLarge99x113.svg')
 }
+/*
+    TableStyles
+*/
+.table_card{
+    width:fit-content;
+    padding: 5px;
+    border-radius: 10px;
+    color: black;
+}
+.Table_Overview{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 50vw;
+    gap: 2px;
+}
+.table_card_body{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 0px;
+}   

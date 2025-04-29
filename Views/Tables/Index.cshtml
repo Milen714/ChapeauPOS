@@ -1,0 +1,37 @@
+﻿@model IEnumerable<ChapeauPOS.Models.Table>
+@{
+	ViewData["Title"] = "Tables";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<div class="Table_Overview">
+	@{
+		foreach(Table table in Model)
+		{
+			string tableStatusStyle = "";
+			switch (table.TableStatus)
+			{
+				case TableStatus.Occupied:
+					tableStatusStyle = "background-color: #FF6347;"; // Tomato
+					break;
+				case TableStatus.Reserved:
+					tableStatusStyle = "background-color: #FFD700;"; // Gold
+					break;
+				case TableStatus.Free:
+					tableStatusStyle = "background-color: #90EE90;"; // LightGreen
+					break;
+			}
+			<div>
+				<div style="@tableStatusStyle" class="table_card">
+					<div class="table_card_body">
+						<h5 class="card-title">Table @table.TableNumber</h5>
+						<p class="card-text">Seats: @table.NumberOfSeats</p>
+						<p class="card-text">Status: @table.TableStatus</p>
+					</div>
+				</div>
+			</div>
+		}
+	}
+</div>
