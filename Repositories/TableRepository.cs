@@ -1,4 +1,5 @@
 ﻿using ChapeauPOS.Models;
+using ChapeauPOS.Repositories.Interfaces;
 
 namespace ChapeauPOS.Repositories
 {

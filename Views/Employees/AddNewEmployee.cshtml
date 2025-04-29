@@ -19,6 +19,14 @@
         <input type="email" class="input_field" asp-for="Email" value="@Model.Email" required />
     </article>
     <article class="input_group">
+        <label for="Gender">Gender:</label>
+        <select id="Gender" name="Gender" class="input_field">
+            <option value="">Chose:</option>
+            <option value="Female">Female</option>
+            <option value="Male">Bartender</option>
+        </select>
+    </article>
+    <article class="input_group">
         <label for="Role">Role</label>
         <select id="Role" name="Role" class="input_field">
             <option value="Waiter">Waiter</option>

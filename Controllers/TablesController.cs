@@ -1,5 +1,5 @@
 ﻿using ChapeauPOS.Models;
-using ChapeauPOS.Repositories;
+using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChapeauPOS.Controllers
