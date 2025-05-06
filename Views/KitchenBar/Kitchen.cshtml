@@ -3,10 +3,18 @@
 }
 <h1>@ViewData["Title"]</h1>
 
+<h2>LED Control</h2>
+<button onclick="turnOn()">Turn ON</button>
+<button onclick="turnOff()">Turn OFF</button>
+<button onclick="update()">Update</button>
+
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script>
+
+          
+
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/restaurantHub")
             .build();
