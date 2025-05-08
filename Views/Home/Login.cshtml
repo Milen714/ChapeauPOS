@@ -4,14 +4,31 @@
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 <header>
-    <nav>
+    
         <div class="Logo_container">
             <img class="Logo_Image" src="/assets/Logo.svg" alt="Alternate Text" />
             <h2 class="Logo">ChapeauPOS</h2>
         </div>
+    
+    <h1>@ViewData["Title"]</h1>
+    <nav class="LoginPage_nav">
+        <ul class="navbar-nav flex-grow-1">
+            <li class="nav-item">
+                <form action="/Home/SetTheme" method="post">
+                    <article class="input_group">
+                        <label for="Theme">Theme</label>
+                        <select onchange="this.form.submit()" id="Theme" name="theme" class="input_field">
+                            <option value="">Theme:</option>
+                            <option value="Dark">Dark</option>
+                            <option value="Light">Light</option>
+                        </select>
+                    </article>
+                </form>
+            </li>
+        </ul>
     </nav>
 </header>
-<h1>@ViewData["Title"]</h1>
+
 
 @if(ViewBag.ErrorMessage != null)
 {
