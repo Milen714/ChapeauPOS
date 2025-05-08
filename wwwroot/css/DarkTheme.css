@@ -1,0 +1,26 @@
+﻿:root {
+    --mainColor-darkGrey: #232323;
+    --mainColor-lighterGrey: #2D2D2C;
+    --mainColor-Grey: #121212;
+    --mainColor-Black: #000000;
+    --highlightcolor-lIGHTPurple: #C5BEF6;
+    --inputFieldColor-lightGrey: #383838;
+    --highlightcolor-washedGreen: #A9EBCE;
+    --highlightcolor-lightYellow: #D3D641;
+    --highlightcolor-lightRed: #FF6961;
+    --highlightcolor-lightGrey: #454545;
+    --highlightcolor-lightGreen: #B9FF3B;
+    --highlightcolor-darkGreen: #0A332C;
+    --notificationcolor-wpGreen: #00A884;
+    --logo-font: "Lobster", sans-serif;
+    --nav-font: "Alata", sans-serif;
+    --headers-font: "Poppins", sans-serif;
+    --paragraphs-font: "Nunito Sans", sans-serif;
+}
+.table{
+    color: white;
+}
+body {
+    background-color: var(--mainColor-darkGrey);
+    color: white;
+}
