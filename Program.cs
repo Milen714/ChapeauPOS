@@ -1,3 +1,7 @@
+using ChapeauPOS.Hubs;
+using ChapeauPOS.Repositories;
+using ChapeauPOS.Repositories.Interfaces;
+
 namespace ChapeauPOS
 {
 	public class Program
@@ -8,8 +12,18 @@ namespace ChapeauPOS
 
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+			builder.Services.AddSingleton<ITableRepository, TableRepository>();
 
-			var app = builder.Build();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Set the timeout to 30 minutes
+                options.Cookie.HttpOnly = true; // Make the cookie HTTP-only   
+                options.Cookie.IsEssential = true; // Make the session cookie essential
+            });
+			builder.Services.AddSignalR();
+
+            var app = builder.Build();
 
 			// Configure the HTTP request pipeline.
 			if (!app.Environment.IsDevelopment())
@@ -24,11 +38,18 @@ namespace ChapeauPOS
 
 			app.UseRouting();
 
-			app.UseAuthorization();
+			app.UseSession();
 
-			app.MapControllerRoute(
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<RestaurantHub>("/restaurantHub");
+            });
+
+            app.MapControllerRoute(
 				name: "default",
-				pattern: "{controller=Home}/{action=Index}/{id?}");
+				pattern: "{controller=Home}/{action=Login}/{id?}");
 
 			app.Run();
 		}
