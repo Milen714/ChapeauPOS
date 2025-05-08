@@ -1,15 +1,12 @@
 ﻿using ChapeauPOS.Models;
 
-namespace ChapeauPOS.Repositories.Interfaces
+namespace ChapeauPOS.Services.Interfaces
 {
-    public interface IEmployeeRepository
+    public interface IEmployeesService
     {
-       
         Employee GetEmployeeByIdAndPassword(LoginModel loginModel);
         List<Employee> GetAllEmployees();
-        
         void UpdateEmployee(Employee employee);
         void AddEmployee(Employee employee);
-
     }
 }

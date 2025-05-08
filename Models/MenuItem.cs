@@ -2,12 +2,29 @@
 {
     public class MenuItem
     {
-        public int MenuItemId { get; set; }
-        public string? ItemName { get; set; }
-        public string? ItemDescription { get; set; }
-        public string? ItemPrice { get; set; }
-        public bool VAT {  get; set; }
-        public string? Course { get; set; }
-        public MenuCategories? Category { get; set; }
+        public MenuItem(int menuItemID, string itemName, string itemDescription, decimal itemPrice, bool vAT, MenuCategory category, MenuCourse course)
+        {
+            MenuItemID = menuItemID;
+            ItemName = itemName;
+            ItemDescription = itemDescription;
+            ItemPrice = itemPrice;
+            VAT = vAT;
+            Category = category;
+            Course = course;
+        }
+        public MenuItem()
+        {
+
+        }
+
+        public int MenuItemID { get; set; }
+        public string ItemName { get; set; }
+        public string ItemDescription { get; set; }
+        public decimal ItemPrice { get; set; }
+        public bool VAT { get; set; }
+        public decimal VATPercent { get { return VAT ? 21 : 0; }  }
+        public MenuCategory Category { get; set; }
+        public MenuCourse Course { get; set; }
     }
+
 }

@@ -136,8 +136,11 @@ a{
 /*
     TableStyles
 */
-.table_card{
-    width:fit-content;
+.LoginPage_nav {
+
+}
+.table_card {
+    width: fit-content;
     padding: 5px;
     border-radius: 10px;
     color: black;
