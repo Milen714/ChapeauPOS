@@ -1,4 +1,6 @@
+using ChapeauPOS.Hubs;
 using ChapeauPOS.Repositories;
+using ChapeauPOS.Repositories.Interfaces;
 
 namespace ChapeauPOS
 {
@@ -19,6 +21,7 @@ namespace ChapeauPOS
                 options.Cookie.HttpOnly = true; // Make the cookie HTTP-only   
                 options.Cookie.IsEssential = true; // Make the session cookie essential
             });
+			builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -38,8 +41,13 @@ namespace ChapeauPOS
 			app.UseSession();
 
             app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<RestaurantHub>("/restaurantHub");
+            });
 
-			app.MapControllerRoute(
+            app.MapControllerRoute(
 				name: "default",
 				pattern: "{controller=Home}/{action=Login}/{id?}");
 

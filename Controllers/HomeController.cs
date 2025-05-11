@@ -1,6 +1,6 @@
 using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
-using ChapeauPOS.Repositories;
+using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;

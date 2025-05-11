@@ -8,8 +8,9 @@
         public string Password { get; set; }
         public string Email { get; set; }
         public Roles Role { get; set; }
+        public EmployeeGender Gender { get; set; }
 
-        public Employee(int employeeId, string firstName, string lastName, string password, string email, Roles role)
+        public Employee(int employeeId, string firstName, string lastName, string password, string email, Roles role, EmployeeGender gender)
         {
             EmployeeId = employeeId;
             FirstName = firstName;
@@ -17,6 +18,8 @@
             Password = password;
             Email = email;
             Role = role;
+            Gender = gender;
+
         }
 
         public Employee()

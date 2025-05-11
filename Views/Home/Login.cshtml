@@ -1,7 +1,16 @@
 ﻿@model ChapeauPOS.Models.LoginModel
 @{
     ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
+<header>
+    <nav>
+        <div class="Logo_container">
+            <img class="Logo_Image" src="/assets/Logo.svg" alt="Alternate Text" />
+            <h2 class="Logo">ChapeauPOS</h2>
+        </div>
+    </nav>
+</header>
 <h1>@ViewData["Title"]</h1>
 
 @if(ViewBag.ErrorMessage != null)
@@ -10,27 +19,55 @@
 }
 @{
     if (TempData["ErrorMessage"] != null)
-	{
-		<div class="alert alert-danger"> @TempData["ErrorMessage"]</div>
-	}
+    {
+        <div class="alert alert-danger"> @TempData["ErrorMessage"]</div>
+    }
 }
 <div class="LoginPage_body">
-@foreach (Employee employee in  ViewBag.Employees)
-{
-    string employeeIcon = "";
+    @foreach (Employee employee in  ViewBag.Employees)
+    {
+        string employeeIcon = "";
         switch (employee.Role)
         {
             case Roles.Manager:
+                if(employee.Gender == EmployeeGender.Male)
+                {
                 employeeIcon = "ManagerIcon";
+				}
+				else
+				{
+					employeeIcon = "ManagerIconF";
+				}
                 break;
             case Roles.Waiter:
-                employeeIcon = "WaiterIcon";
+                if (employee.Gender == EmployeeGender.Male)
+                {
+                    employeeIcon = "WaiterIcon";
+                }
+                else
+                {
+                    employeeIcon = "WaitressIcon";
+                }
                 break;
             case Roles.Bartender:
-                employeeIcon = "BartenderIcon";
+                if (employee.Gender == EmployeeGender.Male)
+                {
+                    employeeIcon = "BartenderIcon";
+                }
+                else
+                {
+                    employeeIcon = "BartenderIconF";
+                }
                 break;
             case Roles.Cook:
-                employeeIcon = "CookIcon";
+                if (employee.Gender == EmployeeGender.Male)
+                {
+                    employeeIcon = "CookIcon";
+                }
+                else
+                {
+                    employeeIcon = "CookIconF";
+                }
                 break;
 
         }

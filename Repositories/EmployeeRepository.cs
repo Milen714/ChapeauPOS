@@ -1,4 +1,5 @@
 ﻿using ChapeauPOS.Models;
+using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 
@@ -19,7 +20,8 @@ namespace ChapeauPOS.Repositories
             string password = reader.GetString(3);
             string email = reader.GetString(4);
             Roles role = (Roles)Enum.Parse(typeof(Roles), reader.GetString(5));
-            return new Employee(employeeId, firstName, lastName, password, email, role);
+            EmployeeGender gender = (EmployeeGender)Enum.Parse(typeof(EmployeeGender), reader.GetString(6));
+            return new Employee(employeeId, firstName, lastName, password, email, role, gender);
         }
         List<Employee> IEmployeeRepository.GetAllEmployees()
         {
@@ -27,7 +29,7 @@ namespace ChapeauPOS.Repositories
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role FROM Employees";
+                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender FROM Employees";
                 SqlCommand command = new SqlCommand(query, connection);
                 SqlDataReader reader = command.ExecuteReader();
 
@@ -45,7 +47,7 @@ namespace ChapeauPOS.Repositories
             Employee employee = new Employee();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = " SELECT EmployeeID, FirstName, LastName, Password, Email, Role " +
+                string query = " SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender " +
                                " FROM Employees " +
                                " WHERE EmployeeID = @EmployeeID ";
                 SqlCommand command = new SqlCommand(query, connection);
@@ -93,14 +95,15 @@ namespace ChapeauPOS.Repositories
                 using (SqlConnection connection = new SqlConnection (_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO Employees (FirstName, LastName, Password, Email, Role) " +
-                                   "VALUES (@FirstName, @LastName, @Password, @Email, @Role)";
+                    string query = "INSERT INTO Employees (FirstName, LastName, Password, Email, Role, Gender) " +
+                                   "VALUES (@FirstName, @LastName, @Password, @Email, @Role, @Gender)";
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@FirstName", employee.FirstName);
                     command.Parameters.AddWithValue("@LastName", employee.LastName);
                     command.Parameters.AddWithValue("@Password", hashedPassword);
                     command.Parameters.AddWithValue("@Email", employee.Email);
                     command.Parameters.AddWithValue("@Role", employee.Role.ToString());
+                    command.Parameters.AddWithValue("@Gender", employee.Gender.ToString());
                     command.ExecuteNonQuery();
                 }
             }

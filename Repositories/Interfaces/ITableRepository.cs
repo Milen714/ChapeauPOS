@@ -1,6 +1,6 @@
 ﻿using ChapeauPOS.Models;
 
-namespace ChapeauPOS.Repositories
+namespace ChapeauPOS.Repositories.Interfaces
 {
     public interface ITableRepository
     {
