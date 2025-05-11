@@ -1,0 +1,128 @@
+﻿@model List<Order>
+@{
+	ViewData["Title"] = "Bar - Running Orders";
+}
+
+<div style="margin:0;display:flex;justify-content:center;">
+	<a href="/KitchenBar/BarFinishedOrders" class="btn btn-primary">Finished</a>
+	<a href="/KitchenBar/BarRunningOrders" class="btn btn-primary">Running</a>
+</div>
+<form method="get" action="/KitchenBar/BarRunningOrders">
+	<button type="submit">Refresh to get new orders</button>
+</form>
+<div class="orders-container d-flex flex-row flex-wrap">
+	@foreach (var order in Model)
+	{
+		<div class="order-card m-2 p-3" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+			<!-- Header -->
+			<div class="order-header d-flex justify-content-between align-items-center mb-2">
+				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
+				<div class="text-end">
+					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
+					<small class="text-muted">@order.RunningTime.ToString(@"hh\:mm")</small>
+				</div>
+			</div>
+
+			<!-- Order Items -->
+			@foreach (var courseGroup in order.OrderItems.GroupBy(oi => oi.MenuCourse))
+			{
+				<div class="mb-3">
+					<h6 class="border-bottom">@courseGroup.Key</h6>
+					@foreach (var item in courseGroup)
+					{
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<div>
+								<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+								@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+								{
+									<small class="text-muted">@item.MenuItem.ItemDescription</small>
+									<br />
+								}
+								@if (!string.IsNullOrEmpty(item.Notes))
+								{
+									<em class="text-muted small">@item.Notes</em>
+								}
+							</div>
+							<div>
+								<form method="post" action="/KitchenBar/UpdateBarItemStatus">
+									<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+									<select name="orderItemStatus" class="form-select form-select-sm"
+											onchange="this.form.submit()">
+										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+										{
+											<option value="@OrderItemStatus.Ordered" selected>Ordered</option>
+											<option value="@OrderItemStatus.Preparing">Preparing</option>
+										}
+										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+										{
+											<option value="@OrderItemStatus.Preparing" selected>Preparing</option>
+											<option value="@OrderItemStatus.Ready">Ready</option>
+										}
+										else if (item.OrderItemStatus == OrderItemStatus.Ready)
+										{
+											<option value="@OrderItemStatus.Ready" selected>Ready</option>
+											<option value="@OrderItemStatus.Served">Served</option>
+										}
+										else
+										{
+											<option value="@item.OrderItemStatus" selected>@item.OrderItemStatus</option>
+										}
+									</select>
+								</form>
+							</div>
+						</div>
+					}
+				</div>
+			}
+
+			<!-- Order Status -->
+			<div class="mb-2">
+				<form method="post" action="/KitchenBar/UpdateBarOrderStatus">
+					<input type="hidden" name="orderId" value="@order.OrderID" />
+					<select name="orderStatus" class="form-select form-select-sm"
+							onchange="this.form.submit()">
+						@if (order.OrderStatus == OrderStatus.Ordered)
+						{
+							<option value="@OrderStatus.Ordered" selected>Ordered</option>
+							<option value="@OrderStatus.Preparing">Preparing</option>
+						}
+						else if (order.OrderStatus == OrderStatus.Preparing)
+						{
+							<option value="@OrderStatus.Preparing" selected>Preparing</option>
+							<option value="@OrderStatus.Ready">Ready</option>
+						}
+						else if (order.OrderStatus == OrderStatus.Ready)
+						{
+							<option value="@OrderStatus.Ready" selected>Ready</option>
+							<option value="@OrderStatus.Served">Served</option>
+						}
+						else
+						{
+							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
+						}
+					</select>
+				</form>
+			</div>
+		</div>
+	}
+</div>
+
+
+@section Scripts {
+	<script>
+		const connection = new signalR.HubConnectionBuilder()
+			.withUrl("/restaurantHub?role=Bartender")
+			.build();
+
+		connection.on("NewDrinkOrder", function (drinkItem) {
+			const list = document.getElementById("bar-orders");
+			const li = document.createElement("li");
+			li.innerText = `${drinkItem.drinkName} for Table ${drinkItem.tableNumber}`;
+			list.appendChild(li);
+		});
+
+		connection.start().catch(err => console.error(err.toString()));
+	</script>
+}
+<ul id="bar-orders">
+</ul>

@@ -3,6 +3,7 @@ using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace ChapeauPOS.Controllers
@@ -36,6 +37,7 @@ namespace ChapeauPOS.Controllers
         [HttpPost]
         public IActionResult Login(LoginModel loginModel)
         {
+            
             Employee employee = _employeeRepository.GetEmployeeByIdAndPassword(loginModel);
             if(employee.EmployeeId == 0)
 			{

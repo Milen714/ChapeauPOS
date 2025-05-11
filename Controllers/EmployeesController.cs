@@ -1,6 +1,7 @@
 ﻿using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
+using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,17 +9,17 @@ namespace ChapeauPOS.Controllers
 {
     public class EmployeesController : BaseController
     {
-        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IEmployeesService _employeesService;
         private readonly PasswordHasher<string> _passwordHasher;
-        public EmployeesController(IEmployeeRepository employeesRepository)
+        public EmployeesController(IEmployeesService employeesService)
         {
-            _employeeRepository = employeesRepository;
+            _employeesService = employeesService;
             _passwordHasher = new PasswordHasher<string>();
         }
         public IActionResult Index()
         {
             // Retrieve all employees from the repository
-            List<Employee> employees = _employeeRepository.GetAllEmployees();
+            List<Employee> employees = _employeesService.GetAllEmployees();
 
             Employee? loggedInEmployee = new Employee();
             loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
@@ -41,9 +42,9 @@ namespace ChapeauPOS.Controllers
         {
             if (ModelState.IsValid)
             {
-                
 
-                _employeeRepository.AddEmployee(employee);
+
+                _employeesService.AddEmployee(employee);
                 // Save the new employee to the repository
                 //_employeeRepository.AddEmployee(employee);
                 return RedirectToAction("Index");
