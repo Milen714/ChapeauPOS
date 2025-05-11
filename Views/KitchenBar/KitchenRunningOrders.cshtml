@@ -1,0 +1,135 @@
+﻿@model List<Order>
+@{
+	ViewData["Title"] = "Kitchen - Running Orders";
+}
+
+<div style="margin:0;display:flex;justify-content:center;">
+    <a href="/KitchenBar/KitchenFinishedOrders" class="btn btn-primary">Finished</a>
+    <a href="/KitchenBar/KitchenRunningOrders" class="btn btn-primary">Running</a>
+</div>
+@* <h2>LED Control</h2>
+<button onclick="turnOn()">Turn ON</button>
+<button onclick="turnOff()">Turn OFF</button>
+<button onclick="update()">Update</button> *@
+
+<div class="orders-container d-flex flex-row flex-wrap">
+    @foreach (var order in Model)
+    {
+        <div class="order-card m-2 p-3" style="width: 300px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div class="order-header d-flex justify-content-between align-items-center mb-2">
+                <div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
+                <div class="text-end">
+                    <div class="fw-bold">@order.CreatedAt.ToString()</div>
+                    <small class="text-muted">@order.RunningTime ago</small>
+                </div>
+            </div>
+
+            <!-- Order Status -->
+            <div class="mb-2">
+                <select class="form-select form-select-sm">
+                    @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                    {
+                        <option value="@status" selected="@(order.OrderStatus == status)">@status</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Order Items -->
+            @foreach (var courseGroup in order.OrderItems.GroupBy(oi => oi.MenuCourse))
+            {
+                <div class="mb-3">
+                    <h6 class="border-bottom">@courseGroup.Key</h6>
+                    @foreach (var item in courseGroup)
+                    {
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+                                @if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+                                {
+                                    <small class="text-muted">@item.MenuItem.ItemDescription</small>
+
+                                    <br />
+                                }
+                                @if (!string.IsNullOrEmpty(item.Notes))
+                                {
+                                    <em class="text-muted small">@item.Notes</em>
+                                }
+                            </div>
+                            <div>
+                                <select class="form-select form-select-sm item-status-select" data-item-id="@item.OrderItemId">
+                                    @foreach (OrderItemStatus status in Enum.GetValues(typeof(OrderItemStatus)))
+                                    {
+                                        <option value="@status" selected="@(item.OrderItemStatus == status)">@status</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Footer Button -->
+            <div class="text-center">
+                <button class="btn btn-primary w-100">Start Preparing</button>
+            </div>
+        </div>
+    }
+</div>
+
+
+@* @section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.order-status-select').change(function() {
+                var orderId = $(this).closest('.order-card').data('order-id');
+                var status = $(this).val();
+                $.post('@Url.Action("UpdateOrderStatus", "KitchenBar")',
+                    { orderId: orderId, status: status });
+            });
+
+            $('.item-status-select').change(function() {
+                var itemId = $(this).data('item-id');
+                var status = $(this).val();
+                $.post('@Url.Action("UpdateItemStatus", "KitchenBar")',
+                    { orderItemId: itemId, status: status });
+            });
+
+            // Auto-refresh every 30 seconds
+            setInterval(function() {
+                location.reload();
+            }, 30000);
+        });
+    </script>
+} *@
+
+
+
+
+
+
+
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+
+          
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/restaurantHub")
+            .build();
+
+        connection.on("NewOrder", function (orderItem) {
+            const list = document.getElementById("kitchen-orders");
+            const li = document.createElement("li");
+            li.innerText = `${orderItem.menuItemName} for Table ${orderItem.tableNumber}`;
+            list.appendChild(li);
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+    </script>
+}
+<ul id="kitchen-orders">
+</ul>
