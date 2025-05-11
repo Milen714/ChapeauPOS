@@ -1,0 +1,61 @@
+﻿using ChapeauPOS.Models;
+using ChapeauPOS.Repositories.Interfaces;
+using ChapeauPOS.Services.Interfaces;
+
+namespace ChapeauPOS.Services
+{
+    public class KitchenBarService : IKitchenBarService
+    {
+        private readonly IKitchenBarRepository _kitchenBarRepository;
+
+        public KitchenBarService(IKitchenBarRepository kitchenBarRepository)
+        {
+            _kitchenBarRepository = kitchenBarRepository;
+        }
+
+        public List<Order> GetRunningKitchenOrders()
+        {
+            return _kitchenBarRepository.GetRunningKitchenOrders();
+        }
+
+        public List<Order> GetFinishedKitchenOrders()
+        {
+            return _kitchenBarRepository.GetFinishedKitchenOrders();
+        }
+
+        public List<Order> GetRunningBarOrders()
+        {
+            return _kitchenBarRepository.GetRunningBarOrders();
+        }
+
+        public List<Order> GetFinishedBarOrders()
+        {
+            return _kitchenBarRepository.GetFinishedBarOrders();
+        }
+
+        public void UpdateBarOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
+        {
+            _kitchenBarRepository.UpdateBarOrderItemStatus(orderItemId, orderItemStatus);
+        }
+
+        public void UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
+        {
+            _kitchenBarRepository.UpdateBarOrderStatus(orderId, orderStatus);
+        }
+
+        public void UpdateKitchenOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
+        {
+            _kitchenBarRepository.UpdateKitchenOrderItemStatus(orderItemId, orderItemStatus);
+        }
+
+        public void UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
+        {
+            _kitchenBarRepository.UpdateKitchenOrderStatus(orderId, orderStatus);
+        }
+
+        public void UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
+        {
+            _kitchenBarRepository.UpdateKitchenCourseStatus(orderId, menuCourse, courseStatus);
+        }
+    }
+}

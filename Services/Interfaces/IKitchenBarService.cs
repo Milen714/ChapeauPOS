@@ -1,8 +1,8 @@
 ﻿using ChapeauPOS.Models;
 
-namespace ChapeauPOS.Repositories.Interfaces
+namespace ChapeauPOS.Services.Interfaces
 {
-    public interface IKitchenBarRepository
+    public interface IKitchenBarService
     {
         List<Order> GetRunningKitchenOrders();
         void UpdateKitchenOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus);

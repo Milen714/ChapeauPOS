@@ -7,19 +7,21 @@
         public int Quantity { get; set; }
         public MenuCourse MenuCourse { get; set; }
         public OrderItemStatus OrderItemStatus { get; set; }
+        public CourseStatus CourseStatus { get; set; }
         public string Notes { get; set; }
 
         public OrderItem() 
         { 
         }
 
-        public OrderItem(int orderItemId, MenuItem menuItem, int quantity, MenuCourse menuCourse, OrderItemStatus orderItemStatus, string notes)
+        public OrderItem(int orderItemId, MenuItem menuItem, int quantity, MenuCourse menuCourse, OrderItemStatus orderItemStatus, CourseStatus courseStatus, string notes)
         {
             OrderItemId = orderItemId;
             MenuItem = menuItem;
             Quantity = quantity;
             MenuCourse = menuCourse;
             OrderItemStatus = orderItemStatus;
+            CourseStatus = courseStatus;
             Notes = notes;
         }
     }

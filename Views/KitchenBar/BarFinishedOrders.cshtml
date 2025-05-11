@@ -1,11 +1,11 @@
 ﻿@model List<Order>
 @{
-	ViewData["Title"] = "Kitchen - Finished Orders";
+	ViewData["Title"] = "Bar - Finished Orders";
 }
 
 <div style="margin:0;display:flex;justify-content:center;">
-    <a href="/KitchenBar/KitchenFinishedOrders" class="btn btn-primary">Finished</a>
-    <a href="/KitchenBar/KitchenRunningOrders" class="btn btn-primary">Running</a>
+	<a href="/KitchenBar/BarFinishedOrders" class="btn btn-primary">Finished</a>
+	<a href="/KitchenBar/BarRunningOrders" class="btn btn-primary">Running</a>
 </div>
 
 <div class="orders-container d-flex flex-row flex-wrap">
@@ -41,7 +41,7 @@
 									<em class="text-muted small">@item.Notes</em>
 								}
 							</div>
-							
+
 						</div>
 					}
 				</div>
