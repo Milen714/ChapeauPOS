@@ -1,6 +1,8 @@
 using ChapeauPOS.Hubs;
 using ChapeauPOS.Repositories;
 using ChapeauPOS.Repositories.Interfaces;
+using ChapeauPOS.Services;
+using ChapeauPOS.Services.Interfaces;
 
 namespace ChapeauPOS
 {
@@ -13,7 +15,15 @@ namespace ChapeauPOS
 			// Add services to the container.
 			builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
+			builder.Services.AddSingleton<IEmployeesService, EmployeesService>();
 			builder.Services.AddSingleton<ITableRepository, TableRepository>();
+			builder.Services.AddSingleton<ITablesService, TablesService>();
+            builder.Services.AddSingleton<IOrdersRepository, OrdersRepository>();
+            builder.Services.AddSingleton<IOrdersService, OrdersService>();
+            builder.Services.AddSingleton<IMenuRepository, MenuRepository>();
+            builder.Services.AddSingleton<IKitchenBarRepository, KitchenBarRepository>();
+            builder.Services.AddSingleton<IKitchenBarService, KitchenBarService>();
+
 
             builder.Services.AddSession(options =>
             {
