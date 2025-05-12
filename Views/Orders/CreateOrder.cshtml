@@ -1,5 +1,7 @@
-﻿@{  
-  ViewData["Title"] = "Create Order";  
+﻿@model ChapeauPOS.Models.Table
+@{  
+    ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
+    Layout = "~/Views/Shared/_OrderLayout.cshtml";
 }  
 <h1>@ViewData["Title"] - Table: @ViewBag.TableNumber</h1>  
 

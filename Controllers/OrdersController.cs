@@ -27,9 +27,8 @@ namespace ChapeauPOS.Controllers
         [HttpGet]
         public IActionResult CreateOrder(int id)
         {
-            
-            
-            return View();
+            Table table = _tablesService.GetTableByID(id);
+            return View(table);
         }
 
         public IActionResult GetMenuItems(string category)

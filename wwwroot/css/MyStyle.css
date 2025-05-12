@@ -122,13 +122,22 @@ a{
 /* NAV BARSS  
 
 */
+.nav_bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.nav_ul {
+    display: flex;
+    flex-direction: row;
+}
 .nav_item {
     display: flex;
 }
 li a {
     padding: .5rem 1rem;
     text-decoration: none;
-    color: white;
+    color: black;
 }
 
 /* 
@@ -207,3 +216,31 @@ li a {
     text-align: center;
     gap: 0px;
 }   
+/*
+    ORDER PAGE STYLES
+*/
+#partialViewContainer {
+    display: grid;
+    grid-template-areas: "courses items";
+    grid-template-columns: 150px auto;
+    border: 1px red solid;
+}
+
+#courseSidebar{
+    display: flex;
+    flex-direction: column;
+    grid-area: courses;
+}
+#menuItemsContainer{
+    grid-area: items;
+    padding-left: 10px; 
+}
+#courseSidebar button{
+    width: 125px;
+    height: 125px;
+    background-color: var(--Collection1-Greys-SideContainerGrey);
+    border-radius: 5px;
+    color: white;
+    font-family: var(--Collection1-Paragpraph_font);
+    font-weight: 500;
+}
