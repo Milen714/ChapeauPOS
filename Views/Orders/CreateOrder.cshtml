@@ -1,4 +1,44 @@
-﻿@{
-	ViewData["Title"] = "Create Order";
+﻿@{  
+  ViewData["Title"] = "Create Order";  
+}  
+<h1>@ViewData["Title"] - Table: @ViewBag.TableNumber</h1>  
+
+<header>  
+  <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
+      <option value="Lunch">Lunch</option>  
+      <option value="Dinner">Dinner</option>  
+        
+  </select>  
+</header>  
+
+<div id="partialViewContainer">  
+  <!-- Partial view will be loaded here -->  
+</div>  
+
+@section Scripts {  
+  <script>  
+      function loadPartialView() {  
+          const selectedValue = document.getElementById('mealType').value;  
+          const container = document.getElementById('partialViewContainer');  
+
+          fetch(`/Orders/GetMenuItems?category=${selectedValue}`)  
+              .then(response => {  
+                  if (!response.ok) {  
+                      throw new Error('Network response was not ok');  
+                  }  
+                  return response.text();  
+              })  
+              .then(html => {  
+                  container.innerHTML = html;
+                    filterCourse('starter')
+              })  
+              .catch(error => console.error('Error loading partial view:', error));  
+      }  
+          
+      function filterCourse(course) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.style.display = item.dataset.course === course ? 'block' : 'none';
+            });
+        }
+  </script>  
 }
-<h1>@ViewData["Title"]- Table: @ViewBag.TableNumber</h1>
