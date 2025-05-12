@@ -1,30 +1,56 @@
-﻿using ChapeauPOS.Models;
-using ChapeauPOS.Repositories;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
+using ChapeauPOS.Repositories.Interfaces;
+using ChapeauPOS.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ChapeauPOS.Controllers
 {
-    public class EmployeesController : Controller
+    public class EmployeesController : BaseController
     {
-        private readonly IEmployeeRepository _employeeRepository;
-        public EmployeesController(IEmployeeRepository employeesRepository)
+        private readonly IEmployeesService _employeesService;
+        private readonly PasswordHasher<string> _passwordHasher;
+        public EmployeesController(IEmployeesService employeesService)
         {
-            _employeeRepository = employeesRepository;
+            _employeesService = employeesService;
+            _passwordHasher = new PasswordHasher<string>();
         }
         public IActionResult Index()
         {
             // Retrieve all employees from the repository
-            List<Employee> employees = _employeeRepository.GetAllEmployees();
+            List<Employee> employees = _employeesService.GetAllEmployees();
 
-            string? employeeId = Request.Cookies["EmployeeID"];
-            string? role = Request.Cookies["Role"];
-            if (employeeId == null || role == null)
+            Employee? loggedInEmployee = new Employee();
+            loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+            
+            if (loggedInEmployee == null || loggedInEmployee.Role != Roles.Manager)
             {
+                TempData["ErrorMessage"] = "You do not have permission to access this page.";
                 return RedirectToAction("Login", "Home");
             }
-            ViewBag.LoggedInEmployee = employeeId;
-            ViewBag.Role = role;
+            ViewBag.LoggedInEmployee = loggedInEmployee;
             return View(employees);
         }
+        public IActionResult AddNewEmployee()
+        {
+            Employee employee = new Employee();
+            return View(employee);
+        }
+        [HttpPost]
+        public IActionResult AddNewEmployee(Employee employee)
+        {
+            if (ModelState.IsValid)
+            {
+
+
+                _employeesService.AddEmployee(employee);
+                // Save the new employee to the repository
+                //_employeeRepository.AddEmployee(employee);
+                return RedirectToAction("Index");
+            }
+            return View(employee);
+        }
+
     }
 }

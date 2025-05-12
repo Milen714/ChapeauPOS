@@ -1,33 +1,93 @@
 ﻿@model ChapeauPOS.Models.LoginModel
 @{
     ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
-<h1>@ViewData["Title"]</h1>
+<header>
+    
+        <div class="Logo_container">
+            <img class="Logo_Image" src="/assets/Logo.svg" alt="Alternate Text" />
+            <h2 class="Logo">ChapeauPOS</h2>
+        </div>
+    
+    <h1>@ViewData["Title"]</h1>
+    <nav class="LoginPage_nav">
+        <ul class="navbar-nav flex-grow-1">
+            <li class="nav-item">
+                <form action="/Home/SetTheme" method="post">
+                    <article class="input_group">
+                        <label for="Theme">Theme</label>
+                        <select onchange="this.form.submit()" id="Theme" name="theme" class="input_field">
+                            <option value="">Theme:</option>
+                            <option value="Dark">Dark</option>
+                            <option value="Light">Light</option>
+                        </select>
+                    </article>
+                </form>
+            </li>
+        </ul>
+    </nav>
+</header>
+
 
 @if(ViewBag.ErrorMessage != null)
 {
-    <div class="alert-danger"> @ViewBag.ErrorMessage</div>
+    <div class="alert alert-danger"> @ViewBag.ErrorMessage</div>
+}
+@{
+    if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger"> @TempData["ErrorMessage"]</div>
+    }
 }
 <div class="LoginPage_body">
-@foreach (Employee employee in  ViewBag.Employees)
-{
-    string employeeIcon = "";
-    if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Manager"))
+    @foreach (Employee employee in  ViewBag.Employees)
     {
-        employeeIcon = "ManagerIcon";
-    }
-    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Waiter"))
-    {
-        employeeIcon = "WaiterIcon";
-    }
-    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Bartender"))
-    {
-        employeeIcon = "BartenderIcon";
-    }
-    else if (employee.Role == (Roles)Enum.Parse(typeof(Roles), "Cook"))
-    {
-        employeeIcon = "CookIcon";
-    }
+        string employeeIcon = "";
+        switch (employee.Role)
+        {
+            case Roles.Manager:
+                if(employee.Gender == EmployeeGender.Male)
+                {
+                employeeIcon = "ManagerIcon";
+				}
+				else
+				{
+					employeeIcon = "ManagerIconF";
+				}
+                break;
+            case Roles.Waiter:
+                if (employee.Gender == EmployeeGender.Male)
+                {
+                    employeeIcon = "WaiterIcon";
+                }
+                else
+                {
+                    employeeIcon = "WaitressIcon";
+                }
+                break;
+            case Roles.Bartender:
+                if (employee.Gender == EmployeeGender.Male)
+                {
+                    employeeIcon = "BartenderIcon";
+                }
+                else
+                {
+                    employeeIcon = "BartenderIconF";
+                }
+                break;
+            case Roles.Cook:
+                if (employee.Gender == EmployeeGender.Male)
+                {
+                    employeeIcon = "CookIcon";
+                }
+                else
+                {
+                    employeeIcon = "CookIconF";
+                }
+                break;
+
+        }
     <div class="Login_card">
 		<div class="Login_card_body">
             <div class="@employeeIcon"></div>
