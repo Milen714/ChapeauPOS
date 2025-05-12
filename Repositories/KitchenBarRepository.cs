@@ -70,9 +70,9 @@ namespace ChapeauPOS.Repositories
             int orderId = (int)reader["OrderID"];
             int tableNumber = (int)reader["TableNumber"];
             int employeeID = (int)reader["EmployeeID"];
-            OrderStatus orderStatus = (OrderStatus)Enum.Parse(typeof(OrderStatus), reader["OrderStatus"].ToString());
+            OrderStatus orderStatus = reader["OrderStatus"] == DBNull.Value ? OrderStatus.Ordered : (OrderStatus)Enum.Parse(typeof(OrderStatus), reader["OrderStatus"].ToString());
             DateTime createdAt = (DateTime)reader["CreatedAt"];
-            DateTime closedAt = (DateTime)reader["ClosedAt"];
+            DateTime? closedAt = reader["ClosedAt"] == DBNull.Value ? null : (DateTime?)reader["ClosedAt"];
            
             Table table = new Table { TableNumber = tableNumber };
             Employee employee = new Employee { EmployeeId = employeeID };
@@ -86,8 +86,8 @@ namespace ChapeauPOS.Repositories
             int menuItemID = (int)reader["MenuItemID"];
             int quantity = (int)reader["Quantity"];
             MenuCourse menuCourse = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader["MenuCourse"].ToString());
-            OrderItemStatus orderItemStatus = (OrderItemStatus)Enum.Parse(typeof(OrderItemStatus), reader["OrderItemStatus"].ToString());
-            CourseStatus courseStatus = (CourseStatus)Enum.Parse(typeof(CourseStatus), reader["CourseStatus"].ToString());
+            OrderItemStatus orderItemStatus = reader["OrderItemStatus"] == DBNull.Value ? OrderItemStatus.Ordered : (OrderItemStatus)Enum.Parse(typeof(OrderItemStatus), reader["OrderItemStatus"].ToString());
+            CourseStatus courseStatus = reader["CourseStatus"] == DBNull.Value ? CourseStatus.Ordered : (CourseStatus)Enum.Parse(typeof(CourseStatus), reader["CourseStatus"].ToString());
             string notes = reader["Notes"] == DBNull.Value ? "" : (string)reader["Notes"];
             string itemName = (string)reader["ItemName"];
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
