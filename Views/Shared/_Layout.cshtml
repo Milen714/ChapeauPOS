@@ -135,6 +135,7 @@
                                         
                                         break;
                                     case Roles.Bartender:
+
                                         <li class="nav_item">
                                             <a  asp-area="" asp-controller="Home" asp-action="Index">BarView</a>
                                         </li>
@@ -145,6 +146,15 @@
                                         </li>
                                         <li class="nav_item">
                                             <a  asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen View</a>
+
+                                        <li class="nav_item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">BarView</a>
+                                        </li>
+                                       
+                              
+                                        <li class="nav_item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">KitchenView</a>
+
                                         </li>
                                         break;
                                 }
