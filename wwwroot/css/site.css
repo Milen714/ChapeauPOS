@@ -21,8 +21,3 @@ body {
   margin-bottom: 60px;
 }
 
-.orders-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-}
