@@ -17,29 +17,6 @@
     --nav-font: "Alata", sans-serif;
     --headers-font: "Poppins", sans-serif;
     --paragraphs-font: "Nunito Sans", sans-serif;
-    --Collection1-BackGWhite: #F7F7F7;
-    --Collection1-Blues-PastelGreen: #80EF80;
-    --Collection1-Blues-StatusBlue: #6699CC;
-    --Collection1-DarkerBackGWhite: #EBEBEB;
-    --Collection1-Greens-GreenText: #00B27F;
-    --Collection1-Greens-PastelGreen: #80EF80;
-    --Collection1-Greens-PastelGreenn: #00B23B;
-    --Collection1-Greys-BarsLightGrey: #303136;
-    --Collection1-Greys-CategoryButtonsGrey: #FFFFFF;
-    --Collection1-Greys-DarkGrey: #18191C;
-    --Collection1-Greys-GreyText: #ABACB1;
-    --Collection1-Greys-LightGrey: #555252;
-    --Collection1-Greys-LightGreyLoginBackground: #3A3E4B;
-    --Collection1-Greys-OtherTextGrey: #4B4545;
-    --Collection1-Greys-SideContainerGrey: #232429;
-    --Collection1-LsDarkPurple: #401A8F;
-    --Collection1-PastelOrange: #FF9F40;
-    --Collection1-PurplePastel: #8716D9;
-    --Collection1-Reds-PastelRed: #FF645C;
-    --Collection1-Reds-Red: #CC0023;
-    --Collection1-Reds-RedMenuText: #781F1F;
-    --Collection1-TextBlue: #0A60DA;
-    --Collection1-Paragpraph_font: "Rubik", sans-serif;
 }
 
 /*  *PopUp Styles
@@ -103,41 +80,6 @@ a{
     display: flex;
     justify-content: center;
     align-items:center;
-    gap: 5px;
-}
-.Logo{
-    width: 51px;
-    height: 52px;
-    background-image: url(/assets/MainLogoBlack.svg);
-}
-.LogoText {
-    font-family: var(--Collection1-Paragpraph_font);
-    text-decoration: none;
-    font-family: var(--Collection1-Paragpraph_font);
-    font-size: 32px;
-    font-weight: 700;
-    color:black;
-
-}
-/* NAV BARSS  
-
-*/
-.nav_bar {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-.nav_ul {
-    display: flex;
-    flex-direction: row;
-}
-.nav_item {
-    display: flex;
-}
-li a {
-    padding: .5rem 1rem;
-    text-decoration: none;
-    color: black;
 }
 
 /* 
@@ -216,31 +158,3 @@ li a {
     text-align: center;
     gap: 0px;
 }   
-/*
-    ORDER PAGE STYLES
-*/
-#partialViewContainer {
-    display: grid;
-    grid-template-areas: "courses items";
-    grid-template-columns: 150px auto;
-    border: 1px red solid;
-}
-
-#courseSidebar{
-    display: flex;
-    flex-direction: column;
-    grid-area: courses;
-}
-#menuItemsContainer{
-    grid-area: items;
-    padding-left: 10px; 
-}
-#courseSidebar button{
-    width: 125px;
-    height: 125px;
-    background-color: var(--Collection1-Greys-SideContainerGrey);
-    border-radius: 5px;
-    color: white;
-    font-family: var(--Collection1-Paragpraph_font);
-    font-weight: 500;
-}

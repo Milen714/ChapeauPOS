@@ -7,7 +7,6 @@
     --inputFieldColor-lightGrey: #383838;
     --highlightcolor-washedGreen: #A9EBCE;
     --highlightcolor-lightYellow: #D3D641;
-    --highlightcolor-dangerRED: #F32013;
     --highlightcolor-lightRed: #FF6961;
     --highlightcolor-lightGrey: #454545;
     --highlightcolor-lightGreen: #B9FF3B;
@@ -17,63 +16,11 @@
     --nav-font: "Alata", sans-serif;
     --headers-font: "Poppins", sans-serif;
     --paragraphs-font: "Nunito Sans", sans-serif;
-    --Collection1-BackGWhite: #F7F7F7;
-    --Collection1-Blues-PastelGreen: #80EF80;
-    --Collection1-Blues-StatusBlue: #6699CC;
-    --Collection1-DarkerBackGWhite: #EBEBEB;
-    --Collection1-Greens-GreenText: #00B27F;
-    --Collection1-Greens-PastelGreen: #80EF80;
-    --Collection1-Greens-PastelGreenn: #00B23B;
-    --Collection1-Greys-BarsLightGrey: #303136;
-    --Collection1-Greys-CategoryButtonsGrey: #FFFFFF;
-    --Collection1-Greys-DarkGrey: #18191C;
-    --Collection1-Greys-GreyText: #ABACB1;
-    --Collection1-Greys-LightGrey: #555252;
-    --Collection1-Greys-LightGreyLoginBackground: #3A3E4B;
-    --Collection1-Greys-OtherTextGrey: #4B4545;
-    --Collection1-Greys-SideContainerGrey: #232429;
-    --Collection1-LsDarkPurple: #401A8F;
-    --Collection1-PastelOrange: #FF9F40;
-    --Collection1-PurplePastel: #8716D9;
-    --Collection1-Reds-PastelRed: #FF645C;
-    --Collection1-Reds-Red: #CC0023;
-    --Collection1-Reds-RedMenuText: #781F1F;
-    --Collection1-TextBlue: #0A60DA;
-    --Collection1-Paragpraph_font: "Rubik", sans-serif;
 }
 .table{
     color: white;
 }
 body {
-    background-color: var(--Collection1-Greys-DarkGrey);
-    color: white;
-}
-/*
-    NAV BAR
-*/
-
-li a {
-    padding: .5rem 1rem;
-    text-decoration: none;
-    color: white;
-}
-.nav_bar{
-    background-color: var(--Collection1-Greys-DarkGrey);
-}
-/* LOGO  
-
-*/
-
-
-.Logo {
-    background-image: url(/assets/MainLogoWhite.svg);
-}
-
-.LogoText {
-    font-family: var(--Collection1-Paragpraph_font);
-    text-decoration: none;
-    font-family: var(--Collection1-Paragpraph_font);
-    font-size: 32px;
-    font-weight: 700;
+    background-color: var(--mainColor-darkGrey);
     color: white;
 }

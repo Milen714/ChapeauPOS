@@ -3,7 +3,6 @@
     public enum MenuCourse
     {
         Starter,
-        Entree,
         Main,
         Dessert,
         Drink

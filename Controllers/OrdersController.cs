@@ -1,5 +1,4 @@
 ﻿using ChapeauPOS.Models;
-using ChapeauPOS.Models.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +11,13 @@ namespace ChapeauPOS.Controllers
         private readonly IEmployeesService _employeesService;
         private readonly ITablesService _tablesService;
         private readonly IOrdersService _ordersService;
-        private readonly IMenuService _menuService;
-        public OrdersController(IEmployeesService employeesService, ITablesService tablesService, IOrdersService ordersService, IMenuService menuService)
+        private readonly IMenuRepository _menuRepository;
+        public OrdersController(IEmployeesService employeesService, ITablesService tablesService, IOrdersService ordersService, IMenuRepository menuRepository)
         {
             _employeesService = employeesService;
             _tablesService = tablesService;
             _ordersService = ordersService;
-            _menuService = menuService;
+            _menuRepository = menuRepository;
         }
         public IActionResult Index()
         {
@@ -27,35 +26,10 @@ namespace ChapeauPOS.Controllers
         [HttpGet]
         public IActionResult CreateOrder(int id)
         {
-            Table table = _tablesService.GetTableByID(id);
-            return View(table);
-        }
-
-        public IActionResult GetMenuItems(string category)
-        {
-            while (category != null)
-            {
-                if (category == "Lunch")
-                {
-                    MenuViewModel lunchMenu = new MenuViewModel(category, _menuService.GetLunch(), _menuService.GetDrinks());
-                    return PartialView("_MenuPartial", lunchMenu);
-                }
-                else if (category == "Dinner")
-                {
-                    MenuViewModel dinnerMenu = new MenuViewModel(category, _menuService.GetDinner(), _menuService.GetDrinks());
-                    return PartialView("_MenuPartial", dinnerMenu);
-                }
-                else if (category == "Drinks")
-                {
-                    MenuViewModel dinnerMenu = new MenuViewModel(category, _menuService.GetDinner(), _menuService.GetDrinks());
-                    return PartialView("_MenuPartial", dinnerMenu);
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            return NotFound();
+            var menuCategories = _menuRepository.GetMenuItemsByCategory(new MenuCategory {CategoryID = 1, CategoryName = "Lunch" });
+            ViewBag.TableNumber = id;
+            List<MenuItem> menuItems = _menuRepository.GetAllMenuItems();
+            return View();
         }
     }
 }

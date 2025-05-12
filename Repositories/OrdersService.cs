@@ -1,15 +1,14 @@
 ﻿using ChapeauPOS.Models;
-using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 
-namespace ChapeauPOS.Services
+namespace ChapeauPOS.Repositories
 {
     public class OrdersService : IOrdersService
     {
-        private readonly IMenuRepository _menuRepository;
-        public OrdersService(IMenuRepository menuRepository)
+        private readonly string? _connectionString;
+        public OrdersService(IConfiguration configuration)
         {
-            _menuRepository = menuRepository;
+            _connectionString = configuration.GetConnectionString("ChapeauDB");
         }
         // Implement the methods from IOrdersService here
         public List<Order> GetAllOrders()
