@@ -93,10 +93,10 @@ namespace ChapeauPOS.Repositories
                     string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MC.CategoryID, MC.CategoryName, MI.Course " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
-                                   "WHERE MC.CategoryName = @CategoryName ";
+                                   "WHERE MI.CategoryID = @CategoryID ";
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CategoryName", category.CategoryName);
+                    command.Parameters.AddWithValue("@CategoryID", category.CategoryID);
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -126,6 +126,47 @@ namespace ChapeauPOS.Repositories
         public List<MenuItem> GetMenuItemsByName(string name)
         {
             throw new NotImplementedException();
+        }
+        private MenuCategory ReadMenuCategory(SqlDataReader reader)
+        {
+            int CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID"));
+            string CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"));
+            MenuCategory category = new MenuCategory(CategoryID, CategoryName);
+            return category;
+        }
+        public List<MenuCategory> GetMenuCategories()
+        {
+            List<MenuCategory> menuCategories = new List<MenuCategory>();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT CategoryID, CategoryName FROM MenuCategories";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            MenuCategory menuCategory = ReadMenuCategory(reader);
+                            menuCategories.Add(menuCategory);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return menuCategories;
+
+
+
+
         }
     }
 }

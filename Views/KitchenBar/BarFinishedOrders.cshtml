@@ -1,4 +1,4 @@
-﻿@model List<Order>
+﻿@model List<ChapeauPOS.Models.Order>
 @{
 	ViewData["Title"] = "Bar - Finished Orders";
 }
@@ -9,7 +9,7 @@
 </div>
 
 <div class="orders-container d-flex flex-row flex-wrap">
-	@foreach (var order in Model)
+	@foreach (Order order in Model)
 	{
 		<div class="order-card m-2 p-3" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
 			<!-- Header -->
@@ -17,7 +17,7 @@
 				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
 				<div class="text-end">
 					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
-					<small class="text-muted">@order.ClosedAt.ToString("hh:mm")</small>
+					<small class="text-muted">@order.ClosedAt?.ToString("hh:mm")</small>
 				</div>
 			</div>
 
@@ -26,7 +26,7 @@
 			{
 				<div class="mb-3">
 					<h6 class="border-bottom">@courseGroup.Key</h6>
-					@foreach (var item in courseGroup)
+					@foreach (OrderItem item in courseGroup)
 					{
 						<div class="d-flex justify-content-between align-items-start mb-2">
 							<div>

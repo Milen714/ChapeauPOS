@@ -1,0 +1,45 @@
+﻿@model ChapeauPOS.Models.ViewModels.MenuViewModel
+
+
+<div id="courseSidebar">
+    <button onclick="filterCourse('starter')">Starter</button>
+    <button onclick="filterCourse('main')">Main</button>
+    <button onclick="filterCourse('dessert')">Dessert</button>
+    <button onclick="filterCourse('drink')">Drinks</button>
+</div>
+
+<div id="menuItemsContainer">
+    @foreach (var item in Model.Starters)
+    {
+        <div class="menu-item square" data-course="starter">
+            <h3>@item.ItemName</h3>
+            <p>@item.ItemDescription</p>
+            <p>@item.ItemPrice.ToString("C")</p>
+        </div>
+    }
+    @foreach (var item in Model.MainCourses)
+    {
+        <div class="menu-item square" data-course="main">
+            <h3>@item.ItemName</h3>
+            <p>@item.ItemDescription</p>
+            <p>@item.ItemPrice.ToString("C")</p>
+        </div>
+    }
+    @foreach (var item in Model.Desserts)
+    {
+        <div class="menu-item square" data-course="dessert">
+            <h3>@item.ItemName</h3>
+            <p>@item.ItemDescription</p>
+            <p>@item.ItemPrice.ToString("C")</p>
+        </div>
+    }
+    @foreach (var item in Model.Drinks)
+    {
+        <div class="menu-item square" data-course="drink">
+            <h3>@item.ItemName</h3>
+            <p>@item.ItemDescription</p>
+            <p>@item.ItemPrice.ToString("C")</p>
+        </div>
+    }
+</div>
+
