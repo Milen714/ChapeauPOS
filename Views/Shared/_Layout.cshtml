@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="~/css/MyStyle.css" />
     <link rel="stylesheet" href="~/ChapeauPOS.styles.css" asp-append-version="true" />
     @{
-        string theme = Context.Request.Cookies["PreferedTheme"];
+        string? theme = Context.Request.Cookies["PreferedTheme"];
         if (theme == "Dark")
         {
             <link rel="stylesheet" href="~/css/DarkTheme.css" />
