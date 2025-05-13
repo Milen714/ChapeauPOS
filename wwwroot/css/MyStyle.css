@@ -233,7 +233,12 @@ li a {
 }
 #menuItemsContainer{
     grid-area: items;
-    padding-left: 10px; 
+    padding-left: 10px;
+    width:637px;
+    height:637px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap:wrap;
 }
 #courseSidebar button{
     width: 125px;
@@ -243,4 +248,11 @@ li a {
     color: white;
     font-family: var(--Collection1-Paragpraph_font);
     font-weight: 500;
+}
+.square{
+    border: 1px blue solid;
+    height: 125px;
+    width:125px;
+    border-radius: 7px;
+    margin: 5px;
 }

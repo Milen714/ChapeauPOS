@@ -13,14 +13,12 @@
 <div class="orders-container d-flex flex-row flex-wrap">
 	@foreach (Order order in Model)
 	{
-		<div class="order-card m-2 p-3" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+		<div class="order-card m-2" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
 			<!-- Header -->
-			<div class="order-header d-flex justify-content-between align-items-center mb-2">
-				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
-				<div class="text-end">
-					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
-					<small class="text-muted" data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</small>
-				</div>
+			<div class="order-header d-flex justify-content-between align-items-center" style="background-color:#0A60DA;padding:0 15px 15px 15px;border-radius:8px 8px 0 0;color:white">
+				<div style="color:black;background-color:#FF9F40;padding:5px;border-radius:3px 3px 0 0;">Table @order.Table.TableNumber</div>
+				<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
+				<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</div>
 			</div>
 
 			<!-- Order Items -->
@@ -29,38 +27,39 @@
 				// Get the most advanced status in this course group
 				var courseStatus = course.Max(oi => oi.CourseStatus);
 				<div class="mb-3">
-					<h6 class="border-bottom">@course.Key</h6>
-					<div>
-						<form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
-							<input type="hidden" name="orderId" value="@order.OrderID" />
-							<input type="hidden" name="menuCourse" value="@course.Key" />
-							<select name="courseStatus" class="form-select form-select-sm"
-									onchange="this.form.submit()">
-								@if (courseStatus == CourseStatus.Ordered)
-								{
-									<option value="@CourseStatus.Ordered" selected>Ordered</option>
-									<option value="@CourseStatus.Preparing">Preparing</option>
-								}
-								else if (courseStatus == CourseStatus.Preparing)
-								{
-									<option value="@CourseStatus.Preparing" selected>Preparing</option>
-									<option value="@CourseStatus.Ready">Ready</option>
-								}
-								else if (courseStatus == CourseStatus.Ready)
-								{
-									<option value="@CourseStatus.Ready" selected>Ready</option>
-									<option value="@CourseStatus.Served">Served</option>
-								}
-								else
-								{
-									<option value="@courseStatus" selected>@courseStatus</option>
-								}
-							</select>
-						</form>
+					<div style="background-color:#d5d5d5;display:flex;justify-content:space-between;align-items:center;padding:6px 15px;">
+						<h6>@course.Key</h6>
+						<div>
+							<form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
+								<input type="hidden" name="orderId" value="@order.OrderID" />
+								<input type="hidden" name="menuCourse" value="@course.Key" />
+								<select name="courseStatus" class="form-select form-select-sm" onchange="this.form.submit()" style="width:150px;">
+									@if (courseStatus == CourseStatus.Ordered)
+									{
+										<option value="@CourseStatus.Ordered" selected" style="background-color:#6699CC;">Ordered</option>
+										<option value="@CourseStatus.Preparing" style="background-color:#5A6AF0;">Preparing</option>
+									}
+									else if (courseStatus == CourseStatus.Preparing)
+									{
+										<option value="@CourseStatus.Preparing" selected>Preparing</option>
+										<option value="@CourseStatus.Ready" style="background-color:#00B27F;">Ready</option>
+									}
+									else if (courseStatus == CourseStatus.Ready)
+									{
+										<option value="@CourseStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
+										<option value="@CourseStatus.Served">Served</option>
+									}
+									else
+									{
+										<option value="@courseStatus" selected>@courseStatus</option>
+									}
+								</select>
+							</form>
+						</div>
 					</div>
 					@foreach (OrderItem item in course)
 					{
-						<div class="d-flex justify-content-between align-items-start mb-2">
+						<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
 							<div>
 								<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
 								@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
@@ -86,11 +85,11 @@
 										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
 										{
 											<option value="@OrderItemStatus.Preparing" selected>Preparing</option>
-											<option value="@OrderItemStatus.Ready">Ready</option>
+											<option value="@OrderItemStatus.Ready" style="background-color:#00B27F;">Ready</option>
 										}
 										else if (item.OrderItemStatus == OrderItemStatus.Ready)
 										{
-											<option value="@OrderItemStatus.Ready" selected>Ready</option>
+											<option value="@OrderItemStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
 											<option value="@OrderItemStatus.Served">Served</option>
 										}
 										else
@@ -106,10 +105,10 @@
 			}
 
 			<!-- Order Status -->
-			<div class="mb-2">
+			<div class="mb-4" style="padding:0 15px;">
 				<form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
 					<input type="hidden" name="orderId" value="@order.OrderID" />
-					<select name="orderStatus" class="form-select form-select-sm"
+					<select name="orderStatus" class="form-select"
 							onchange="this.form.submit()">
 						@if (order.OrderStatus == OrderStatus.Ordered)
 						{
@@ -119,11 +118,11 @@
 						else if (order.OrderStatus == OrderStatus.Preparing)
 						{
 							<option value="@OrderStatus.Preparing" selected>Preparing</option>
-							<option value="@OrderStatus.Ready">Ready</option>
+							<option value="@OrderStatus.Ready" style="background-color:#00B27F;">Ready</option>
 						}
 						else if (order.OrderStatus == OrderStatus.Ready)
 						{
-							<option value="@OrderStatus.Ready" selected>Ready</option>
+							<option value="@OrderStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
 							<option value="@OrderStatus.Served">Served</option>
 						}
 						else

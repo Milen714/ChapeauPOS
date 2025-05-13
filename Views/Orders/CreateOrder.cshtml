@@ -3,8 +3,9 @@
     ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
     Layout = "~/Views/Shared/_OrderLayout.cshtml";
 }  
-<h1>@ViewData["Title"] - Table: @ViewBag.TableNumber</h1>  
-
+<h1>@ViewData["Title"]</h1>  
+<input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
+<input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
 <header>  
   <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
       <option value="Lunch">Lunch</option>  
@@ -16,6 +17,18 @@
 <div id="partialViewContainer">  
   <!-- Partial view will be loaded here -->  
 </div>  
+
+<div class="order_container">  
+  <div class="order_items">  
+	  <h2>Order Items</h2>  
+	  <ul id="orderList">  
+		  <!-- Order items will be dynamically added here -->  
+	  </ul>  
+  </div>  
+  <div class="order_summary">  
+	  <h2>Order Summary</h2>  
+	  <p>Total: <span id="totalPrice">0.00</span></p>  
+  </div>
 
 @section Scripts {  
   <script>  
@@ -32,7 +45,8 @@
               })  
               .then(html => {  
                   container.innerHTML = html;
-                    filterCourse('starter')
+                    filterCourse('starter');
+                        attachMenuItemClickHandlers();
               })  
               .catch(error => console.error('Error loading partial view:', error));  
       }  
@@ -42,5 +56,29 @@
                 item.style.display = item.dataset.course === course ? 'block' : 'none';
             });
         }
+
+
+
+            $(document).on('click', '.clickable-item', function () {
+                const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
+                var tableId = document.getElementById('tableId').value;
+                var employeeId = document.getElementById('employeeId').value;
+                $.ajax({
+                    url: '/Orders/AddItemToOrder',
+                    type: 'POST',
+                    data: {
+                        itemId: parseInt(itemId),
+                        tableId: parseInt(tableId),
+                        employeeId: parseInt(employeeId)
+                    },
+                    success: function (html) {
+                        $('#orderList').html(html); // inject updated partial
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+            });
+
   </script>  
 }
