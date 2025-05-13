@@ -1,8 +1,8 @@
 ﻿using ChapeauPOS.Models;
 
-namespace ChapeauPOS.Repositories.Interfaces
+namespace ChapeauPOS.Services.Interfaces
 {
-    public interface IMenuRepository
+    public interface IMenuService
     {
         List<MenuItem> GetAllMenuItems();
         MenuItem GetMenuItemById(int id);
@@ -13,7 +13,8 @@ namespace ChapeauPOS.Repositories.Interfaces
         List<MenuItem> GetMenuItemsByCategory(MenuCategory category);
         List<MenuItem> GetMenuItemsByCourse(MenuCourse course);
         List<MenuItem> GetMenuItemsByName(string name);
-
-
+        List<MenuItem> GetLunch();
+        List<MenuItem> GetDinner();
+        List<MenuItem> GetDrinks();
     }
 }

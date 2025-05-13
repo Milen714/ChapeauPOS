@@ -16,8 +16,8 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult KitchenRunningOrders()
         {
+            ViewBag.MenuCourses = Enum.GetValues(typeof(MenuCourse)).Cast<MenuCourse>();
             List<Order> orders = _kitchenBarService.GetRunningKitchenOrders();
-
             return View(orders);
         }
 

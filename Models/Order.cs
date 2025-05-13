@@ -14,7 +14,7 @@
                 return DateTime.Now - CreatedAt; 
             } 
         }
-        public DateTime ClosedAt { get; set; }
+        public DateTime? ClosedAt { get; set; }
         public List<OrderItem> OrderItems { get; set; }
 
         public Order()
@@ -22,7 +22,7 @@
             
         }
 
-        public Order(int orderID, Table table, Employee employee, OrderStatus orderStatus, DateTime createdAt, DateTime closedAt)
+        public Order(int orderID, Table table, Employee employee, OrderStatus orderStatus, DateTime createdAt, DateTime? closedAt)
         {
             OrderID = orderID;
             Table = table;

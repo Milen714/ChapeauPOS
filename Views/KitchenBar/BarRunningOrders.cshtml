@@ -1,4 +1,4 @@
-﻿@model List<Order>
+﻿@model List<ChapeauPOS.Models.Order>
 @{
 	ViewData["Title"] = "Bar - Running Orders";
 }
@@ -11,7 +11,7 @@
 	<button type="submit">Refresh to get new orders</button>
 </form>
 <div class="orders-container d-flex flex-row flex-wrap">
-	@foreach (var order in Model)
+	@foreach (Order order in Model)
 	{
 		<div class="order-card m-2 p-3" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
 			<!-- Header -->
@@ -19,7 +19,7 @@
 				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
 				<div class="text-end">
 					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
-					<small class="text-muted">@order.RunningTime.ToString(@"hh\:mm")</small>
+					<small class="text-muted" data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</small>
 				</div>
 			</div>
 
@@ -28,7 +28,7 @@
 			{
 				<div class="mb-3">
 					<h6 class="border-bottom">@courseGroup.Key</h6>
-					@foreach (var item in courseGroup)
+					@foreach (OrderItem item in courseGroup)
 					{
 						<div class="d-flex justify-content-between align-items-start mb-2">
 							<div>
@@ -120,8 +120,16 @@
 			li.innerText = `${drinkItem.drinkName} for Table ${drinkItem.tableNumber}`;
 			list.appendChild(li);
 		});
-
 		connection.start().catch(err => console.error(err.toString()));
+
+
+		setInterval(() => {
+			document.querySelectorAll('[data-order-id]').forEach(el => {
+				fetch(`/KitchenBar/GetRunningTime?orderId=${el.dataset.orderId}`)
+					.then(response => response.text())
+					.then(time => el.textContent = time);
+			});
+		}, 1000);
 	</script>
 }
 <ul id="bar-orders">

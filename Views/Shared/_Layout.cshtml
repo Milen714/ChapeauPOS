@@ -5,6 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ChapeauPOS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alata&family=Lobster&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/MyStyle.css" />
@@ -23,73 +26,13 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ChapeauPOS</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                       @*  <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        <nav class="nav_bar">
+                <div class="nav_ul_container">
+                    <ul class="nav_ul">
+                        <li class="nav_item">
+                            <a class="" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>
-                        </li> *@
-                        @{
-                            Employee loggedInEmployee = ViewBag.LoggedInEmployee;
-                            if (ViewBag.LoggedInEmployee != null)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
-                                </li>
-
-                                switch (loggedInEmployee.Role)
-                                {
-                                    case Roles.Manager:
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Employees" asp-action="Index">StockManagement</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Tables" asp-action="Index">Restaurant Overview</a>
-                                        </li>
-                                        break;
-                                    case Roles.Waiter:
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Restaurant Overview</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Tables" asp-action="Index">Restaurant Overview</a>
-                                        </li>
-                                        break;
-                                    case Roles.Bartender:
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">BarView</a>
-                                        </li>
-                                        break;
-                                    case Roles.Cook:
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="KitchenBar" asp-action="Kitchen">KitchenView</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link text-dark" asp-area="" asp-controller="KitchenBar" asp-action="Bar">Bar View</a>
-                                        </li>
-                                        break;
-                                }
-                            }
-                        }
-                        <li class="nav-item">
+                        <li class="nav_item">
                             <form action="/Home/SetTheme" method="post">
                                 <article class="input_group">
                                     <label for="Theme">Theme</label>
@@ -103,7 +46,36 @@
                         </li>
                     </ul>
                 </div>
-            </div>
+                <div class="Logo_container">
+                    <div class="Logo"></div>
+                    <a class="LogoText" asp-area="" asp-controller="Home" asp-action="Index">ChapeauPOS</a>
+                </div>
+            <div class="nav_status_Right">
+            @*  @{
+                while (ViewData["Title"] != null)
+                {
+                    if (ViewData["Title"].ToString().Contains("Table:"))
+                    {
+                            <div>
+                                 <button>Send</button>
+                                 <button>Check</button>
+                                 <button>SettlePayment</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>@ViewData["Title"]</p>
+                        }
+                    }
+
+               }
+                 *@
+                   
+             </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
         </nav>
     </header>
     <div class="container">
@@ -112,11 +84,87 @@
         </main>
     </div>
 
-    @* <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ChapeauPOS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
+     <footer>
+        <nav class="nav_bar">
+                <div class="nav_ul_container">
+                    <ul class="nav_ul">
+                        
+                        @{
+                            Employee loggedInEmployee = ViewBag.LoggedInEmployee;
+                            if (ViewBag.LoggedInEmployee != null)
+                            {
+                                switch (loggedInEmployee.Role)
+                                {
+                                    case Roles.Manager:
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">Clients</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">Menu</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">@ViewBag.LoggedInEmployee.FirstName @ViewBag.LoggedInEmployee.LastName</a>
+                                        </li>
+                                        
+                                        break;
+                                    case Roles.Waiter:
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">Clients</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">Menu</a>
+                                        </li>
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">@ViewBag.LoggedInEmployee.FirstName @ViewBag.LoggedInEmployee.LastName</a>
+                                        </li>
+                                        
+                                        break;
+                                    case Roles.Bartender:
+
+                                        <li class="nav_item">
+                                            <a  asp-area="" asp-controller="Home" asp-action="Index">BarView</a>
+                                        </li>
+                                        break;
+                                    case Roles.Cook:
+                                        <li class="nav_itemm">
+                                            <a  asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
+                                        </li>
+                                        <li class="nav_item">
+                                                                <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen View</a>
+                                                            </li>
+                                        <li class="nav_item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">BarView</a>
+                                        </li>
+                                       
+                              
+                                        <li class="nav_item">
+                                            <a class="nav-link text-dark" asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">KitchenView</a>
+
+                                        </li>
+                                        break;
+                                }
+                            }
+                        }
+                       
+                    </ul>
+                </div>
+        </nav>
+    </footer> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
