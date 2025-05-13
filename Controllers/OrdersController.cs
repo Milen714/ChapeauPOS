@@ -1,4 +1,5 @@
-﻿using ChapeauPOS.Models;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
@@ -20,6 +21,8 @@ namespace ChapeauPOS.Controllers
             _ordersService = ordersService;
             _menuService = menuService;
         }
+
+        private List<MenuItem> TemuOrder = new List<MenuItem>();
         public IActionResult Index()
         {
             return View();
@@ -57,5 +60,17 @@ namespace ChapeauPOS.Controllers
             }
             return NotFound();
         }
+        [HttpPost]
+       
+        public IActionResult AddItemToOrder(int itemId, int tableId)
+        {
+            ViewBag.ItemId = tableId;
+            MenuItem menuItem = _menuService.GetMenuItemById(itemId);
+            TemuOrder.Add(menuItem);
+
+
+            return PartialView("_OrderListPartial", TemuOrder);
+        }
+
     }
 }

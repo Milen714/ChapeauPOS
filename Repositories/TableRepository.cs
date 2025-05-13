@@ -30,7 +30,7 @@ namespace ChapeauPOS.Repositories
                 {
                     string query = "SELECT TableID, TableNumber, NumberOfSeats, TableStatus " +
                                    " FROM [Tables] " +
-                                   " WHERE TableID = @TableID; ";
+                                   " WHERE TableNumber = @TableID; ";
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@TableID", id);
                     connection.Open();

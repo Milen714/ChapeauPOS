@@ -11,35 +11,44 @@
 <div id="menuItemsContainer">
     @foreach (var item in Model.Starters)
     {
-        <div class="menu-item square" data-course="starter">
-            <h3>@item.ItemName</h3>
-            <p>@item.ItemDescription</p>
-            <p>@item.ItemPrice.ToString("C")</p>
-        </div>
+       
+            <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="starter">
+                    <h4>@item.ItemName</h4>
+                    <p>@item.ItemPrice.ToString("C")</p>
+                </div>
+            </form>
     }
     @foreach (var item in Model.MainCourses)
     {
-        <div class="menu-item square" data-course="main">
-            <h3>@item.ItemName</h3>
-            <p>@item.ItemDescription</p>
-            <p>@item.ItemPrice.ToString("C")</p>
-        </div>
+        <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="main">
+                <h4>@item.ItemName</h4>
+                <p>@item.ItemPrice.ToString("C")</p>
+            </div>
+        </form>
     }
     @foreach (var item in Model.Desserts)
     {
-        <div class="menu-item square" data-course="dessert">
-            <h3>@item.ItemName</h3>
-            <p>@item.ItemDescription</p>
-            <p>@item.ItemPrice.ToString("C")</p>
-        </div>
+        <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="dessert">
+                <h4>@item.ItemName</h4>
+                <p>@item.ItemPrice.ToString("C")</p>
+            </div>
+        </form>
     }
     @foreach (var item in Model.Drinks)
     {
-        <div class="menu-item square" data-course="drink">
-            <h3>@item.ItemName</h3>
-            <p>@item.ItemDescription</p>
-            <p>@item.ItemPrice.ToString("C")</p>
-        </div>
+        <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="drink">
+                <h4>@item.ItemName</h4>
+                <p>@item.ItemPrice.ToString("C")</p>
+            </div>
+        </form>
     }
 </div>
 

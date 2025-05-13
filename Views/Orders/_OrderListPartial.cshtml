@@ -1,0 +1,7 @@
+﻿@model List<ChapeauPOS.Models.MenuItem>
+
+@foreach (var item in Model)
+{
+    <li>@item.ItemName - @item.ItemPrice.ToString("C")</li>
+}
+<h1>ItemID: @ViewBag.ItemId</h1>
