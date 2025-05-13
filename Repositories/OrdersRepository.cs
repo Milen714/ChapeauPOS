@@ -147,6 +147,44 @@ namespace ChapeauPOS.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Order GetOrderByTableId(int tableId)
+        {
+            Order order = new Order();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription " +
+                    "FROM Orders " +
+                    "JOIN Tables t ON Orders.TableID = t.TableID " +
+                    "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
+                    "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
+                    "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                    "WHERE t.TableNumber = @TableNumber AND OrderStatus IN ('Ordered', 'Served', 'Ready', 'Preparing') ";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@TableNumber", tableId);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            order = ReadOrder(reader);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving order from database", ex);
+            }
+            return order;
+
+        }
     }
     
 }

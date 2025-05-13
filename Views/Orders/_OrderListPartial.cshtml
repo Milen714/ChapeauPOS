@@ -1,7 +1,13 @@
-﻿@model List<ChapeauPOS.Models.MenuItem>
-
-@foreach (var item in Model)
-{
-    <li>@item.ItemName - @item.ItemPrice.ToString("C")</li>
+﻿@model ChapeauPOS.Models.Order
+@{
+    decimal total = 0;
 }
-<h1>ItemID: @ViewBag.ItemId</h1>
+@foreach (var item in Model.OrderItems)
+{
+    total += item.MenuItem.ItemPrice;
+    <li>@item.MenuItem.ItemName - @item.MenuItem.ItemPrice.ToString("C")</li>
+}
+<div class="order_summary">
+    <h2>Order Summary</h2>
+    <p>Total: <span id="totalPrice">@total.ToString("C")</span></p>
+</div>

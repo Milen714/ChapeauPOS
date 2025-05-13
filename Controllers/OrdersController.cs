@@ -21,8 +21,22 @@ namespace ChapeauPOS.Controllers
             _ordersService = ordersService;
             _menuService = menuService;
         }
+        private const string OrderSessionKeyPrefix = "TableOrder_";
 
-        private List<MenuItem> TemuOrder = new List<MenuItem>();
+        private Order GetOrderFromSession(int tableId)
+        {
+            return HttpContext.Session.GetObject<Order>($"{OrderSessionKeyPrefix}{tableId}") ?? new Order
+            {
+                OrderItems = new List<OrderItem>(),
+                CreatedAt = DateTime.Now
+            };
+        }
+
+        private void SaveOrderToSession(int tableId, Order order)
+        {
+            HttpContext.Session.SetObject($"{OrderSessionKeyPrefix}{tableId}", order);
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -73,6 +87,12 @@ namespace ChapeauPOS.Controllers
             }
             return NotFound();
         }
+        public IActionResult DisplayOrderView(string tableId)
+        {
+            int tableNumber = int.Parse(tableId);
+            Order order = GetOrderFromSession(tableNumber);
+            return PartialView("_OrderListPartial", order);
+        }
         [HttpPost]
        
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId)
@@ -80,7 +100,19 @@ namespace ChapeauPOS.Controllers
             MenuItem menuItem = _menuService.GetMenuItemById(itemId);
             Table table = _tablesService.GetTableByID(tableId);
             Employee employee = _employeesService.GetEmployeeById(employeeId);
-            OrderItem orderItem = new OrderItem 
+
+            Order order = GetOrderFromSession(tableId);
+
+            // If this is a new order (i.e., table wasn't previously occupied)
+            if (order.Table == null)
+            {
+                order.Table = table;
+                order.Employee = employee;
+                order.CreatedAt = DateTime.Now;
+                order.OrderStatus = OrderStatus.Pending;
+            }
+
+            OrderItem orderItem = new OrderItem
             {
                 MenuItem = menuItem,
                 MenuCourse = menuItem.Course,
@@ -88,19 +120,28 @@ namespace ChapeauPOS.Controllers
                 CourseStatus = CourseStatus.Ordered,
                 Quantity = 1
             };
-            Order order = new Order
+            order.OrderItems.Add(orderItem);
+            SaveOrderToSession(tableId, order);
+
+            // Check if the table is already occupied
+            if (table.TableStatus != TableStatus.Occupied)
             {
-                Table = table,
-                Employee = employee,
-                OrderItems = new List<OrderItem> { orderItem },
-                OrderStatus = OrderStatus.Ordered,
-                CreatedAt = DateTime.Now
-            };
-            TemuOrder.Add(menuItem);
+                
+            }
+           
             table.TableStatus = TableStatus.Occupied;
             _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
 
-            return PartialView("_OrderListPartial", TemuOrder);
+            return PartialView("_OrderListPartial", order);
+        }
+        [HttpPost]
+        public IActionResult SendOrder()
+        {
+            // Here Iam gonna send the order to the kitchen and bar 
+            // and update the order status to sent
+            // and save the order to the database
+            return RedirectToAction("Tables", "Index");
+            
         }
 
     }

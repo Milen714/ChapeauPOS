@@ -47,6 +47,12 @@ namespace ChapeauPOS.Services
         {
             return _ordersRepository.GetOrdersByStatus(status);
         }
+
+        public Order GetOrderByTableId(int tableId)
+        {
+            return _ordersRepository.GetOrderByTableId(tableId);
+        }
+
     }
     
 }

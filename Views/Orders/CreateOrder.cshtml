@@ -14,6 +14,7 @@
   </select>  
 </header>  
 
+<article class="OrderViewBody">
 <div id="partialViewContainer">  
   <!-- Partial view will be loaded here -->  
 </div>  
@@ -25,10 +26,8 @@
 		  <!-- Order items will be dynamically added here -->  
 	  </ul>  
   </div>  
-  <div class="order_summary">  
-	  <h2>Order Summary</h2>  
-	  <p>Total: <span id="totalPrice">0.00</span></p>  
-  </div>
+  
+</article>
 
 @section Scripts {  
   <script>  
@@ -46,7 +45,7 @@
               .then(html => {  
                   container.innerHTML = html;
                     filterCourse('starter');
-                        attachMenuItemClickHandlers();
+                       // attachMenuItemClickHandlers();
               })  
               .catch(error => console.error('Error loading partial view:', error));  
       }  
@@ -58,6 +57,21 @@
         }
 
 
+            $(document).ready(loadPartialView());
+
+            $(document).ready(function () {
+                var tableId = document.getElementById('tableId').value;
+                $.ajax({
+                    url: "/Orders/DisplayOrderView?tableId=" + encodeURIComponent(tableId),
+                    type: "GET",
+                    success: function (data) {
+                        $("#orderList").html(data);
+                    },
+                    error: function (error) {
+                        console.error("Error fetching users:", error);
+                    }
+                });
+            });
 
             $(document).on('click', '.clickable-item', function () {
                 const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
