@@ -27,5 +27,10 @@ namespace ChapeauPOS.Services
         {
             _employeeRepository.AddEmployee(employee);
         }
+
+        public Employee GetEmployeeById(int id)
+        {
+            return _employeeRepository.GetEmployeeById(id);
+        }
     }
 }

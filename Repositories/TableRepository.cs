@@ -84,5 +84,36 @@ namespace ChapeauPOS.Repositories
             }
             return tables;
         }
+
+        public void UpdateTableStatus(int tableNumber, TableStatus tableStatus)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE [Tables] " +
+                                   "SET TableStatus = @TableStatus " +
+                                   "WHERE TableNumber = @TableNumber;";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@TableStatus", tableStatus.ToString());
+                    command.Parameters.AddWithValue("@TableNumber", tableNumber);
+                    connection.Open();
+                    int affectedRows = command.ExecuteNonQuery();   
+
+                    if (affectedRows ==0)
+                    {
+                        throw new Exception("Update Table Status Query did not work");
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating table status in database", ex);
+            }
+        }
     }
 }

@@ -6,46 +6,46 @@ namespace ChapeauPOS.Services
 {
     public class OrdersService : IOrdersService
     {
-        private readonly IMenuRepository _menuRepository;
-        public OrdersService(IMenuRepository menuRepository)
+        private readonly IOrdersRepository _ordersRepository;
+        public OrdersService(IOrdersRepository ordersRepository)
         {
-            _menuRepository = menuRepository;
+            _ordersRepository = ordersRepository;
         }
         // Implement the methods from IOrdersService here
         public List<Order> GetAllOrders()
         {
-            throw new NotImplementedException();
+            return _ordersRepository.GetAllOrders();
         }
         public Order GetOrderById(int orderId)
         {
-            throw new NotImplementedException();
+            return _ordersRepository.GetOrderById(orderId);
         }
         public void AddOrder(Order order)
         {
-            throw new NotImplementedException();
+            _ordersRepository.AddOrder(order);
         }
         public void UpdateOrder(Order order)
         {
-            throw new NotImplementedException();
+            _ordersRepository.UpdateOrder(order);
         }
         public void DeleteOrder(int orderId)
         {
-            throw new NotImplementedException();
+            _ordersRepository.DeleteOrder(orderId);
         }
 
         public List<Order> GetOrdersByTableId(int tableId)
         {
-            throw new NotImplementedException();
+            return _ordersRepository.GetOrdersByTableId(tableId);
         }
 
         public List<Order> GetOrdersByEmployeeId(int employeeId)
         {
-            throw new NotImplementedException();
+            return _ordersRepository.GetOrdersByEmployeeId(employeeId);
         }
 
         public List<Order> GetOrdersByStatus(OrderStatus status)
         {
-            throw new NotImplementedException();
+            return _ordersRepository.GetOrdersByStatus(status);
         }
     }
     

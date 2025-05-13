@@ -5,6 +5,7 @@
 }  
 <h1>@ViewData["Title"]</h1>  
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
+<input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
 <header>  
   <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
       <option value="Lunch">Lunch</option>  
@@ -61,12 +62,14 @@
             $(document).on('click', '.clickable-item', function () {
                 const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
                 var tableId = document.getElementById('tableId').value;
+                var employeeId = document.getElementById('employeeId').value;
                 $.ajax({
                     url: '/Orders/AddItemToOrder',
                     type: 'POST',
                     data: {
                         itemId: parseInt(itemId),
-                        tableId: parseInt(tableId)
+                        tableId: parseInt(tableId),
+                        employeeId: parseInt(employeeId)
                     },
                     success: function (html) {
                         $('#orderList').html(html); // inject updated partial
