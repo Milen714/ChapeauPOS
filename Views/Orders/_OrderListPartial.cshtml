@@ -2,9 +2,10 @@
 @{
     decimal total = 0;
 }
+<p>Order Status: @Model.OrderStatus.ToString()</p>
 @foreach (var item in Model.OrderItems)
 {
-    total += item.MenuItem.ItemPrice;
+    total += item.PriceAccountedForQuantity;
     <li>@item.MenuItem.ItemName - @item.MenuItem.ItemPrice.ToString("C")</li>
 }
 <div class="order_summary">

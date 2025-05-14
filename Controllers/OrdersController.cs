@@ -61,7 +61,9 @@ namespace ChapeauPOS.Controllers
             //Check if the the ocupied table's order has been sent to kithchen/bar and if not load the order from DB
             if (table.TableStatus == TableStatus.Occupied && order.OrderStatus != OrderStatus.Pending)
             {
-                Console.WriteLine("order has been sent to the kitchen: Load order from the db instedd and store it in the session");
+                Console.WriteLine("order has been sent to the kitchen/bar and DB Previously: Loading order from the DB and storing it in a session");
+                order = _ordersService.GetOrderByTableId(table.TableNumber);
+                SaveOrderToSession(table.TableNumber, order);
             }
 
             return View(table);
@@ -140,14 +142,23 @@ namespace ChapeauPOS.Controllers
 
             return PartialView("_OrderListPartial", order);
         }
-        [HttpPost]
-        public IActionResult SendOrder()
+        
+        public IActionResult SendOrder(int id)
         {
             // Here Iam gonna send the order to the kitchen and bar 
-            // and update the order status to sent
+            // and update the order status to Ordered
             // and save the order to the database
-            return RedirectToAction("Tables", "Index");
+            // Finally Remove the order from the session
+            Order order = GetOrderFromSession(id);
+            order.OrderStatus = OrderStatus.Ordered;
             
+            _ordersService.AddOrder(order);
+            SaveOrderToSession(order.Table.TableNumber, order);
+            
+
+
+            return RedirectToAction("Index", "Tables");
+
         }
 
     }
