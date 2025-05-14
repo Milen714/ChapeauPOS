@@ -88,7 +88,7 @@ namespace ChapeauPOS.Repositories
         }
         public void AddOrder(Order order)
         {
-            throw new NotImplementedException();
+             
         }
         public void UpdateOrder(Order order)
         {

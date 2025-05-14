@@ -22,7 +22,7 @@ namespace ChapeauPOS.Controllers
             _menuService = menuService;
         }
         private const string OrderSessionKeyPrefix = "TableOrder_";
-
+        //Gets the order from the session based on table Number
         private Order GetOrderFromSession(int tableId)
         {
             return HttpContext.Session.GetObject<Order>($"{OrderSessionKeyPrefix}{tableId}") ?? new Order
@@ -31,7 +31,7 @@ namespace ChapeauPOS.Controllers
                 CreatedAt = DateTime.Now
             };
         }
-
+        //Saves table order to the session based on table Number
         private void SaveOrderToSession(int tableId, Order order)
         {
             HttpContext.Session.SetObject($"{OrderSessionKeyPrefix}{tableId}", order);
@@ -41,23 +41,29 @@ namespace ChapeauPOS.Controllers
         {
             return View();
         }
+        public IActionResult ChangeOrderStatus()
+        {
+            int tableNumber = 1; // Example table number
+            Order order = GetOrderFromSession(tableNumber);
+            order.OrderStatus = OrderStatus.Ordered;
+            SaveOrderToSession(tableNumber, order);
+            return RedirectToAction("Index", "Tables");
+        }
         [HttpGet]
         public IActionResult CreateOrder(int id)
         {
-            //var orders = _ordersService.GetAllOrders();
-            //foreach (var order in orders)
-            //{
-            //    Console.WriteLine($"Ordered from table: {order.Table.TableNumber}with ID: {order.Table.TableID}");
-            //    foreach (var item in order.OrderItems)
-            //    {
-            //        Console.WriteLine(item.MenuItem.ItemName);
-            //    }
-            //}
-
             Employee? loggedInEmployee = new Employee();
             loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             ViewBag.LoggedInEmployee = loggedInEmployee;
             Table table = _tablesService.GetTableByID(id);
+            //get the order from the session
+            Order order = GetOrderFromSession(id);
+            //Check if the the ocupied table's order has been sent to kithchen/bar and if not load the order from DB
+            if (table.TableStatus == TableStatus.Occupied && order.OrderStatus != OrderStatus.Pending)
+            {
+                Console.WriteLine("order has been sent to the kitchen: Load order from the db instedd and store it in the session");
+            }
+
             return View(table);
         }
 
