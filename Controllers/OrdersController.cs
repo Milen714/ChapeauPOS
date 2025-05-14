@@ -160,6 +160,19 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("Index", "Tables");
 
         }
+        public IActionResult DeleteOrder(int id)
+        {
+            // Here Iam gonna delete the order from the database
+            // and remove the order from the session
+            // and update the table status to Available
+            Order order = GetOrderFromSession(id);
+            
+            //Table table = _tablesService.GetTableByID(id);
+            order.Table.TableStatus = TableStatus.Free;
+            _tablesService.UpdateTableStatus(order.Table.TableNumber, order.Table.TableStatus);
+            HttpContext.Session.Remove($"{OrderSessionKeyPrefix}{id}");
+            return RedirectToAction("Index", "Tables");
+        }
 
     }
 }
