@@ -5,6 +5,8 @@
        Ordered,
        Preparing,
        Ready,
-       Served
+       Served,
+       Pending,
+       Finalized
     }
 }

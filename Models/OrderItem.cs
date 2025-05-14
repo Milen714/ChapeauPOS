@@ -5,6 +5,10 @@
         public int OrderItemId { get; set; }
         public MenuItem MenuItem { get; set; }
         public int Quantity { get; set; }
+        public decimal PriceAccountedForQuantity 
+        {
+            get { return (MenuItem?.ItemPrice ?? 0) * Quantity; }
+        }
         public MenuCourse MenuCourse { get; set; }
         public OrderItemStatus OrderItemStatus { get; set; }
         public CourseStatus CourseStatus { get; set; }
