@@ -15,5 +15,15 @@ namespace ChapeauPOS.Services
         {
             return _tableRepository.GetAllTables();
         }
+
+        public Table GetTableByID(int id)
+        {
+            return _tableRepository.GetTableByID(id);
+        }
+
+        public void UpdateTableStatus(int tableNumber, TableStatus tableStatus)
+        {
+            _tableRepository.UpdateTableStatus(tableNumber, tableStatus);
+        }
     }
 }

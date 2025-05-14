@@ -8,5 +8,6 @@ namespace ChapeauPOS.Services.Interfaces
         List<Employee> GetAllEmployees();
         void UpdateEmployee(Employee employee);
         void AddEmployee(Employee employee);
+        Employee GetEmployeeById(int id);
     }
 }

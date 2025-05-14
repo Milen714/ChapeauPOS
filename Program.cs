@@ -21,8 +21,10 @@ namespace ChapeauPOS
             builder.Services.AddSingleton<IOrdersRepository, OrdersRepository>();
             builder.Services.AddSingleton<IOrdersService, OrdersService>();
             builder.Services.AddSingleton<IMenuRepository, MenuRepository>();
+            builder.Services.AddSingleton<IMenuService, MenuService>();	
+            builder.Services.AddSingleton<IKitchenBarRepository, KitchenBarRepository>();
+            builder.Services.AddSingleton<IKitchenBarService, KitchenBarService>();
 
-			
 
             builder.Services.AddSession(options =>
             {

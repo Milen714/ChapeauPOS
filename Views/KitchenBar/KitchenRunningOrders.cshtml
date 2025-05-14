@@ -1,0 +1,167 @@
+﻿@model List<ChapeauPOS.Models.Order>
+@{
+	ViewData["Title"] = "Kitchen - Running Orders";
+}
+
+<div style="margin:0;display:flex;justify-content:center;">
+	<a href="/KitchenBar/KitchenFinishedOrders" class="btn btn-primary">Finished</a>
+	<a href="/KitchenBar/KitchenRunningOrders" class="btn btn-primary">Running</a>
+</div>
+<form method="get" action="/KitchenBar/KitchenRunningOrders">
+	<button type="submit">Refresh to get new orders</button>
+</form>
+<div class="orders-container d-flex flex-row flex-wrap">
+	@foreach (Order order in Model)
+	{
+		<div class="order-card m-2" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+			<!-- Header -->
+			<div class="order-header d-flex justify-content-between align-items-center" style="background-color:#0A60DA;padding:0 15px 15px 15px;border-radius:8px 8px 0 0;color:white">
+				<div style="color:black;background-color:#FF9F40;padding:5px;border-radius:3px 3px 0 0;">Table @order.Table.TableNumber</div>
+				<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
+				<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</div>
+			</div>
+
+			<!-- Order Items -->
+			@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuCourse).GroupBy(oi => oi.MenuCourse))
+			{
+				// Get the most advanced status in this course group
+				var courseStatus = course.Max(oi => oi.CourseStatus);
+				<div class="mb-3">
+					<div style="background-color:#d5d5d5;display:flex;justify-content:space-between;align-items:center;padding:6px 15px;">
+						<h6>@course.Key</h6>
+						<div>
+							<form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
+								<input type="hidden" name="orderId" value="@order.OrderID" />
+								<input type="hidden" name="menuCourse" value="@course.Key" />
+								<select name="courseStatus" class="form-select form-select-sm" onchange="this.form.submit()" style="width:150px;">
+									@if (courseStatus == CourseStatus.Ordered)
+									{
+										<option value="@CourseStatus.Ordered" selected" style="background-color:#6699CC;">Ordered</option>
+										<option value="@CourseStatus.Preparing" style="background-color:#5A6AF0;">Preparing</option>
+									}
+									else if (courseStatus == CourseStatus.Preparing)
+									{
+										<option value="@CourseStatus.Preparing" selected>Preparing</option>
+										<option value="@CourseStatus.Ready" style="background-color:#00B27F;">Ready</option>
+									}
+									else if (courseStatus == CourseStatus.Ready)
+									{
+										<option value="@CourseStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
+										<option value="@CourseStatus.Served">Served</option>
+									}
+									else
+									{
+										<option value="@courseStatus" selected>@courseStatus</option>
+									}
+								</select>
+							</form>
+						</div>
+					</div>
+					@foreach (OrderItem item in course)
+					{
+						<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
+							<div>
+								<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+								@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+								{
+									<small class="text-muted">@item.MenuItem.ItemDescription</small>
+									<br />
+								}
+								@if (!string.IsNullOrEmpty(item.Notes))
+								{
+									<em class="text-muted small">@item.Notes</em>
+								}
+							</div>
+							<div>
+								<form method="post" action="/KitchenBar/UpdateKitchenItemStatus">
+									<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+									<select name="orderItemStatus" class="form-select form-select-sm"
+											onchange="this.form.submit()">
+										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+										{
+											<option value="@OrderItemStatus.Ordered" selected>Ordered</option>
+											<option value="@OrderItemStatus.Preparing">Preparing</option>
+										}
+										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+										{
+											<option value="@OrderItemStatus.Preparing" selected>Preparing</option>
+											<option value="@OrderItemStatus.Ready" style="background-color:#00B27F;">Ready</option>
+										}
+										else if (item.OrderItemStatus == OrderItemStatus.Ready)
+										{
+											<option value="@OrderItemStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
+											<option value="@OrderItemStatus.Served">Served</option>
+										}
+										else
+										{
+											<option value="@item.OrderItemStatus" selected>@item.OrderItemStatus</option>
+										}
+									</select>
+								</form>
+							</div>
+						</div>
+					}
+				</div>
+			}
+
+			<!-- Order Status -->
+			<div class="mb-4" style="padding:0 15px;">
+				<form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
+					<input type="hidden" name="orderId" value="@order.OrderID" />
+					<select name="orderStatus" class="form-select"
+							onchange="this.form.submit()">
+						@if (order.OrderStatus == OrderStatus.Ordered)
+						{
+							<option value="@OrderStatus.Ordered" selected>Ordered</option>
+							<option value="@OrderStatus.Preparing">Preparing</option>
+						}
+						else if (order.OrderStatus == OrderStatus.Preparing)
+						{
+							<option value="@OrderStatus.Preparing" selected>Preparing</option>
+							<option value="@OrderStatus.Ready" style="background-color:#00B27F;">Ready</option>
+						}
+						else if (order.OrderStatus == OrderStatus.Ready)
+						{
+							<option value="@OrderStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
+							<option value="@OrderStatus.Served">Served</option>
+						}
+						else
+						{
+							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
+						}
+					</select>
+				</form>
+			</div>
+		</div>
+	}
+</div>
+
+
+@section Scripts {
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+	<script>
+		const connection = new signalR.HubConnectionBuilder()
+			.withUrl("/restaurantHub")
+			.build();
+
+		connection.on("NewOrder", function (orderItem) {
+			const list = document.getElementById("kitchen-orders");
+			const li = document.createElement("li");
+			li.innerText = `${orderItem.menuItemName} for Table ${orderItem.tableNumber}`;
+			list.appendChild(li);
+		});
+		connection.start().catch(err => console.error(err.toString()));
+
+
+
+				setInterval(() => {
+			document.querySelectorAll('[data-order-id]').forEach(el => {
+				fetch(`/KitchenBar/GetRunningTime?orderId=${el.dataset.orderId}`)
+					.then(response => response.text())
+					.then(time => el.textContent = time);
+			});
+		}, 1000);
+	</script>
+}
+<ul id="kitchen-orders">
+</ul>

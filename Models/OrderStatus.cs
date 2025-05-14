@@ -2,11 +2,11 @@
 {
     public enum OrderStatus
     {
-        InQueue,
-        Preparing,
-        Ready,
-        Served,
-        Closed
-
+       Ordered,
+       Preparing,
+       Ready,
+       Served,
+       Pending,
+       Finalized
     }
 }

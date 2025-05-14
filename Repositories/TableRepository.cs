@@ -21,6 +21,38 @@ namespace ChapeauPOS.Repositories
                 TableStatus = (TableStatus)Enum.Parse(typeof(TableStatus), reader.GetString(3))
             };
         }
+        Table ITableRepository.GetTableByID(int id)
+        {
+            Table table = new Table();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT TableID, TableNumber, NumberOfSeats, TableStatus " +
+                                   " FROM [Tables] " +
+                                   " WHERE TableNumber = @TableID; ";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@TableID", id);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            table = ReadTable(reader);
+                        }
+                    }
+                }
+            }
+            catch(SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving table from database", ex);
+            }
+            return table;
+        }
         List<Table> ITableRepository.GetAllTables()
         {
             List<Table> tables = new List<Table>();
@@ -51,6 +83,37 @@ namespace ChapeauPOS.Repositories
                 throw new Exception("Error retrieving tables from database", ex);
             }
             return tables;
+        }
+
+        public void UpdateTableStatus(int tableNumber, TableStatus tableStatus)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE [Tables] " +
+                                   "SET TableStatus = @TableStatus " +
+                                   "WHERE TableNumber = @TableNumber;";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@TableStatus", tableStatus.ToString());
+                    command.Parameters.AddWithValue("@TableNumber", tableNumber);
+                    connection.Open();
+                    int affectedRows = command.ExecuteNonQuery();   
+
+                    if (affectedRows ==0)
+                    {
+                        throw new Exception("Update Table Status Query did not work");
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating table status in database", ex);
+            }
         }
     }
 }

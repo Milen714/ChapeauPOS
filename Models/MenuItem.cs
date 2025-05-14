@@ -2,13 +2,13 @@
 {
     public class MenuItem
     {
-        public MenuItem(int menuItemID, string itemName, string itemDescription, decimal itemPrice, bool vAT, MenuCategory category, MenuCourse course)
+        public MenuItem(int menuItemID, string itemName, string itemDescription, decimal itemPrice, bool vat, MenuCategory category, MenuCourse course)
         {
             MenuItemID = menuItemID;
             ItemName = itemName;
             ItemDescription = itemDescription;
             ItemPrice = itemPrice;
-            VAT = vAT;
+            VAT = vat;
             Category = category;
             Course = course;
         }
@@ -22,7 +22,7 @@
         public string ItemDescription { get; set; }
         public decimal ItemPrice { get; set; }
         public bool VAT { get; set; }
-        public decimal VATPercent { get { return VAT ? 21 : 0; }  }
+        public decimal VATPercent { get { return VAT ? 21 : 9; }  }
         public MenuCategory Category { get; set; }
         public MenuCourse Course { get; set; }
     }
