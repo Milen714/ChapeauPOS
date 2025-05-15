@@ -146,7 +146,7 @@
 
 			<!-- Order Status -->
 			<div class="mb-4" style="padding:0 15px;">
-				<form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
+				@* <form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
 					<input type="hidden" name="orderId" value="@order.OrderID" />
 					<select name="orderStatus" class="form-select"
 							onchange="this.form.submit()">
@@ -170,7 +170,7 @@
 							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
 						}
 					</select>
-				</form> *@
+				</form>  *@
 			</div>
 		</div>
 	}

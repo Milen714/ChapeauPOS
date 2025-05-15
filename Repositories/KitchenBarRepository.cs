@@ -312,7 +312,7 @@ namespace ChapeauPOS.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
+                string query = "UPDATE oi SET OrderItemStatus = 'Ready' " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
                                "WHERE OrderID = @OrderID AND mi.Course <> 'Drink'";
