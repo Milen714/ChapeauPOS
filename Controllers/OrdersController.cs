@@ -199,7 +199,7 @@ namespace ChapeauPOS.Controllers
                         Name = item.MenuItem.ItemName,
                         Quantity = item.Quantity,
                         UnitPrice = item.MenuItem.ItemPrice,
-                        VATRate = item.MenuItem.VAT ? 21 : 9
+                        VATRate = item.MenuItem.VATPercent
                     });
                 }
             }
