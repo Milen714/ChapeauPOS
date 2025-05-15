@@ -17,12 +17,12 @@
 				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
 				<div class="text-end">
 					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
-					<small class="text-muted">@order.ClosedAt?.ToString("hh:mm")</small>
+					@* <small class="text-muted">@order.ClosedAt?.ToString("hh:mm")</small> *@
 				</div>
 			</div>
 
 			<!-- Order Items -->
-			@foreach (var courseGroup in order.OrderItems.GroupBy(oi => oi.MenuCourse))
+			@foreach (var courseGroup in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
 			{
 				<div class="mb-3">
 					<h6 class="border-bottom">@courseGroup.Key</h6>
