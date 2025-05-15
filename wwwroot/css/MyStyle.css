@@ -220,27 +220,59 @@ li a {
     ORDER PAGE STYLES
 */
 #partialViewContainer {
+    width: 777px;
     display: grid;
     grid-template-areas: "courses items";
     grid-template-columns: 150px auto;
-    border: 1px red solid;
+}
+.order_container {
+    width: 500px;
+    border: green 1px solid;
+    justify-items:center;
 }
 
-#courseSidebar{
+#courseSidebar {
     display: flex;
     flex-direction: column;
     grid-area: courses;
 }
 #menuItemsContainer{
     grid-area: items;
-    padding-left: 10px; 
+    padding-left: 10px;
+    width:637px;
+    height:637px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap:wrap;
 }
-#courseSidebar button{
+.OrderViewBody{
+    display: flex;
+    flex-direction: row;
+    border: blue 1px solid;
+}
+.order_items{
+    
+}
+#courseSidebar button {
     width: 125px;
     height: 125px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items:center;
     background-color: var(--Collection1-Greys-SideContainerGrey);
     border-radius: 5px;
     color: white;
     font-family: var(--Collection1-Paragpraph_font);
     font-weight: 500;
+}
+#courseSidebar button img{
+    width:24px;
+}
+.square{
+    border: 1px blue solid;
+    height: 125px;
+    width:125px;
+    border-radius: 7px;
+    margin: 5px;
 }

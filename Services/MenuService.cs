@@ -39,10 +39,7 @@ namespace ChapeauPOS.Services
                     dinnerItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
                 }
             }
-            foreach (MenuItem menuItem in dinnerItems)
-            {
-                Console.WriteLine($"Dinner Menu Item: {menuItem.ItemName}");
-            }
+            
             return dinnerItems;
         }
 
@@ -56,10 +53,7 @@ namespace ChapeauPOS.Services
                     drinkItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
                 }
             }
-            foreach (MenuItem menuItem in drinkItems)
-            {
-                Console.WriteLine($"Drink Menu Item: {menuItem.ItemName}");
-            }
+            
             return drinkItems;
         }
 
@@ -73,10 +67,7 @@ namespace ChapeauPOS.Services
                     lunchItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
                 }
             }
-            foreach (MenuItem menuItem in lunchItems)
-            {
-                Console.WriteLine($"Lunch Menu Item: {menuItem.ItemName}");
-            }
+            
             return lunchItems;
         }
 

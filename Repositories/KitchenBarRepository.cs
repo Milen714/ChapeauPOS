@@ -17,13 +17,13 @@ namespace ChapeauPOS.Repositories
             List<Order> orders = new List<Order>();
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription " +
+                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE Orders.OrderStatus <> 'Served' AND oi.MenuCourse <> 'Drink' " +
+                    "WHERE oi.OrderItemStatus <> 'Served' AND mi.Course <> 'Drink' " +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -70,14 +70,14 @@ namespace ChapeauPOS.Repositories
             int orderId = (int)reader["OrderID"];
             int tableNumber = (int)reader["TableNumber"];
             int employeeID = (int)reader["EmployeeID"];
-            OrderStatus orderStatus = reader["OrderStatus"] == DBNull.Value ? OrderStatus.Ordered : (OrderStatus)Enum.Parse(typeof(OrderStatus), reader["OrderStatus"].ToString());
+            //OrderStatus orderStatus = reader["OrderStatus"] == DBNull.Value ? OrderStatus.Ordered : (OrderStatus)Enum.Parse(typeof(OrderStatus), reader["OrderStatus"].ToString());
             DateTime createdAt = (DateTime)reader["CreatedAt"];
             DateTime? closedAt = reader["ClosedAt"] == DBNull.Value ? null : (DateTime?)reader["ClosedAt"];
-           
+
             Table table = new Table { TableNumber = tableNumber };
             Employee employee = new Employee { EmployeeId = employeeID };
 
-            return new Order(orderId, table, employee, orderStatus, createdAt, closedAt);
+            return new Order(orderId, table, employee, createdAt, closedAt);
         }
 
         private OrderItem MapOrderItem(SqlDataReader reader)
@@ -85,15 +85,15 @@ namespace ChapeauPOS.Repositories
             int orderItemID = (int)reader["OrderItemID"];
             int menuItemID = (int)reader["MenuItemID"];
             int quantity = (int)reader["Quantity"];
-            MenuCourse menuCourse = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader["MenuCourse"].ToString());
+            MenuCourse menuCourse = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader["Course"].ToString());
             OrderItemStatus orderItemStatus = reader["OrderItemStatus"] == DBNull.Value ? OrderItemStatus.Ordered : (OrderItemStatus)Enum.Parse(typeof(OrderItemStatus), reader["OrderItemStatus"].ToString());
-            CourseStatus courseStatus = reader["CourseStatus"] == DBNull.Value ? CourseStatus.Ordered : (CourseStatus)Enum.Parse(typeof(CourseStatus), reader["CourseStatus"].ToString());
+            //CourseStatus courseStatus = reader["CourseStatus"] == DBNull.Value ? CourseStatus.Ordered : (CourseStatus)Enum.Parse(typeof(CourseStatus), reader["CourseStatus"].ToString());
             string notes = reader["Notes"] == DBNull.Value ? "" : (string)reader["Notes"];
             string itemName = (string)reader["ItemName"];
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
 
-            MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription };
-            return new OrderItem(orderItemID, menuItem, quantity, menuCourse, orderItemStatus, courseStatus, notes);
+            MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, Course = menuCourse };
+            return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
         }
 
         public void UpdateKitchenOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
@@ -105,7 +105,6 @@ namespace ChapeauPOS.Repositories
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Status", orderItemStatus.ToString());
                 cmd.Parameters.AddWithValue("@OrderItemID", orderItemId);
-
                 try
                 {
                     conn.Open();
@@ -119,60 +118,52 @@ namespace ChapeauPOS.Repositories
 
         }
 
-        public void UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
-        {
-            using (SqlConnection conn = new SqlConnection(_connectionString))
-            {
-                string query = "UPDATE OrderItems SET CourseStatus = @Status " +
-                    "WHERE OrderID = @OrderID AND MenuCourse = @MenuCourse";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@Status", courseStatus.ToString());
-                cmd.Parameters.AddWithValue("@OrderID", orderId);
-                cmd.Parameters.AddWithValue("@MenuCourse", menuCourse.ToString());
+        //public void UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
+        //{
+        //    using (SqlConnection conn = new SqlConnection(_connectionString))
+        //    {
+        //        string query = "UPDATE OrderItems SET CourseStatus = @Status " +
+        //            "WHERE OrderID = @OrderID AND MenuCourse = @MenuCourse";
+        //        SqlCommand cmd = new SqlCommand(query, conn);
+        //        cmd.Parameters.AddWithValue("@Status", courseStatus.ToString());
+        //        cmd.Parameters.AddWithValue("@OrderID", orderId);
+        //        cmd.Parameters.AddWithValue("@MenuCourse", menuCourse.ToString());
 
-                try
-                {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Something went wrong while updating order item status.", ex);
-                }
-            }
+        //        try
+        //        {
+        //            conn.Open();
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw new Exception("Something went wrong while updating order item status.", ex);
+        //        }
+        //    }
 
-        }
+        //}
 
-        public void UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
-        {
-            using (SqlConnection conn = new SqlConnection(_connectionString))
-            {
-                    string query = "IF @Status = 'Served' " +
-                    "BEGIN " +
-                    "UPDATE Orders SET OrderStatus = @Status, ClosedAt = GETDATE() " +
-                    "WHERE OrderID = @OrderID " +
-                    "END " +
-                    "ELSE " +
-                    "BEGIN " +
-                    "UPDATE Orders SET OrderStatus = @Status " +
-                    "WHERE OrderID = @OrderID " +
-                    "END";
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Status", orderStatus.ToString());
-                    cmd.Parameters.AddWithValue("@OrderID", orderId);
+        //public void UpdateKitchenOrderStatus(int orderItemId, OrderItemStatus orderItemStatus)
+        //{
+        //    using (SqlConnection conn = new SqlConnection(_connectionString))
+        //    {
+        //        string query =  "UPDATE OrderItems SET OrderItemStatus = @Status " +
+        //                        "WHERE OrderItemID = @OrderItemID ";
+        //            SqlCommand cmd = new SqlCommand(query, conn);
+        //            cmd.Parameters.AddWithValue("@Status", orderItemStatus.ToString());
+        //            cmd.Parameters.AddWithValue("@OrderItemID", orderItemId);
 
-                try
-                {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Something went wrong while updating order status.", ex);
-                }
-            }
-            
-        }
+        //        try
+        //        {
+        //            conn.Open();
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw new Exception("Something went wrong while updating order status.", ex);
+        //        }
+        //    }
+
+        //}
 
         public List<Order> GetFinishedKitchenOrders()
         {
@@ -180,13 +171,13 @@ namespace ChapeauPOS.Repositories
             //List<OrderItem> orderItems = new List<OrderItem>();
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription " +
+                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE Orders.OrderStatus = 'Served' AND oi.MenuCourse <> 'Drink' AND CAST(ClosedAt AS DATE) = CAST(GETDATE() AS DATE) " +
+                    "WHERE oi.OrderItemStatus = 'Served' AND mi.Course <> 'Drink' AND CAST(ClosedAt AS DATE) = CAST(GETDATE() AS DATE) " +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -228,13 +219,13 @@ namespace ChapeauPOS.Repositories
             List<Order> orders = new List<Order>();
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription " +
+                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE Orders.OrderStatus <> 'Served' AND oi.MenuCourse = 'Drink' " +
+                    "WHERE oi.OrderItemStatus <> 'Served' AND mi.Course = 'Drink' " +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -271,46 +262,38 @@ namespace ChapeauPOS.Repositories
             return orders;
         }
 
+        //public void UpdateBarOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
+        //{
+        //    using (SqlConnection conn = new SqlConnection(_connectionString))
+        //    {
+        //        string query = "UPDATE OrderItems SET OrderItemStatus = @Status " +
+        //            "WHERE OrderItemID = @OrderItemID";
+        //        SqlCommand cmd = new SqlCommand(query, conn);
+        //        cmd.Parameters.AddWithValue("@Status", orderItemStatus.ToString());
+        //        cmd.Parameters.AddWithValue("@OrderItemID", orderItemId);
+
+        //        try
+        //        {
+        //            conn.Open();
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw new Exception("Something went wrong while updating order item status.", ex);
+        //        }
+        //    }
+
+        //}
+
         public void UpdateBarOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
                 string query = "UPDATE OrderItems SET OrderItemStatus = @Status " +
-                    "WHERE OrderItemID = @OrderItemID";
+                               "WHERE OrderItemID = @OrderItemID ";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Status", orderItemStatus.ToString());
                 cmd.Parameters.AddWithValue("@OrderItemID", orderItemId);
-
-                try
-                {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Something went wrong while updating order item status.", ex);
-                }
-            }
-
-        }
-
-        public void UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
-        {
-            using (SqlConnection conn = new SqlConnection(_connectionString))
-            {
-                string query = "IF @Status = 'Served' " +
-                "BEGIN " +
-                "UPDATE Orders SET OrderStatus = @Status, ClosedAt = GETDATE() " +
-                "WHERE OrderID = @OrderID " +
-                "END " +
-                "ELSE " +
-                "BEGIN " +
-                "UPDATE Orders SET OrderStatus = @Status " +
-                "WHERE OrderID = @OrderID " +
-                "END";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@Status", orderStatus.ToString());
-                cmd.Parameters.AddWithValue("@OrderID", orderId);
 
                 try
                 {
@@ -325,18 +308,68 @@ namespace ChapeauPOS.Repositories
 
         }
 
+        public void CloseFoodOrder(int orderId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
+                               "FROM OrderItems oi " +
+                               "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                               "WHERE OrderID = @OrderID AND mi.Course <> 'Drink'";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Something went wrong while updating order status.", ex);
+                }
+            }
+        }
+
+        public void UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, OrderItemStatus orderItemStatus)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = "UPDATE oi SET OrderItemStatus = @OrderItemStatus " +
+                               "FROM OrderItems oi " +
+                               "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                               "WHERE OrderID = @OrderID AND mi.Course = @Course AND OrderItemStatus <> 'Ready'; " +
+                               "UPDATE Orders SET ClosedAt = GETDATE()";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderItemStatus", orderItemStatus.ToString());
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+                cmd.Parameters.AddWithValue("@Course", course.ToString());
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Something went wrong while updating order status.", ex);
+                }
+            }
+        }
+
+
         public List<Order> GetFinishedBarOrders()
         {
             List<Order> orders = new List<Order>();
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription " +
+                string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE Orders.OrderStatus = 'Served' AND oi.MenuCourse = 'Drink' AND CAST(ClosedAt AS DATE) = CAST(GETDATE() AS DATE)" +
+                    "WHERE oi.OrderItemStatus = 'Served' AND mi.Course = 'Drink' AND CAST(ClosedAt AS DATE) = CAST(GETDATE() AS DATE)" +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);

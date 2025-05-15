@@ -20,5 +20,10 @@ namespace ChapeauPOS.Services
         {
             return _tableRepository.GetTableByID(id);
         }
+
+        public void UpdateTableStatus(int tableNumber, TableStatus tableStatus)
+        {
+            _tableRepository.UpdateTableStatus(tableNumber, tableStatus);
+        }
     }
 }

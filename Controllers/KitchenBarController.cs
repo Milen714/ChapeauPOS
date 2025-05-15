@@ -16,7 +16,6 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult KitchenRunningOrders()
         {
-            ViewBag.MenuCourses = Enum.GetValues(typeof(MenuCourse)).Cast<MenuCourse>();
             List<Order> orders = _kitchenBarService.GetRunningKitchenOrders();
             return View(orders);
         }
@@ -28,19 +27,19 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("KitchenRunningOrders");
         }
 
-        [HttpPost]
-        public IActionResult UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
-        {
-            _kitchenBarService.UpdateKitchenOrderStatus(orderId, orderStatus);
-            return RedirectToAction("KitchenRunningOrders");
-        }
+        //[HttpPost]
+        //public IActionResult UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
+        //{
+        //    _kitchenBarService.UpdateKitchenOrderStatus(orderId, orderStatus);
+        //    return RedirectToAction("KitchenRunningOrders");
+        //}
 
-        [HttpPost]
-        public IActionResult UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
-        {
-            _kitchenBarService.UpdateKitchenCourseStatus(orderId, menuCourse, courseStatus);
-            return RedirectToAction("KitchenRunningOrders");
-        }
+        //[HttpPost]
+        //public IActionResult UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
+        //{
+        //    _kitchenBarService.UpdateKitchenCourseStatus(orderId, menuCourse, courseStatus);
+        //    return RedirectToAction("KitchenRunningOrders");
+        //}
 
         public IActionResult KitchenFinishedOrders()
         {
@@ -62,17 +61,35 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("BarRunningOrders");
         }
 
-        [HttpPost]
-        public IActionResult UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
-        {
-            _kitchenBarService.UpdateBarOrderStatus(orderId, orderStatus);
-            return RedirectToAction("BarRunningOrders");
-        }
+        //[HttpPost]
+        //public IActionResult UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
+        //{
+        //    _kitchenBarService.UpdateBarOrderStatus(orderId, orderStatus);
+        //    return RedirectToAction("BarRunningOrders");
+        //}
 
         public IActionResult BarFinishedOrders()
         {
             List<Order> orders = _kitchenBarService.GetFinishedBarOrders();
             return View(orders);
+        }
+
+        public IActionResult CloseOrder(int orderId)
+        {
+            _kitchenBarService.CloseFoodOrder(orderId);
+            return RedirectToAction("KitchenRunningOrders");
+        }
+
+        public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, string courseStatus)
+        {
+            // Parse the course status string to enum
+            if (!Enum.TryParse(courseStatus, out OrderItemStatus orderItemStatus))
+            {
+                return BadRequest("Invalid course status");
+            }
+
+            _kitchenBarService.UpdateItemStatusBasedOnCourse(orderId, course, orderItemStatus);
+            return RedirectToAction("KitchenRunningOrders");
         }
 
         public IActionResult GetRunningTime(int orderId)

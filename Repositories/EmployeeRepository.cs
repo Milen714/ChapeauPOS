@@ -112,5 +112,38 @@ namespace ChapeauPOS.Repositories
                 Console.WriteLine("Error: " + ex.Message);
             }
         }
+
+        public Employee GetEmployeeById(int id)
+        {
+            Employee employee = new Employee();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = " SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender " +
+                                " FROM Employees " +
+                                " WHERE EmployeeID = @EmployeeID ";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@EmployeeID", id);
+                    command.Connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        employee = ReadEmployee(reader);
+                    }
+
+                }
+
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+            return employee;
+        }
     }
 }

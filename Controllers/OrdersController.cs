@@ -1,4 +1,5 @@
-﻿using ChapeauPOS.Models;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
@@ -20,14 +21,51 @@ namespace ChapeauPOS.Controllers
             _ordersService = ordersService;
             _menuService = menuService;
         }
+        private const string OrderSessionKeyPrefix = "TableOrder_";
+        //Gets the order from the session based on table Number
+        private Order GetOrderFromSession(int tableId)
+        {
+            return HttpContext.Session.GetObject<Order>($"{OrderSessionKeyPrefix}{tableId}") ?? new Order
+            {
+                OrderItems = new List<OrderItem>(),
+                CreatedAt = DateTime.Now
+            };
+        }
+        //Saves table order to the session based on table Number
+        private void SaveOrderToSession(int tableId, Order order)
+        {
+            HttpContext.Session.SetObject($"{OrderSessionKeyPrefix}{tableId}", order);
+        }
+
         public IActionResult Index()
         {
             return View();
         }
+        public IActionResult ChangeOrderStatus()
+        {
+            int tableNumber = 1; // Example table number
+            Order order = GetOrderFromSession(tableNumber);
+            order.OrderStatus = OrderStatus.Ordered;
+            SaveOrderToSession(tableNumber, order);
+            return RedirectToAction("Index", "Tables");
+        }
         [HttpGet]
         public IActionResult CreateOrder(int id)
         {
+            Employee? loggedInEmployee = new Employee();
+            loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+            ViewBag.LoggedInEmployee = loggedInEmployee;
             Table table = _tablesService.GetTableByID(id);
+            //get the order from the session
+            Order order = GetOrderFromSession(id);
+            //Check if the the ocupied table's order has been sent to kithchen/bar and if not load the order from DB
+            if (table.TableStatus == TableStatus.Occupied && order.OrderStatus != OrderStatus.Pending)
+            {
+                Console.WriteLine("order has been sent to the kitchen/bar and DB Previously: Loading order from the DB and storing it in a session");
+                order = _ordersService.GetOrderByTableId(table.TableNumber);
+                SaveOrderToSession(table.TableNumber, order);
+            }
+
             return View(table);
         }
 
@@ -57,5 +95,84 @@ namespace ChapeauPOS.Controllers
             }
             return NotFound();
         }
+        public IActionResult DisplayOrderView(string tableId)
+        {
+            int tableNumber = int.Parse(tableId);
+            Order order = GetOrderFromSession(tableNumber);
+            return PartialView("_OrderListPartial", order);
+        }
+        [HttpPost]
+       
+        public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId)
+        {
+            MenuItem menuItem = _menuService.GetMenuItemById(itemId);
+            Table table = _tablesService.GetTableByID(tableId);
+            Employee employee = _employeesService.GetEmployeeById(employeeId);
+
+            Order order = GetOrderFromSession(tableId);
+
+            // If this is a new order (i.e., table wasn't previously occupied)
+            if (order.Table == null)
+            {
+                order.Table = table;
+                order.Employee = employee;
+                order.CreatedAt = DateTime.Now;
+                order.OrderStatus = OrderStatus.Pending;
+            }
+
+            OrderItem orderItem = new OrderItem
+            {
+                MenuItem = menuItem,
+                //MenuCourse = menuItem.Course,
+                OrderItemStatus = OrderItemStatus.Ordered,
+                //CourseStatus = CourseStatus.Ordered,
+                Quantity = 1
+            };
+            order.OrderItems.Add(orderItem);
+            SaveOrderToSession(tableId, order);
+
+            // Check if the table is already occupied
+            if (table.TableStatus != TableStatus.Occupied)
+            {
+                
+            }
+           
+            table.TableStatus = TableStatus.Occupied;
+            _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
+
+            return PartialView("_OrderListPartial", order);
+        }
+        
+        public IActionResult SendOrder(int id)
+        {
+            // Here Iam gonna send the order to the kitchen and bar 
+            // and update the order status to Ordered
+            // and save the order to the database
+            // Finally Remove the order from the session
+            Order order = GetOrderFromSession(id);
+            order.OrderStatus = OrderStatus.Ordered;
+            
+            _ordersService.AddOrder(order);
+            SaveOrderToSession(order.Table.TableNumber, order);
+            
+
+
+            return RedirectToAction("Index", "Tables");
+
+        }
+        public IActionResult DeleteOrder(int id)
+        {
+            // Here Iam gonna delete the order from the database
+            // and remove the order from the session
+            // and update the table status to Available
+            Order order = GetOrderFromSession(id);
+            
+            //Table table = _tablesService.GetTableByID(id);
+            order.Table.TableStatus = TableStatus.Free;
+            _tablesService.UpdateTableStatus(order.Table.TableNumber, order.Table.TableStatus);
+            HttpContext.Session.Remove($"{OrderSessionKeyPrefix}{id}");
+            return RedirectToAction("Index", "Tables");
+        }
+
     }
 }
