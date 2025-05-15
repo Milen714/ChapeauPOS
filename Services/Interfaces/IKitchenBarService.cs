@@ -14,6 +14,7 @@ namespace ChapeauPOS.Services.Interfaces
         //void UpdateBarOrderStatus(int orderId, OrderStatus orderStatus);
         List<Order> GetFinishedBarOrders();
         void CloseFoodOrder(int orderId);
+        void CloseDrinkOrder(int orderId);
         void UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, OrderItemStatus orderItemStatus);
     }
 }

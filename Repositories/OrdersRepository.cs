@@ -24,7 +24,16 @@ namespace ChapeauPOS.Repositories
             Table table = new Table { TableNumber = tableNumber };
             Employee employee = new Employee { EmployeeId = employeeID };
 
-            return new Order(orderId, table, employee, orderStatus, createdAt, closedAt);
+            return new Order
+            {
+                OrderID = orderId,
+                Table = table,
+                Employee = employee,
+                OrderStatus = orderStatus,
+                CreatedAt = createdAt,
+                ClosedAt = closedAt,
+                OrderItems = new List<OrderItem>()
+            };
         }
 
         private OrderItem ReadOrderItem(SqlDataReader reader)
@@ -41,7 +50,7 @@ namespace ChapeauPOS.Repositories
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
 
             MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, ItemPrice = itemPrice };
-            return new OrderItem(orderItemID, menuItem, quantity, menuCourse, orderItemStatus, notes);
+            return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
         }
         public List<Order> GetAllOrders()
         {
