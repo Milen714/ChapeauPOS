@@ -74,9 +74,15 @@ namespace ChapeauPOS.Controllers
             return View(orders);
         }
 
-        public IActionResult CloseOrder(int orderId)
+        public IActionResult CloseFoodOrder(int orderId)
         {
             _kitchenBarService.CloseFoodOrder(orderId);
+            return RedirectToAction("KitchenRunningOrders");
+        }
+
+        public IActionResult CloseDrinkOrder(int orderId)
+        {
+            _kitchenBarService.CloseDrinkOrder(orderId);
             return RedirectToAction("KitchenRunningOrders");
         }
 

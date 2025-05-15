@@ -46,28 +46,18 @@
 							<div>
 								<form method="post" action="/KitchenBar/UpdateBarItemStatus">
 									<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-									<select name="orderItemStatus" class="form-select form-select-sm"
-											onchange="this.form.submit()">
-										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
-										{
-											<option value="@OrderItemStatus.Ordered" selected>Ordered</option>
-											<option value="@OrderItemStatus.Preparing">Preparing</option>
-										}
-										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
-										{
-											<option value="@OrderItemStatus.Preparing" selected>Preparing</option>
-											<option value="@OrderItemStatus.Ready">Ready</option>
-										}
-										else if (item.OrderItemStatus == OrderItemStatus.Ready)
-										{
-											<option value="@OrderItemStatus.Ready" selected>Ready</option>
-											<option value="@OrderItemStatus.Served">Served</option>
-										}
-										else
-										{
-											<option value="@item.OrderItemStatus" selected>@item.OrderItemStatus</option>
-										}
-									</select>
+									@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+									{
+										<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
+									}
+									else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+									{
+										<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
+									}
+									else
+									{
+										<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
+									}
 								</form>
 							</div>
 						</div>
@@ -77,6 +67,10 @@
 
 			<!-- Order Status -->
 			<div class="mb-2">
+				<form action="/KitchenBar/CloseDrinkOrder" method="post">
+					<input type="hidden" name="orderId" value="@order.OrderID" />
+					<button type="submit" class="btn btn-primary">Close Order</button>
+				</form>
 				@* <form method="post" action="/KitchenBar/UpdateBarOrderStatus">
 					<input type="hidden" name="orderId" value="@order.OrderID" />
 					<select name="orderStatus" class="form-select form-select-sm"

@@ -312,10 +312,33 @@ namespace ChapeauPOS.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "UPDATE oi SET OrderItemStatus = 'Ready' " +
+                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
                                "WHERE OrderID = @OrderID AND mi.Course <> 'Drink'";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Something went wrong while updating order status.", ex);
+                }
+            }
+        }
+
+        public void CloseDrinkOrder(int orderId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
+                               "FROM OrderItems oi " +
+                               "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                               "WHERE OrderID = @OrderID AND mi.Course = 'Drink'";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@OrderID", orderId);
 
