@@ -123,7 +123,7 @@ namespace ChapeauPOS.Controllers
             OrderItem orderItem = new OrderItem
             {
                 MenuItem = menuItem,
-                MenuCourse = menuItem.Course,
+                //MenuCourse = menuItem.Course,
                 OrderItemStatus = OrderItemStatus.Ordered,
                 //CourseStatus = CourseStatus.Ordered,
                 Quantity = 1
