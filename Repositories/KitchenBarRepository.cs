@@ -93,7 +93,7 @@ namespace ChapeauPOS.Repositories
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
 
             MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription };
-            return new OrderItem(orderItemID, menuItem, quantity, menuCourse, orderItemStatus, courseStatus, notes);
+            return new OrderItem(orderItemID, menuItem, quantity, menuCourse, orderItemStatus, notes);
         }
 
         public void UpdateKitchenOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)

@@ -125,7 +125,7 @@ namespace ChapeauPOS.Controllers
                 MenuItem = menuItem,
                 MenuCourse = menuItem.Course,
                 OrderItemStatus = OrderItemStatus.Ordered,
-                CourseStatus = CourseStatus.Ordered,
+                //CourseStatus = CourseStatus.Ordered,
                 Quantity = 1
             };
             order.OrderItems.Add(orderItem);

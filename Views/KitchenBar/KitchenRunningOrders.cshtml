@@ -30,7 +30,7 @@
 					<div style="background-color:#d5d5d5;display:flex;justify-content:space-between;align-items:center;padding:6px 15px;">
 						<h6>@course.Key</h6>
 						<div>
-							<form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
+							@* <form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
 								<input type="hidden" name="orderId" value="@order.OrderID" />
 								<input type="hidden" name="menuCourse" value="@course.Key" />
 								<select name="courseStatus" class="form-select form-select-sm" onchange="this.form.submit()" style="width:150px;">
@@ -54,7 +54,7 @@
 										<option value="@courseStatus" selected>@courseStatus</option>
 									}
 								</select>
-							</form>
+							</form> *@
 						</div>
 					</div>
 					@foreach (OrderItem item in course)
