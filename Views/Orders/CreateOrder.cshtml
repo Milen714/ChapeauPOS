@@ -1,4 +1,101 @@
-﻿@{
-	ViewData["Title"] = "Create Order";
+﻿@model ChapeauPOS.Models.Table
+@{  
+    ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
+    Layout = "~/Views/Shared/_OrderLayout.cshtml";
+	ViewBag.TableNumber = Model.TableNumber;
+}  
+<h1>@ViewData["Title"]</h1>  
+<input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
+<input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
+<header>  
+  <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
+      <option value="Lunch">Lunch</option>  
+      <option value="Dinner">Dinner</option>  
+        
+  </select>  
+</header>  
+
+<article class="OrderViewBody">
+<div id="partialViewContainer">  
+  <!-- Partial view will be loaded here -->  
+</div>  
+
+<div class="order_container">  
+  <div class="order_items">
+            <a href="/Orders/DeleteOrder/@Model.TableNumber">DeleteOrder</a>
+
+            <h2>Order Items</h2>  
+	  <ul id="orderList">  
+		  <!-- Order items will be dynamically added here -->  
+	  </ul>  
+  </div>  
+  
+</article>
+
+@section Scripts {  
+  <script>  
+      function loadPartialView() {  
+          const selectedValue = document.getElementById('mealType').value;  
+          const container = document.getElementById('partialViewContainer');  
+
+          fetch(`/Orders/GetMenuItems?category=${selectedValue}`)  
+              .then(response => {  
+                  if (!response.ok) {  
+                      throw new Error('Network response was not ok');  
+                  }  
+                  return response.text();  
+              })  
+              .then(html => {  
+                  container.innerHTML = html;
+                    filterCourse('starter');
+                       // attachMenuItemClickHandlers();
+              })  
+              .catch(error => console.error('Error loading partial view:', error));  
+      }  
+          
+      function filterCourse(course) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.style.display = item.dataset.course === course ? 'block' : 'none';
+            });
+        }
+
+
+            $(document).ready(loadPartialView());
+
+            $(document).ready(function () {
+                var tableId = document.getElementById('tableId').value;
+                $.ajax({
+                    url: "/Orders/DisplayOrderView?tableId=" + encodeURIComponent(tableId),
+                    type: "GET",
+                    success: function (data) {
+                        $("#orderList").html(data);
+                    },
+                    error: function (error) {
+                        console.error("Error fetching users:", error);
+                    }
+                });
+            });
+
+            $(document).on('click', '.clickable-item', function () {
+                const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
+                var tableId = document.getElementById('tableId').value;
+                var employeeId = document.getElementById('employeeId').value;
+                $.ajax({
+                    url: '/Orders/AddItemToOrder',
+                    type: 'POST',
+                    data: {
+                        itemId: parseInt(itemId),
+                        tableId: parseInt(tableId),
+                        employeeId: parseInt(employeeId)
+                    },
+                    success: function (html) {
+                        $('#orderList').html(html); // inject updated partial
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+            });
+
+  </script>  
 }
-<h1>@ViewData["Title"]- Table: @ViewBag.TableNumber</h1>

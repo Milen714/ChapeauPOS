@@ -1,0 +1,54 @@
+﻿@model ChapeauPOS.Models.ViewModels.MenuViewModel
+
+
+<div id="courseSidebar">
+    <button class="CourseSelectionButtons" onclick="filterCourse('starter')"><img src="/assets/Property 1=AppetizerWhite.svg" alt="Alternate Text" /> Starter</button>
+    <button onclick="filterCourse('main')"><img src="/assets/Property 1=MainWhite.svg" alt="Alternate Text" /> Main</button>
+    <button onclick="filterCourse('dessert')"><img src="/assets/Property 1=DesertWhite.svg" alt="Alternate Text" /> Dessert</button>
+    <button onclick="filterCourse('drink')">Drinks</button>
+</div>
+
+<div id="menuItemsContainer">
+    @foreach (var item in Model.Starters)
+    {
+       
+            <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="starter">
+                    <h4>@item.ItemName</h4>
+                    <p>@item.ItemPrice.ToString("C")</p>
+                </div>
+            </form>
+    }
+    @foreach (var item in Model.MainCourses)
+    {
+        <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="main">
+                <h4>@item.ItemName</h4>
+                <p>@item.ItemPrice.ToString("C")</p>
+            </div>
+        </form>
+    }
+    @foreach (var item in Model.Desserts)
+    {
+        <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="dessert">
+                <h4>@item.ItemName</h4>
+                <p>@item.ItemPrice.ToString("C")</p>
+            </div>
+        </form>
+    }
+    @foreach (var item in Model.Drinks)
+    {
+        <form class="menu-item-form" method="post">
+            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <div class="menu-item square clickable-item" data-course="drink">
+                <h4>@item.ItemName</h4>
+                <p>@item.ItemPrice.ToString("C")</p>
+            </div>
+        </form>
+    }
+</div>
+
