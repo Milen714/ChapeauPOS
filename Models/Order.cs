@@ -22,15 +22,24 @@
             
         }
 
-        public Order(int orderID, Table table, Employee employee, OrderStatus orderStatus, DateTime createdAt, DateTime? closedAt)
+        public Order(int orderID, Table table, Employee employee, DateTime createdAt, DateTime? closedAt)
         {
             OrderID = orderID;
             Table = table;
             Employee = employee;
-            OrderStatus = orderStatus;
             CreatedAt = createdAt;
             ClosedAt = closedAt;
             OrderItems = new List<OrderItem>();
+        }
+
+        public Order(int orderID, Table table, Employee employee, DateTime createdAt, DateTime? closedAt, List<OrderItem> orderItems)
+        {
+            OrderID = orderID;
+            Table = table;
+            Employee = employee;
+            CreatedAt = createdAt;
+            ClosedAt = closedAt;
+            OrderItems = orderItems;
         }
     }
 }

@@ -69,7 +69,37 @@ namespace ChapeauPOS.Repositories
         }
         public MenuItem GetMenuItemById(int id)
         {
-            throw new NotImplementedException();
+            MenuItem menuItem = new MenuItem();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MC.CategoryID, MC.CategoryName, MI.Course " +
+                                   "FROM MenuItems AS MI " +
+                                   "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
+                                   "WHERE MI.MenuItemID = @MenuItemID";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@MenuItemID", id);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            menuItem = ReadMenuItem(reader);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return menuItem;
         }
         public void AddMenuItem(MenuItem menuItem)
         {

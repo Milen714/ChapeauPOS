@@ -1,0 +1,15 @@
+﻿@model ChapeauPOS.Models.Order
+@{
+    decimal total = 0;
+}
+<p>Order Status: @Model.OrderStatus.ToString()</p>
+@foreach (var item in Model.OrderItems)
+{
+    total += item.PriceAccountedForQuantity;
+    <li>@item.MenuItem.ItemName - @item.MenuItem.ItemPrice.ToString("C")
+        <span>@item.Notes</span></li>
+}
+<div class="order_summary">
+    <h2>Order Summary</h2>
+    <p>Total: <span id="totalPrice">@total.ToString("C")</span></p>
+</div>

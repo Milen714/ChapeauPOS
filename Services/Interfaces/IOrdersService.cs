@@ -10,6 +10,7 @@ namespace ChapeauPOS.Services.Interfaces
         void UpdateOrder(Order order);
         void DeleteOrder(int orderId);
         List<Order> GetOrdersByTableId(int tableId);
+        Order GetOrderByTableId(int tableId);
         List<Order> GetOrdersByEmployeeId(int employeeId);
         List<Order> GetOrdersByStatus(OrderStatus status);
     }

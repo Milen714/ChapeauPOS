@@ -52,9 +52,10 @@
             </div>
             <div class="nav_status_Right">
                 <div>
-                    <button>Send</button>
+                    <a href="/Orders/SendOrder/@ViewBag.TableNumber">Send from Table: @ViewBag.TableNumber</a>
                     <button>Check</button>
-                    <button>Settle Payment</button>
+                    <a asp-controller="Orders" asp-action="Payment" asp-route-tableId="@ViewBag.TableNumber" class="btn btn-outline-dark">Settle Payment</a>
+
                 </div>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"

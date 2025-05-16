@@ -13,54 +13,79 @@
 <div class="orders-container d-flex flex-row flex-wrap">
 	@foreach (Order order in Model)
 	{
-		<div class="order-card m-2 p-3" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+		<div class="order-card m-2" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
 			<!-- Header -->
-			<div class="order-header d-flex justify-content-between align-items-center mb-2">
-				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
-				<div class="text-end">
-					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div>
-					<small class="text-muted" data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</small>
-				</div>
+			<div class="order-header d-flex justify-content-between align-items-center" style="background-color:#0A60DA;padding:0 15px 15px 15px;border-radius:8px 8px 0 0;color:white">
+				<div style="color:black;background-color:#FF9F40;padding:5px;border-radius:3px 3px 0 0;">Table @order.Table.TableNumber</div>
+				<div class="fw-bold">@order.CreatedAt.ToString("hh:mm tt")</div>
+				<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</div>
 			</div>
 
 			<!-- Order Items -->
-			@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuCourse).GroupBy(oi => oi.MenuCourse))
+			@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
 			{
 				// Get the most advanced status in this course group
-				var courseStatus = course.Max(oi => oi.CourseStatus);
+				//string? courseStatus = course.Max(oi => oi.CourseStatus);
+				string? courseStatus = null;
+
+				if (course.All(oi => oi.CourseStatus == "Ready"))
+				{
+					courseStatus = "Ready";
+				}
+				else if (course.All(oi => oi.CourseStatus == "Preparing"))
+				{
+					courseStatus = "Preparing";
+				}
+				else
+				{
+					courseStatus = "Ordered";
+				}
+
 				<div class="mb-3">
-					<h6 class="border-bottom">@course.Key</h6>
-					<div>
-						<form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
-							<input type="hidden" name="orderId" value="@order.OrderID" />
-							<input type="hidden" name="menuCourse" value="@course.Key" />
-							<select name="courseStatus" class="form-select form-select-sm"
-									onchange="this.form.submit()">
-								@if (courseStatus == CourseStatus.Ordered)
+					<div style="background-color:#d5d5d5;display:flex;justify-content:space-between;align-items:center;padding:6px 15px;">
+						<h6>@course.Key</h6>
+						<div>
+							<form action="/KitchenBar/UpdateItemStatusBasedOnCourse" method="post">
+								<input type="hidden" name="orderId" value="@order.OrderID" />
+								<input type="hidden" name="course" value="@course.Key" />
+								@if (courseStatus == "Ordered")
 								{
-									<option value="@CourseStatus.Ordered" selected>Ordered</option>
-									<option value="@CourseStatus.Preparing">Preparing</option>
+									<button type="submit" name="courseStatus" value="Preparing" class="btn btn-warning">Mark as Preparing</button>
 								}
-								else if (courseStatus == CourseStatus.Preparing)
+								else if (courseStatus == "Preparing")
 								{
-									<option value="@CourseStatus.Preparing" selected>Preparing</option>
-									<option value="@CourseStatus.Ready">Ready</option>
-								}
-								else if (courseStatus == CourseStatus.Ready)
-								{
-									<option value="@CourseStatus.Ready" selected>Ready</option>
-									<option value="@CourseStatus.Served">Served</option>
+									<button type="submit" name="courseStatus" value="Ready" class="btn btn-success">Mark as Ready</button>
 								}
 								else
 								{
-									<option value="@courseStatus" selected>@courseStatus</option>
+									<button type="submit" name="courseStatus" class="btn btn-secondary" disabled>Ready</button>
 								}
-							</select>
-						</form>
+							</form>
+							@* <form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
+								<input type="hidden" name="orderId" value="@order.OrderID" />
+								<input type="hidden" name="menuCourse" value="@course.Key" />
+								@if (courseStatus == CourseStatus.Ordered)
+								{
+									<button type="submit" name="courseStatus" value="Preparing" class="btn btn-warning">Mark as Preparing</button>
+								}
+								else if (courseStatus == CourseStatus.Preparing)
+								{
+									<button type="submit" name="courseStatus" value="Ready" class="btn btn-success">Mark as Ready</button>
+								}
+								else if (courseStatus == CourseStatus.Ready)
+								{
+									<button type="submit" name="courseStatus" value="Served" class="btn btn-primary">Mark as Served</button>
+								}
+								else
+								{
+									<button type="submit" name="courseStatus" class="btn btn-secondary" disabled>Served</button>
+								}
+							</form> *@
+						</div>
 					</div>
 					@foreach (OrderItem item in course)
 					{
-						<div class="d-flex justify-content-between align-items-start mb-2">
+						<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
 							<div>
 								<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
 								@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
@@ -76,7 +101,21 @@
 							<div>
 								<form method="post" action="/KitchenBar/UpdateKitchenItemStatus">
 									<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-									<select name="orderItemStatus" class="form-select form-select-sm"
+									@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+									{
+										<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
+									}
+									else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+									{
+										<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
+									}
+									else
+									{
+										<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
+										@* <button type="submit" name="orderItemStatus" value="@OrderItemStatus.Served" class="btn btn-primary">Mark as Served</button> *@
+									}
+
+									@* <select name="orderItemStatus" class="form-select form-select-sm"
 											onchange="this.form.submit()">
 										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
 										{
@@ -86,18 +125,18 @@
 										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
 										{
 											<option value="@OrderItemStatus.Preparing" selected>Preparing</option>
-											<option value="@OrderItemStatus.Ready">Ready</option>
+											<option value="@OrderItemStatus.Ready" style="background-color:#00B27F;">Ready</option>
 										}
 										else if (item.OrderItemStatus == OrderItemStatus.Ready)
 										{
-											<option value="@OrderItemStatus.Ready" selected>Ready</option>
+											<option value="@OrderItemStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
 											<option value="@OrderItemStatus.Served">Served</option>
 										}
 										else
 										{
 											<option value="@item.OrderItemStatus" selected>@item.OrderItemStatus</option>
 										}
-									</select>
+									</select> *@
 								</form>
 							</div>
 						</div>
@@ -106,10 +145,14 @@
 			}
 
 			<!-- Order Status -->
-			<div class="mb-2">
-				<form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
+			<div class="mb-4" style="padding:0 15px;">
+				<form action="/KitchenBar/CloseFoodOrder" method="post">
 					<input type="hidden" name="orderId" value="@order.OrderID" />
-					<select name="orderStatus" class="form-select form-select-sm"
+					<button type="submit" class="btn btn-primary">Close Order</button>
+				</form>
+				@*  <form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
+					<input type="hidden" name="orderId" value="@order.OrderID" />
+					<select name="orderStatus" class="form-select"
 							onchange="this.form.submit()">
 						@if (order.OrderStatus == OrderStatus.Ordered)
 						{
@@ -119,11 +162,11 @@
 						else if (order.OrderStatus == OrderStatus.Preparing)
 						{
 							<option value="@OrderStatus.Preparing" selected>Preparing</option>
-							<option value="@OrderStatus.Ready">Ready</option>
+							<option value="@OrderStatus.Ready" style="background-color:#00B27F;">Ready</option>
 						}
 						else if (order.OrderStatus == OrderStatus.Ready)
 						{
-							<option value="@OrderStatus.Ready" selected>Ready</option>
+							<option value="@OrderStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
 							<option value="@OrderStatus.Served">Served</option>
 						}
 						else
@@ -131,7 +174,7 @@
 							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
 						}
 					</select>
-				</form>
+				</form>  *@
 			</div>
 		</div>
 	}
