@@ -48,6 +48,9 @@
 /*  *PopUp Styles
 
 */
+.container {
+    margin: 0;
+}
 a{
     cursor: pointer;
 }
@@ -111,7 +114,20 @@ a{
 .Logo{
     width: 51px;
     height: 52px;
-    background-image: url(/assets/MainLogoBlack.svg);
+}
+.Logo::before{
+    width: 55px;
+    height: 55px;
+    content:"asasdd";
+    color: transparent;
+    background-image: src(/assets/LogoFigmaWhite.svg);
+}
+.Logo_Image {
+    width: 55px;
+    height: 55px;
+    content: "asasdd";
+    color: transparent;
+    background-image: src(/assets/LogoFigmaWhite.svg);
 }
 .LogoText {
     font-family: var(--Collection1-Paragpraph_font);
@@ -157,6 +173,8 @@ li a {
     padding: 1em;
     border: 1px black solid;
     border-radius: 0.7em;
+    background-color: var(--Collection1-Greys-LightGrey);
+    color: white;
 }
 .Login_card_body{
     display: flex;
@@ -165,10 +183,13 @@ li a {
     align-items: center;
 
 }
-.ManagerIcon, .WaiterIcon, .BartenderIcon, .CookIcon, .ManagerIconF, .WaitressIcon, .BartenderIconF, .CookIconF{
-    width: 99px;
-    height: 113px;
-    
+.ManagerIcon, .WaiterIcon, .BartenderIcon, .CookIcon, .ManagerIconF, .WaitressIcon, .BartenderIconF, .CookIconF {
+    width: 109px;
+    height: 123px;
+    padding: 10px;
+    background: no-repeat;
+    background-color: var(--Collection1-Greys-LightGreyLoginBackground);
+    border-radius: 5px;
 }
 .ManagerIcon {
     background-image: url('/assets/ManagerIcon_L.svg');
@@ -218,7 +239,8 @@ li a {
     flex-direction: column;
     text-align: center;
     gap: 0px;
-}   
+}
+
 /*
     ORDER PAGE STYLES
 */
@@ -229,47 +251,102 @@ li a {
     grid-template-columns: 150px auto;
 }
 .order_container {
-    width: 500px;
-    border: green 1px solid;
-    justify-items:center;
+}
+.order_items_Header{
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    width:495.38px;
+    justify-content: space-between;
+    background-color: var(--Collection1-Greys-BarsLightGrey);
+    border-radius: 10px 10px 0 0;
+    padding: 10px 10px 10px 10px;
+}
+.order_items_Header p{
+    color: var(--Collection1-Greys-GreyText);
+    text-align:center;
+    font-size:12px;
+}
+.order_items_Header h4{
+    color: white;
 }
 
+#Actions_Select {
+    appearance: none;
+    background-color: transparent;
+    color: var(--Collection1-TextBlue);
+    text-align:center;
+    padding: 7px;
+    border: none;
+    
+}
+#Actions_Select option{
+    background-color:transparent;
+}
+.order_items a {
+    text-decoration: none;
+}
+
+
 #courseSidebar {
+    width: 126px;
     display: flex;
     flex-direction: column;
     grid-area: courses;
+    gap: 5px;
 }
 #menuItemsContainer{
     grid-area: items;
     padding-left: 10px;
     width:637px;
-    height:637px;
+    height:600px;
     display: flex;
     flex-direction: row;
     flex-wrap:wrap;
+    gap: 5px;
+    overflow: scroll;
+    overflow-x: hidden;
 }
-.OrderViewBody{
+#menuItemsContainer::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.OrderViewBody {
+    height: 600px;
+    width: 100vw;
     display: flex;
     flex-direction: row;
-    border: blue 1px solid;
 }
 #orderList{
     display:flex;
     flex-direction: column;
-    height: 100%; 
+    height: 475px; 
+    width: 495.35px;
+    overflow:scroll;
+    overflow-x:hidden;
+    background-color: var(--Collection1-Greys-SideContainerGrey);
 }
-.order_items {
-    width: 95%;
+#orderList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
+
 .OrderItem_Row {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     border-block-end: 1px #ffffff41 solid;
+    padding: 5px;
 }
 .OrderItem_RowBody {
     display: flex;
+    width:100%;
     gap: 5px;
+}
+.OrderItem_RowBody div{
+    color: white;
+    display:flex;
+    flex-wrap:wrap;
+    max-width:200px;
 }
 .OrderItemRow_Price{
     margin-left: 210px;
@@ -277,9 +354,20 @@ li a {
 .Notes_span {
     text-align: center;
 }
-.order_summary{
-    margin-top: 100px;
+.order_summary {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    width: 495.38px;
+    box-sizing: border-box;
+    top: 675px;
+    position: absolute;
+    background-color: var(--Collection1-Greys-BarsLightGrey);
+    border-radius: 0 0 10px 10px;
+    padding: 10px;
+    align-items: flex-end
 }
+
 #courseSidebar button {
     width: 125px;
     height: 125px;
@@ -292,14 +380,61 @@ li a {
     color: white;
     font-family: var(--Collection1-Paragpraph_font);
     font-weight: 500;
+    border: none;
 }
 #courseSidebar button img{
     width:24px;
 }
 .square{
-    border: 1px blue solid;
+    display: flex;
+    flex-direction: column;
+    align-content: space-between;
     height: 125px;
     width:125px;
     border-radius: 7px;
-    margin: 5px;
+    padding: 5px;
+}
+.square h4{
+    font-size: 16px;
+}
+.note-input{
+    width: 125px;
+    background-color: transparent;
+    border: none;
+}
+.MenuItemButton_Wrap{
+    display: flex;
+    flex-direction:column;
+    background-color: var(--Collection1-LsDarkPurple);
+    border-radius:5px;
+    color: white;
+}
+.MenuItem_Header{
+    display:flex;
+    width: 777px;
+    padding: 10px;
+    background-color: var(--Collection1-Greys-BarsLightGrey);
+    border-radius: 5px ;
+    margin-bottom: 5px;
+
+
+}
+#Menu_SearchBar{
+    border: none;
+    background-color: transparent;
+}
+#Menu_SearchBar_Button{
+    position: absolute;
+    left: 250px;
+    border: none;
+    background: none;
+}
+#mealType {
+    color: white;
+    background-color: transparent;
+    border: none;
+    font-size: 20px
+}
+#mealType option{
+    color:black;
 }

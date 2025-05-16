@@ -51,10 +51,14 @@
         private decimal TotalAmountToPay()
         {
             decimal total = 0.00m;
-            foreach(var item in OrderItems)
+            if(OrderItems != null)
             {
-                total += item.PriceAccountedForQuantity;
+                foreach (var item in OrderItems)
+                {
+                    total += item.PriceAccountedForQuantity;
+                }
             }
+            
             return total;
         }
         public void SetTemporaryOrderId(int id)
