@@ -103,7 +103,7 @@ namespace ChapeauPOS.Controllers
         }
         [HttpPost]
        
-        public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId)
+        public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
             MenuItem menuItem = _menuService.GetMenuItemById(itemId);
             Table table = _tablesService.GetTableByID(tableId);
@@ -125,6 +125,7 @@ namespace ChapeauPOS.Controllers
                 MenuItem = menuItem,
                 //MenuCourse = menuItem.Course,
                 OrderItemStatus = OrderItemStatus.Ordered,
+                Notes = note,
                 //CourseStatus = CourseStatus.Ordered,
                 Quantity = 1
             };

@@ -80,13 +80,15 @@
                 const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
                 var tableId = document.getElementById('tableId').value;
                 var employeeId = document.getElementById('employeeId').value;
+                const note = $(this).closest('.menu-item-form').find('.note-input').val();
                 $.ajax({
                     url: '/Orders/AddItemToOrder',
                     type: 'POST',
                     data: {
                         itemId: parseInt(itemId),
                         tableId: parseInt(tableId),
-                        employeeId: parseInt(employeeId)
+                        employeeId: parseInt(employeeId),
+                        note: note
                     },
                     success: function (html) {
                         $('#orderList').html(html); // inject updated partial

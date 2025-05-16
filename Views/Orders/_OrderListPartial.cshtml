@@ -6,7 +6,8 @@
 @foreach (var item in Model.OrderItems)
 {
     total += item.PriceAccountedForQuantity;
-    <li>@item.MenuItem.ItemName - @item.MenuItem.ItemPrice.ToString("C")</li>
+    <li>@item.MenuItem.ItemName - @item.MenuItem.ItemPrice.ToString("C")
+        <span>@item.Notes</span></li>
 }
 <div class="order_summary">
     <h2>Order Summary</h2>
