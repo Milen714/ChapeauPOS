@@ -24,7 +24,16 @@ namespace ChapeauPOS.Repositories
             Table table = new Table { TableNumber = tableNumber };
             Employee employee = new Employee { EmployeeId = employeeID };
 
-            return new Order(orderId, table, employee, orderStatus, createdAt, closedAt);
+            return new Order
+            {
+                OrderID = orderId,
+                Table = table,
+                Employee = employee,
+                OrderStatus = orderStatus,
+                CreatedAt = createdAt,
+                ClosedAt = closedAt,
+                OrderItems = new List<OrderItem>()
+            };
         }
 
         private OrderItem ReadOrderItem(SqlDataReader reader)
@@ -33,15 +42,15 @@ namespace ChapeauPOS.Repositories
             int menuItemID = (int)reader["MenuItemID"];
             int quantity = (int)reader["Quantity"];
             decimal itemPrice = (decimal)reader["ItemPrice"];
-            MenuCourse menuCourse = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader["MenuCourse"].ToString());
+            MenuCourse menuCourse = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader["Course"].ToString());
             OrderItemStatus orderItemStatus = reader["OrderItemStatus"] == DBNull.Value ? OrderItemStatus.Ordered : (OrderItemStatus)Enum.Parse(typeof(OrderItemStatus), reader["OrderItemStatus"].ToString());
-            CourseStatus courseStatus = reader["CourseStatus"] == DBNull.Value ? CourseStatus.Ordered : (CourseStatus)Enum.Parse(typeof(CourseStatus), reader["CourseStatus"].ToString());
+           // CourseStatus courseStatus = reader["CourseStatus"] == DBNull.Value ? CourseStatus.Ordered : (CourseStatus)Enum.Parse(typeof(CourseStatus), reader["CourseStatus"].ToString());
             string notes = reader["Notes"] == DBNull.Value ? "" : (string)reader["Notes"];
             string itemName = (string)reader["ItemName"];
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
 
             MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, ItemPrice = itemPrice };
-            return new OrderItem(orderItemID, menuItem, quantity, menuCourse, orderItemStatus, courseStatus, notes);
+            return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
         }
         public List<Order> GetAllOrders()
         {
@@ -50,7 +59,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course,  oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -104,15 +113,15 @@ namespace ChapeauPOS.Repositories
                     int newOrderId = Convert.ToInt32(command.ExecuteScalar());
                     foreach (var item in order.OrderItems)
                     {   //Insert each order item into the OrderItems table Using the new OrderID
-                        string itemQuery = "INSERT INTO OrderItems (OrderID, MenuItemID, Quantity, MenuCourse, OrderItemStatus, CourseStatus, Notes) " +
-                                           "VALUES (@OrderID, @MenuItemID, @Quantity, @MenuCourse, @OrderItemStatus, @CourseStatus, @Notes)";
+                        string itemQuery = "INSERT INTO OrderItems (OrderID, MenuItemID, Quantity, OrderItemStatus, Notes) " +
+                                           "VALUES (@OrderID, @MenuItemID, @Quantity, @OrderItemStatus, @Notes)";
                         SqlCommand itemCommand = new SqlCommand(itemQuery, connection);
                         itemCommand.Parameters.AddWithValue("@OrderID", newOrderId);
                         itemCommand.Parameters.AddWithValue("@MenuItemID", item.MenuItem.MenuItemID);
                         itemCommand.Parameters.AddWithValue("@Quantity", item.Quantity);
-                        itemCommand.Parameters.AddWithValue("@MenuCourse", item.MenuCourse.ToString());
+                        //itemCommand.Parameters.AddWithValue("@MenuCourse", item.MenuCourse.ToString());
                         itemCommand.Parameters.AddWithValue("@OrderItemStatus", item.OrderItemStatus.ToString());
-                        itemCommand.Parameters.AddWithValue("@CourseStatus", item.CourseStatus.ToString());
+                       // itemCommand.Parameters.AddWithValue("@CourseStatus", item.CourseStatus.ToString());
                         itemCommand.Parameters.AddWithValue("@Notes", (object)item.Notes ?? DBNull.Value);
 
                         itemCommand.ExecuteNonQuery();
@@ -128,13 +137,54 @@ namespace ChapeauPOS.Repositories
                 throw new Exception("Error adding order to database", ex);
             }
         }
-        public void UpdateOrder(Order order)
+        public void UpdateOrderItem(OrderItem orderItem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE OrderItems SET MenuItemID = @MenuItemID, Quantity = @Quantity, OrderItemStatus = @OrderItemStatus, Notes = @Notes " +
+                                   "WHERE OrderItemID = @OrderItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                    command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                    command.Parameters.AddWithValue("@OrderItemStatus", orderItem.OrderItemStatus.ToString());
+                    command.Parameters.AddWithValue("@Notes", (object)orderItem.Notes ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@OrderItemID", orderItem.OrderItemId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating order item in database", ex);
+            }
         }
         public void DeleteOrder(int orderId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "DELETE FROM Orders WHERE OrderID = @OrderID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting order from database", ex);
+            }
         }
         public List<Order> GetOrdersByTableId(int tableId)// not by tableID BUT BY TABLE NUMBER
         {
@@ -143,7 +193,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -193,7 +243,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.MenuCourse, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -232,6 +282,64 @@ namespace ChapeauPOS.Repositories
             }
             return order;
 
+        }
+
+        public OrderItem GetOrderItemById(int id)
+        {
+            OrderItem orderItem = new OrderItem();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.OrderItemStatus, oi.Notes, mi.ItemName, mi.ItemDescription, mi.ItemPrice, mi.Course " +
+                    "FROM OrderItems oi " +
+                    "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                    "WHERE oi.OrderItemID = @OrderItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderItemID", id);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            orderItem = ReadOrderItem(reader);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving order from database", ex);
+            }
+            return orderItem;
+        }
+
+        public void RemoveOrderItem(int orderId, int orderItemId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "DELETE FROM OrderItems WHERE OrderID = @OrderID AND OrderItemID = @OrderItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    command.Parameters.AddWithValue("@OrderItemID", orderItemId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error removing order item from database", ex);
+            }
         }
     }
     

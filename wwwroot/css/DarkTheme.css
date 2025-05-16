@@ -49,6 +49,42 @@ body {
     color: white;
 }
 /*
+    LOGIN
+*/
+.ManagerIcon {
+    background-image: url('/assets/LoginIconsWhite/ManagerIcon_L.svg');
+}
+
+.WaiterIcon {
+    background-image: url('/assets/LoginIconsWhite/WaiterIcon_L.svg')
+}
+
+.BartenderIcon {
+    background-image: url('/assets/LoginIconsWhite/BartenderIcon_L.svg')
+}
+
+.CookIcon {
+    background-image: url('/assets/LoginIconsWhite/CookIcon_L.svg')
+}
+
+.ManagerIconF {
+    background-image: url('/assets/LoginIconsWhite/ManagerIconF_L.svg')
+}
+
+.WaitressIcon {
+    background-image: url('/assets/LoginIconsWhite/WaitressIcon_L.svg')
+}
+
+.BartenderIconF {
+    background-image: url('/assets/LoginIconsWhite/BartenderIconF_L.svg')
+}
+
+.CookIconF {
+    background-image: url('/assets/LoginIconsWhite/CookIconF_L.svg')
+}
+
+
+/*
     NAV BAR
 */
 
@@ -65,9 +101,7 @@ li a {
 */
 
 
-.Logo {
-    background-image: url(/assets/MainLogoWhite.svg);
-}
+
 
 .LogoText {
     font-family: var(--Collection1-Paragpraph_font);
@@ -75,5 +109,16 @@ li a {
     font-family: var(--Collection1-Paragpraph_font);
     font-size: 32px;
     font-weight: 700;
+    color: white;
+}
+
+
+/*
+    OrerPage
+*/
+.order_items_Header p {
+    color: var(--Collection1-Greys-GreyText);
+}
+.OrdersH4{
     color: white;
 }

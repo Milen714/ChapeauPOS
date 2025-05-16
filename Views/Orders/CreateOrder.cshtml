@@ -3,16 +3,25 @@
     ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
     Layout = "~/Views/Shared/_OrderLayout.cshtml";
 	ViewBag.TableNumber = Model.TableNumber;
+    
+
 }  
 <h1>@ViewData["Title"]</h1>  
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
-<header>  
+<input id="table" name="table" type="hidden" value="@Model.TableNumber" placeholder="Search...">
+<header class="MenuItem_Header">  
   <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
       <option value="Lunch">Lunch</option>  
       <option value="Dinner">Dinner</option>  
         
   </select>  
+    <div>
+        <form action="/" method="post">
+            <input type="text" id="Menu_SearchBar" name="name" value="" placeholder="SearchMenu"/>  
+            <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
+        </form>
+    </div>
 </header>  
 
 <article class="OrderViewBody">
@@ -21,12 +30,22 @@
 </div>  
 
 <div class="order_container">  
-  <div class="order_items">  
-	  <h2>Order Items</h2>  
-	  <ul id="orderList">  
+    <div class="order_items_Header">
+            <p>@DateTime.Now.ToString("dd/MM/yyyy, hh:mm tt")</p>
+
+            <h4 class="OrdersH4">Order Items</h4>
+            <select id="Actions_Select">
+                <option value="value">Actions</option>
+                <option value="value">MoveTable</option>
+                <option value="/Orders/DeleteOrder/@Model.TableNumber">CancelOrder</option>
+            </select>
+        </div>
+	  <div id="orderList">  
 		  <!-- Order items will be dynamically added here -->  
-	  </ul>  
-  </div>  
+	  </div>
+      </div>
+			
+    
   
 </article>
 
@@ -52,10 +71,14 @@
       }  
           
       function filterCourse(course) {
-            document.querySelectorAll('.menu-item').forEach(item => {
+              document.querySelectorAll('.menu-item, .note-input').forEach(item => {
                 item.style.display = item.dataset.course === course ? 'block' : 'none';
             });
+                document.querySelectorAll('.note-input').forEach(item => {
+                  item.style.display = item.dataset.course === course ? 'block' : 'none';
+              });
         }
+          
 
 
             $(document).ready(loadPartialView());
@@ -78,13 +101,15 @@
                 const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
                 var tableId = document.getElementById('tableId').value;
                 var employeeId = document.getElementById('employeeId').value;
+                const note = $(this).closest('.menu-item-form').find('.note-input').val();
                 $.ajax({
                     url: '/Orders/AddItemToOrder',
                     type: 'POST',
                     data: {
                         itemId: parseInt(itemId),
                         tableId: parseInt(tableId),
-                        employeeId: parseInt(employeeId)
+                        employeeId: parseInt(employeeId),
+                        note: note
                     },
                     success: function (html) {
                         $('#orderList').html(html); // inject updated partial
@@ -94,6 +119,13 @@
                     }
                 });
             });
+
+                  document.getElementById("Actions_Select").addEventListener("change", function () {
+            const selectedValue = this.value;
+            if (selectedValue) {
+                window.location.href = selectedValue; 
+            }
+        });
 
   </script>  
 }

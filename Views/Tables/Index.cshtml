@@ -25,7 +25,9 @@
 					break;
 			}
 			<a href="/Orders/CreateOrder/@table.TableNumber">
-			<div>
+			<div class="Restaurant_Table">
+					<div style="@tableStatusStyle" class="Top_Chair"></div>
+					<div style="@tableStatusStyle" class="Left_Chair"></div>
 				<div style="@tableStatusStyle" class="table_card">
 					<div class="table_card_body">
 						<h5 class="card-title">Table @table.TableNumber</h5>
@@ -33,6 +35,8 @@
 						<p class="card-text">Status: @table.TableStatus</p>
 					</div>
 				</div>
+					<div style="@tableStatusStyle" class="Right_Chair"></div>
+					<div style="@tableStatusStyle" class="Bottom_Chair"></div>
 			</div>
 			</a>
 		}

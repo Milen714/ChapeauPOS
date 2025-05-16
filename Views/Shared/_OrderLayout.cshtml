@@ -54,7 +54,8 @@
                 <div>
                     <a href="/Orders/SendOrder/@ViewBag.TableNumber">Send from Table: @ViewBag.TableNumber</a>
                     <button>Check</button>
-                    <button>Settle Payment</button>
+                    <a asp-controller="Orders" asp-action="Payment" asp-route-tableId="@ViewBag.TableNumber" class="btn btn-outline-dark">Settle Payment</a>
+
                 </div>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -85,7 +86,10 @@
                                         <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
                                     </li>
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
                                     </li>
                                     <li class="nav_item">
                                         <a asp-area="" asp-controller="Home" asp-action="Index">Clients</a>
@@ -106,6 +110,12 @@
                                         <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
                                     </li>
                                     <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
+                                    </li>
+                                    <li class="nav_item">
                                         <a asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
                                     </li>
                                     <li class="nav_item">
@@ -121,7 +131,10 @@
                                     break;
                                 case Roles.Bartender:
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index">BarView</a>
+                                        <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">BarView</a>
                                     </li>
                                     break;
                                 case Roles.Cook:
