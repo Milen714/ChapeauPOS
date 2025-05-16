@@ -9,6 +9,7 @@
 <h1>@ViewData["Title"]</h1>  
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
+<input id="table" name="table" type="hidden" value="@Model.TableNumber">
 <header>  
   <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
       <option value="Lunch">Lunch</option>  
@@ -24,12 +25,15 @@
 
 <div class="order_container">  
   <div class="order_items">
-            <a href="/Orders/DeleteOrder/@Model.TableNumber">DeleteOrder</a>
+            <a href="/Orders/DeleteOrder/@Model.TableNumber">CancelOrder</a>
 
             <h2>Order Items</h2>  
-	  <ul id="orderList">  
+	  <div id="orderList">  
 		  <!-- Order items will be dynamically added here -->  
-	  </ul>  
+	  </div>
+			@* <div id="order_total"> *@
+				
+			@* </div> *@
   </div>  
   
 </article>
@@ -100,6 +104,45 @@
                     }
                 });
             });
+
+
+                //  $(document).ready( function () {
+                //           var table = document.getElementById('table').value;
+                //     $.ajax({
+                //           url: '/Orders/OrderTotal',
+                //         type: 'POST',
+                //         data: {
+                //                 table: parseInt(table)
+                //         },
+                //         success: function (html) {
+                //               $('#order_total').html(html); // inject updated partial
+                //         },
+                //         error: function (xhr, status, error) {
+                //             console.error('AJAX error:', error);
+                //         }
+                //     });
+                // });
+
+
+
+
+
+                //     $(document).on('click', '.clickable-item', function () {
+                //             var table = document.getElementById('table').value;
+                //       $.ajax({
+                //             url: '/Orders/OrderTotal',
+                //           type: 'POST',
+                //           data: {
+                //                   table: parseInt(table)
+                //           },
+                //           success: function (html) {
+                //                 $('#order_total').html(html); // inject updated partial
+                //           },
+                //           error: function (xhr, status, error) {
+                //               console.error('AJAX error:', error);
+                //           }
+                //       });
+                //   });
 
   </script>  
 }

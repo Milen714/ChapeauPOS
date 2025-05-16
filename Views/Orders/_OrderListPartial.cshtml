@@ -1,15 +1,67 @@
 ﻿@model ChapeauPOS.Models.Order
-@{
-    decimal total = 0;
-}
+
+
 <p>Order Status: @Model.OrderStatus.ToString()</p>
 @foreach (var item in Model.OrderItems)
 {
-    total += item.PriceAccountedForQuantity;
-    <li>@item.MenuItem.ItemName - @item.MenuItem.ItemPrice.ToString("C")
-        <span>@item.Notes</span></li>
+    
+    <div class="OrderItem_Row">
+    <div class="OrderItem_RowBody">
+        <div>@item.Quantity x</div>
+        <div>@item.MenuItem.ItemName -</div>
+        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
+    </div>
+        <span class="Notes_span">@item.Notes</span>
+        <div class="popupOverlay">
+            <div class="popupContainer">
+                <div class="crudWindow_OrderIteRow">
+                    <button class="confirmation_cancelation">X</button>
+                    <div>
+                        <form action="/Orders/RemoveOrderItem" method="post">
+                            <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                            <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                            <button type="submit">RemoveItem</button>
+                        </form>
+                    </div>
+                    <div>
+						<form action="/Orders/UpdateOrderItem" method="post">
+							<input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+							<input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+							<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+							<input type="number" name="quantity" value="@item.Quantity" />
+                            <input type="text" name="note" placeholder="Add note..." />
+							<button type="submit">UpdateItem</button>
+						</form>
+                    </div>
+        </div>
+        </div>
+        </div>
+    </div>
 }
-<div class="order_summary">
-    <h2>Order Summary</h2>
-    <p>Total: <span id="totalPrice">@total.ToString("C")</span></p>
+<div>
+    <h4>OrderTotal:</h4>
+    <p><span>@Model.TotalAmount.ToString("C")</span></p>
 </div>
+
+<script>
+    var itemRow = document.getElementsByClassName("OrderItem_Row");
+    var popupOverlays = document.getElementsByClassName("popupOverlay");
+    var confirmationButton = document.getElementById("confirmation_button");
+    var confirmationCancelation = document.getElementsByClassName("confirmation_cancelation");
+
+    for (let i = 0; i < itemRow.length; i++)
+    {
+        itemRow[i].addEventListener("click", function () {
+            popupOverlays[i].style.display = "block";
+        });
+
+    }
+
+        for (let i = 0; i < confirmationCancelation.length; i++) {
+        confirmationCancelation[i].addEventListener("click", function () {
+            popupOverlays[i].style.display = "none";
+        });
+    }
+
+</script>

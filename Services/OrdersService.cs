@@ -24,9 +24,9 @@ namespace ChapeauPOS.Services
         {
             _ordersRepository.AddOrder(order);
         }
-        public void UpdateOrder(Order order)
+        public void UpdateOrderItem(OrderItem orderItem)
         {
-            _ordersRepository.UpdateOrder(order);
+            _ordersRepository.UpdateOrderItem(orderItem);
         }
         public void DeleteOrder(int orderId)
         {
@@ -53,6 +53,15 @@ namespace ChapeauPOS.Services
             return _ordersRepository.GetOrderByTableId(tableId);
         }
 
+        public OrderItem GetOrderItemById(int id)
+        {
+            return _ordersRepository.GetOrderItemById(id);
+        }
+
+        public void RemoveOrderItem(int orderId, int orderItemId)
+        {
+            _ordersRepository.RemoveOrderItem(orderId, orderItemId);
+        }
     }
     
 }
