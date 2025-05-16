@@ -14,6 +14,7 @@
        
             <form class="menu-item-form" method="post">
             <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+            <input type="text" class="note-input" name="note" placeholder="Add note..." />
             <div class="menu-item square clickable-item" data-course="starter">
                     <h4>@item.ItemName</h4>
                     <p>@item.ItemPrice.ToString("C")</p>
@@ -27,6 +28,8 @@
             <div class="menu-item square clickable-item" data-course="main">
                 <h4>@item.ItemName</h4>
                 <p>@item.ItemPrice.ToString("C")</p>
+                <input type="text" class="note-input" name="note" placeholder="Add note..." />
+
             </div>
         </form>
     }
@@ -37,6 +40,8 @@
             <div class="menu-item square clickable-item" data-course="dessert">
                 <h4>@item.ItemName</h4>
                 <p>@item.ItemPrice.ToString("C")</p>
+                <input type="text" class="note-input" name="note" placeholder="Add note..." />
+
             </div>
         </form>
     }
@@ -47,6 +52,8 @@
             <div class="menu-item square clickable-item" data-course="drink">
                 <h4>@item.ItemName</h4>
                 <p>@item.ItemPrice.ToString("C")</p>
+                <input type="text" class="note-input" name="note" placeholder="Add note..." />
+
             </div>
         </form>
     }

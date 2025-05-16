@@ -41,6 +41,9 @@
     --Collection1-TextBlue: #0A60DA;
     --Collection1-Paragpraph_font: "Rubik", sans-serif;
 }
+* {
+    font-family: var(--Collection1-Paragpraph_font);
+}
 
 /*  *PopUp Styles
 
@@ -250,8 +253,32 @@ li a {
     flex-direction: row;
     border: blue 1px solid;
 }
-.order_items{
-    
+#orderList{
+    display:flex;
+    flex-direction: column;
+    height: 100%; 
+}
+.order_items {
+    width: 95%;
+}
+.OrderItem_Row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-block-end: 1px #ffffff41 solid;
+}
+.OrderItem_RowBody {
+    display: flex;
+    gap: 5px;
+}
+.OrderItemRow_Price{
+    margin-left: 210px;
+}
+.Notes_span {
+    text-align: center;
+}
+.order_summary{
+    margin-top: 100px;
 }
 #courseSidebar button {
     width: 125px;
@@ -259,7 +286,7 @@ li a {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items:center;
+    align-items: center;
     background-color: var(--Collection1-Greys-SideContainerGrey);
     border-radius: 5px;
     color: white;

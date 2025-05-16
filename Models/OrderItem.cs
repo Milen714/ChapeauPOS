@@ -3,6 +3,7 @@
     public class OrderItem
     {
         public int OrderItemId { get; set; }
+        public int TemporaryId { get; set; }
         public MenuItem MenuItem { get; set; }
         public int Quantity { get; set; }
         public decimal PriceAccountedForQuantity 
@@ -46,6 +47,10 @@
             Quantity = quantity;
             OrderItemStatus = orderItemStatus;
             Notes = notes;
+        }
+        public void SetOrderItemTemporaryItemId(int index)
+        {
+            TemporaryId = index + 1;
         }
     }
 }
