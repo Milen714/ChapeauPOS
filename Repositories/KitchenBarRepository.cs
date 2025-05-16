@@ -315,7 +315,31 @@ namespace ChapeauPOS.Repositories
                 string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                               "WHERE OrderID = @OrderID AND mi.Course <> 'Drink'";
+                               "WHERE OrderID = @OrderID AND mi.Course <> 'Drink' " +
+                               "UPDATE Orders SET ClosedAt = GETDATE()";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Something went wrong while updating order status.", ex);
+                }
+            }
+        }
+
+        public void CloseDrinkOrder(int orderId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
+                               "FROM OrderItems oi " +
+                               "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                               "WHERE OrderID = @OrderID AND mi.Course = 'Drink'";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@OrderID", orderId);
 
@@ -338,8 +362,7 @@ namespace ChapeauPOS.Repositories
                 string query = "UPDATE oi SET OrderItemStatus = @OrderItemStatus " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                               "WHERE OrderID = @OrderID AND mi.Course = @Course AND OrderItemStatus <> 'Ready'; " +
-                               "UPDATE Orders SET ClosedAt = GETDATE()";
+                               "WHERE OrderID = @OrderID AND mi.Course = @Course AND OrderItemStatus <> 'Ready'";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@OrderItemStatus", orderItemStatus.ToString());
                 cmd.Parameters.AddWithValue("@OrderID", orderId);

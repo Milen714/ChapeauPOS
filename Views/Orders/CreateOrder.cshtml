@@ -3,6 +3,8 @@
     ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
     Layout = "~/Views/Shared/_OrderLayout.cshtml";
 	ViewBag.TableNumber = Model.TableNumber;
+    
+
 }  
 <h1>@ViewData["Title"]</h1>  
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />

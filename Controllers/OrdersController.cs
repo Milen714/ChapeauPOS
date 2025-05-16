@@ -1,6 +1,7 @@
 ﻿using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
+using ChapeauPOS.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -174,6 +175,107 @@ namespace ChapeauPOS.Controllers
             HttpContext.Session.Remove($"{OrderSessionKeyPrefix}{id}");
             return RedirectToAction("Index", "Tables");
         }
+
+        public IActionResult Payment(int tableId)
+        {
+            Order order = _ordersService.GetOrderByTableId(tableId); //Uses the service layer _ordersService to get the order from the database, not from session because order will stored in database only when the it is send to kitchen.
+            if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
+            {
+                return NotFound("No order found for this table.");
+            }
+
+            var items = new List<PaymentItemViewModel>();
+
+            foreach (var item in order.OrderItems)
+            {
+                var existing = items.FirstOrDefault(i => i.Name == item.MenuItem.ItemName); //Checks if the order is already there if yes add quantity else add item
+                if (existing != null)
+                {
+                    existing.Quantity += item.Quantity;
+                }
+                else
+                {
+                    items.Add(new PaymentItemViewModel
+                    {
+                        Name = item.MenuItem.ItemName,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.MenuItem.ItemPrice,
+                        VATRate = item.MenuItem.VATPercent
+                    });
+                }
+            }
+
+            decimal total = items.Sum(i => i.TotalPrice);
+            decimal lowVAT = items.Where(i => i.VATRate == 9).Sum(i => i.TotalPrice * 0.09m);
+            decimal highVAT = items.Where(i => i.VATRate == 21).Sum(i => i.TotalPrice * 0.21m);
+
+            var viewModel = new PaymentViewModel
+            {
+                TableNumber = order.Table.TableNumber,
+                Items = items,
+                TotalAmount = total,
+                LowVAT = lowVAT,
+                HighVAT = highVAT
+            };
+
+            return View(viewModel);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 }

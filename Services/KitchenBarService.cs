@@ -63,6 +63,11 @@ namespace ChapeauPOS.Services
             _kitchenBarRepository.CloseFoodOrder(orderId);
         }
 
+        public void CloseDrinkOrder(int orderId)
+        {
+            _kitchenBarRepository.CloseDrinkOrder(orderId);
+        }
+
         public void UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, OrderItemStatus orderItemStatus)
         {
             _kitchenBarRepository.UpdateItemStatusBasedOnCourse(orderId, course, orderItemStatus);
