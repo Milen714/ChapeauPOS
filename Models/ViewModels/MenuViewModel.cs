@@ -6,25 +6,21 @@ namespace ChapeauPOS.Models.ViewModels
     {
         public string CategoryName { get; set; }
         public List<MenuItem> Category { get; set; }
-        public List<MenuItem> Starters
-        {
-            get
-            {
-                return Category.Where(item => item.Course == MenuCourse.Starter).ToList();
-            }
-        }
-        public List<MenuItem> MainCourses
-        {
-            get
-            {
-                return Category.Where(item => item.Course == MenuCourse.Main).ToList();
-            }
-        }
+
+        // Safely handle null Category list
+        public List<MenuItem> Starters =>
+            Category?.Where(item => item.Course == MenuCourse.Starter).ToList() ?? new List<MenuItem>();
+
+        public List<MenuItem> MainCourses =>
+            Category?.Where(item => item.Course == MenuCourse.Main).ToList() ?? new List<MenuItem>();
+
         public List<MenuItem> Desserts
         {
             get
             {
-                return Category.Where(item => item.Course == MenuCourse.Dessert).ToList();
+                return Category != null
+                    ? Category.Where(item => item.Course == MenuCourse.Dessert).ToList()
+                    : new List<MenuItem>();
             }
         }
 
@@ -35,13 +31,11 @@ namespace ChapeauPOS.Models.ViewModels
         public List<MenuItem> Spirits { get; set; }
         public List<MenuItem> WarmDrinks { get; set; }
 
-      
-
         public MenuViewModel(string categoryName, List<MenuItem> category, List<MenuItem> drinks)
         {
             CategoryName = categoryName;
-            Category = category;
-            Drinks = drinks;
+            Category = category ?? new List<MenuItem>();
+            Drinks = drinks ?? new List<MenuItem>();
         }
     }
 }
