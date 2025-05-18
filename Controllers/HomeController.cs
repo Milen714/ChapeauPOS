@@ -59,7 +59,7 @@ namespace ChapeauPOS.Controllers
                     return RedirectToAction("Index", "Home");
                 case Roles.Cook:
                     Console.WriteLine("Cook logged in");
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("KitchenRunningOrders", "KitchenBar");
                 case Roles.Bartender:
                     Console.WriteLine("Bartender logged in");
                     return RedirectToAction("Index", "Home");
