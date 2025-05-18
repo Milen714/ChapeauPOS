@@ -130,7 +130,6 @@ namespace ChapeauPOS.Services
         //            Console.WriteLine($"Unknown category: {menuCategory.CategoryName}");
         //        }
         //    }
-            
         //}
 
         public void UpdateMenuItem(MenuItem menuItem)
