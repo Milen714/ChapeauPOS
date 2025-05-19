@@ -7,12 +7,25 @@ namespace ChapeauPOS.Models.ViewModels
         public string CategoryName { get; set; }
         public List<MenuItem> Category { get; set; }
 
-        // Safely handle null Category list
-        public List<MenuItem> Starters =>
-            Category?.Where(item => item.Course == MenuCourse.Starter).ToList() ?? new List<MenuItem>();
+        public List<MenuItem> Starters
+        {
+            get
+            {
+                return Category != null
+                    ? Category.Where(item => item.Course == MenuCourse.Starter).ToList()
+                    : new List<MenuItem>();
+            }
+        }
 
-        public List<MenuItem> MainCourses =>
-            Category?.Where(item => item.Course == MenuCourse.Main).ToList() ?? new List<MenuItem>();
+        public List<MenuItem> MainCourses
+        {
+            get
+            {
+                return Category != null
+                    ? Category.Where(item => item.Course == MenuCourse.Main).ToList()
+                    : new List<MenuItem>();
+            }
+        }
 
         public List<MenuItem> Desserts
         {
