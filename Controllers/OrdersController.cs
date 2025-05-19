@@ -22,7 +22,7 @@ namespace ChapeauPOS.Controllers
             _ordersService = ordersService;
             _menuService = menuService;
         }
-        
+
 
         public IActionResult Index()
         {
@@ -52,7 +52,7 @@ namespace ChapeauPOS.Controllers
                 order = _ordersService.GetOrderByTableId(table.TableNumber);
                 _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
             }
-            
+
 
             return View(table);
         }
@@ -90,7 +90,7 @@ namespace ChapeauPOS.Controllers
             return PartialView("_OrderListPartial", order);
         }
         [HttpPost]
-       
+
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
             MenuItem menuItem = _menuService.GetMenuItemById(itemId);
@@ -127,7 +127,7 @@ namespace ChapeauPOS.Controllers
                     OrderItemStatus = OrderItemStatus.Ordered
                 };
                 order.OrderItems.Add(orderItem);
-                
+
             }
             for (int i = 0; i < order.OrderItems.Count; i++)
             {
@@ -135,7 +135,7 @@ namespace ChapeauPOS.Controllers
             }
             // Save the order to the session
             _ordersService.SaveOrderToSession(HttpContext, tableId, order);
-            
+
 
             // Check if the table is already occupied
             if (table.TableStatus != TableStatus.Occupied)
@@ -143,11 +143,11 @@ namespace ChapeauPOS.Controllers
                 table.TableStatus = TableStatus.Occupied;
                 _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
             }
-            
+
 
             return PartialView("_OrderListPartial", order);
         }
-       
+
 
         public IActionResult SendOrder(int id)
         {
@@ -157,7 +157,7 @@ namespace ChapeauPOS.Controllers
             // Finally Remove the order from the session
             Order order = _ordersService.GetOrderFromSession(HttpContext, id);
             order.OrderStatus = OrderStatus.Ordered;
-            
+
             _ordersService.AddOrder(order);
             _ordersService.SaveOrderToSession(HttpContext, id, order);
 
@@ -191,8 +191,8 @@ namespace ChapeauPOS.Controllers
                 _ordersService.RemoveOrderFromSession(HttpContext, id);
             }
 
-                //Table table = _tablesService.GetTableByID(id);
-                order.Table.TableStatus = TableStatus.Free;
+            //Table table = _tablesService.GetTableByID(id);
+            order.Table.TableStatus = TableStatus.Free;
             _tablesService.UpdateTableStatus(order.Table.TableNumber, order.Table.TableStatus);
             _ordersService.RemoveOrderFromSession(HttpContext, id);
             return RedirectToAction("Index", "Tables");
@@ -203,7 +203,7 @@ namespace ChapeauPOS.Controllers
             // Get the order from the session
             Order order = _ordersService.GetOrderFromSession(HttpContext, tableId);
             Console.WriteLine(order.OrderStatus.ToString());
-            if(order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
+            if (order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
             {
                 var orderItemDB = _ordersService.GetOrderItemById(orderItemId);
                 if (orderItemDB != null)
@@ -223,7 +223,7 @@ namespace ChapeauPOS.Controllers
                 // Save the updated order back to the session
                 _ordersService.SaveOrderToSession(HttpContext, tableId, order);
             }
-            return RedirectToAction("CreateOrder", new{ id = order.Table.TableNumber});
+            return RedirectToAction("CreateOrder", new { id = order.Table.TableNumber });
         }
         [HttpPost]
         public IActionResult UpdateOrderItem(int tableId, int orderItemIdTemp, int orderItemId, int quantity, string? note)
@@ -244,7 +244,7 @@ namespace ChapeauPOS.Controllers
                     _ordersService.SaveOrderToSession(HttpContext, tableId, order);
                 }
             }
-                // Find the order item to update
+            // Find the order item to update
             var orderItem = order.OrderItems.FirstOrDefault(oi => oi.TemporaryId == orderItemIdTemp);
             if (orderItem != null)
             {
@@ -264,10 +264,14 @@ namespace ChapeauPOS.Controllers
             {
                 return NotFound("No order found for this table.");
             }
+            PaymentViewModel viewModel = new PaymentViewModel
+            {
+                Order = order
+            };
 
-            var items = new List<PaymentItemViewModel>();
+            var items = viewModel.Order.OrderItems;
 
-            foreach (var item in order.OrderItems)
+            foreach (var item in viewModel.Order.OrderItems)
             {
                 var existing = items.FirstOrDefault(i => i.MenuItem.ItemName == item.MenuItem.ItemName);
                 if (existing != null)
@@ -276,19 +280,11 @@ namespace ChapeauPOS.Controllers
                 }
                 else
                 {
-                    items.Add(new PaymentItemViewModel
-                    {
-                        MenuItem = item.MenuItem,
-                        Quantity = item.Quantity
-                    });
+
                 }
             }
 
-            var viewModel = new PaymentViewModel
-            {
-                TableNumber = order.Table.TableNumber,
-                Items = items
-            };
+
 
             return View(viewModel);
         }
