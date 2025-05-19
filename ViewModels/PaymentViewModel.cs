@@ -14,13 +14,14 @@ namespace ChapeauPOS.ViewModels
                 { return Order.TotalAmount; }
             }
         }
-        
-        public decimal LowVAT => Order.OrderItems
-            .Max(i => i.MenuItem.VATPercent) == 9 ? Order.TotalAmount * 0.09m : 0m;
 
+        public decimal LowVAT => Order.OrderItems
+         .Where(i => i.MenuItem.VATPercent == 9)
+         .Sum(i => i.MenuItem.ItemPrice * i.Quantity * 0.09m);
 
         public decimal HighVAT => Order.OrderItems
-            .Max(i => i.MenuItem.VATPercent) == 21 ? Order.TotalAmount * 0.21m : 0m;
+            .Where(i => i.MenuItem.VATPercent == 21)
+            .Sum(i => i.MenuItem.ItemPrice * i.Quantity * 0.21m);
 
         public PaymentViewModel()
         {
