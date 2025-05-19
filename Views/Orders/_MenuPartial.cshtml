@@ -12,41 +12,53 @@
     @foreach (var item in Model.Starters)
     {
        
-            <form class="menu-item-form" method="post">
-            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-            <div class="menu-item square clickable-item" data-course="starter">
-                    <h4>@item.ItemName</h4>
-                    <p>@item.ItemPrice.ToString("C")</p>
-                </div>
-            </form>
+        <form class="menu-item-form" method="post">
+            <div class="MenuItemButton_Wrap">
+                 <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+                     <div class="menu-item square clickable-item" data-course="starter">
+                        <h4>@item.ItemName</h4>
+                        <p>@item.ItemPrice.ToString("C")</p>
+                     </div>
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="starter" />
+			</div>
+		</form>
     }
     @foreach (var item in Model.MainCourses)
     {
         <form class="menu-item-form" method="post">
-            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-            <div class="menu-item square clickable-item" data-course="main">
-                <h4>@item.ItemName</h4>
-                <p>@item.ItemPrice.ToString("C")</p>
+            <div class="MenuItemButton_Wrap">
+                <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+                <div class="menu-item square clickable-item" data-course="main">
+                    <h4>@item.ItemName</h4>
+                    <p>@item.ItemPrice.ToString("C")</p>
+                </div>
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="main" />
             </div>
         </form>
     }
     @foreach (var item in Model.Desserts)
     {
         <form class="menu-item-form" method="post">
-            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-            <div class="menu-item square clickable-item" data-course="dessert">
-                <h4>@item.ItemName</h4>
-                <p>@item.ItemPrice.ToString("C")</p>
+            <div class="MenuItemButton_Wrap">
+                <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+                <div class="menu-item square clickable-item" data-course="dessert">
+                    <h4>@item.ItemName</h4>
+                    <p>@item.ItemPrice.ToString("C")</p>
+                </div>
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="dessert" />
             </div>
         </form>
     }
     @foreach (var item in Model.Drinks)
     {
         <form class="menu-item-form" method="post">
-            <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-            <div class="menu-item square clickable-item" data-course="drink">
-                <h4>@item.ItemName</h4>
-                <p>@item.ItemPrice.ToString("C")</p>
+            <div class="MenuItemButton_Wrap">
+                <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+                <div class="menu-item square clickable-item" data-course="drink">
+                    <h4>@item.ItemName</h4>
+                    <p>@item.ItemPrice.ToString("C")</p>
+                </div>
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="drink" />
             </div>
         </form>
     }

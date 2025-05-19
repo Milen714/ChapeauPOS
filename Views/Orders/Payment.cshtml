@@ -1,0 +1,33 @@
+﻿@model ChapeauPOS.ViewModels.PaymentViewModel
+
+<h2>Payment Summary - Table @Model.TableNumber</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+            
+            
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Quantity</td>
+                <td>€@item.UnitPrice.ToString("F2")</td>
+                <td>€@item.TotalPrice.ToString("F2")</td>
+                
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p><strong>Total Amount:</strong> €@Model.TotalAmount.ToString("F2")</p>
+<p><strong>Low VAT (9%):</strong> €@Model.LowVAT.ToString("F2")</p>
+<p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>

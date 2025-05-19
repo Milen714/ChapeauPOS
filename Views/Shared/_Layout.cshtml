@@ -2,27 +2,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ChapeauPOS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alata&family=Lobster&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/MyStyle.css" />
-    <link rel="stylesheet" href="~/ChapeauPOS.styles.css" asp-append-version="true" />
-    @{
-        string? theme = Context.Request.Cookies["PreferedTheme"];
-        if (theme == "Dark")
-        {
-            <link rel="stylesheet" href="~/css/DarkTheme.css" />
-        }
-        else if (theme == "Light")
-        {
-            <link rel="stylesheet" href="~/css/LightTheme.css" />
-        }
-    }
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - ChapeauPOS</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Alata&family=Lobster&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<link rel="stylesheet" href="~/css/MyStyle.css" />
+	<link rel="stylesheet" href="~/ChapeauPOS.styles.css" asp-append-version="true" />
+	@{
+		string? theme = Context.Request.Cookies["PreferedTheme"];
+		if (theme == "Dark")
+		{
+			<link rel="stylesheet" href="~/css/DarkTheme.css" />
+		}
+		else if (theme == "Light")
+		{
+			<link rel="stylesheet" href="~/css/LightTheme.css" />
+		}
+	}
 </head>
 <body>
     <header>
@@ -86,6 +86,9 @@
                                         <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen</a>
                                     </li>
                                     <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
+                                    </li>
+                                    <li class="nav_item">
                                         <a asp-area="" asp-controller="Home" asp-action="Index">Clients</a>
                                     </li>
                                     <li class="nav_item">
@@ -104,6 +107,12 @@
                                         <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
                                     </li>
                                     <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
+                                    </li>
+                                    <li class="nav_item">
                                         <a asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
                                     </li>
                                     <li class="nav_item">
@@ -119,7 +128,10 @@
                                     break;
                                 case Roles.Bartender:
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index">BarView</a>
+                                        <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">BarView</a>
                                     </li>
                                     break;
                                 case Roles.Cook:

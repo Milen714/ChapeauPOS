@@ -24,7 +24,16 @@ namespace ChapeauPOS.Repositories
             Table table = new Table { TableNumber = tableNumber };
             Employee employee = new Employee { EmployeeId = employeeID };
 
-            return new Order(orderId, table, employee, orderStatus, createdAt, closedAt);
+            return new Order
+            {
+                OrderID = orderId,
+                Table = table,
+                Employee = employee,
+                OrderStatus = orderStatus,
+                CreatedAt = createdAt,
+                ClosedAt = closedAt,
+                OrderItems = new List<OrderItem>()
+            };
         }
 
         private OrderItem ReadOrderItem(SqlDataReader reader)
@@ -41,7 +50,7 @@ namespace ChapeauPOS.Repositories
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
 
             MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, ItemPrice = itemPrice };
-            return new OrderItem(orderItemID, menuItem, quantity, menuCourse, orderItemStatus, notes);
+            return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
         }
         public List<Order> GetAllOrders()
         {
@@ -128,13 +137,54 @@ namespace ChapeauPOS.Repositories
                 throw new Exception("Error adding order to database", ex);
             }
         }
-        public void UpdateOrder(Order order)
+        public void UpdateOrderItem(OrderItem orderItem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE OrderItems SET MenuItemID = @MenuItemID, Quantity = @Quantity, OrderItemStatus = @OrderItemStatus, Notes = @Notes " +
+                                   "WHERE OrderItemID = @OrderItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                    command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                    command.Parameters.AddWithValue("@OrderItemStatus", orderItem.OrderItemStatus.ToString());
+                    command.Parameters.AddWithValue("@Notes", (object)orderItem.Notes ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@OrderItemID", orderItem.OrderItemId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating order item in database", ex);
+            }
         }
         public void DeleteOrder(int orderId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "DELETE FROM Orders WHERE OrderID = @OrderID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting order from database", ex);
+            }
         }
         public List<Order> GetOrdersByTableId(int tableId)// not by tableID BUT BY TABLE NUMBER
         {
@@ -232,6 +282,64 @@ namespace ChapeauPOS.Repositories
             }
             return order;
 
+        }
+
+        public OrderItem GetOrderItemById(int id)
+        {
+            OrderItem orderItem = new OrderItem();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.OrderItemStatus, oi.Notes, mi.ItemName, mi.ItemDescription, mi.ItemPrice, mi.Course " +
+                    "FROM OrderItems oi " +
+                    "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                    "WHERE oi.OrderItemID = @OrderItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderItemID", id);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            orderItem = ReadOrderItem(reader);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving order from database", ex);
+            }
+            return orderItem;
+        }
+
+        public void RemoveOrderItem(int orderId, int orderItemId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "DELETE FROM OrderItems WHERE OrderID = @OrderID AND OrderItemID = @OrderItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    command.Parameters.AddWithValue("@OrderItemID", orderItemId);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error removing order item from database", ex);
+            }
         }
     }
     
