@@ -9,6 +9,8 @@ namespace ChapeauPOS.Services.Interfaces
         void AddMenuItem(MenuItem menuItem);
         void UpdateMenuItem(MenuItem menuItem);
         void DeleteMenuItem(int id);
+        void ToggleMenuItemStatus(int id, bool isActive);
+
         List<MenuCategory> GetMenuCategories();
         List<MenuItem> GetMenuItemsByCategory(MenuCategory category);
         List<MenuItem> GetMenuItemsByCourse(MenuCourse course);
@@ -16,5 +18,6 @@ namespace ChapeauPOS.Services.Interfaces
         List<MenuItem> GetLunch();
         List<MenuItem> GetDinner();
         List<MenuItem> GetDrinks();
+        List<MenuItem> FilterMenuItems(string course, string category);
     }
 }
