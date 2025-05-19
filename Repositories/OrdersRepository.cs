@@ -193,7 +193,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice,  " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
