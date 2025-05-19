@@ -4,7 +4,7 @@ namespace ChapeauPOS.Repositories.Interfaces
 {
     public interface IMenuRepository
     {
-        List<MenuItem> GetAllMenuItems();
+        List<MenuItem> GetAllMenuItems(bool includeInactive = false);
         MenuItem GetMenuItemById(int id);
         void AddMenuItem(MenuItem menuItem);
         void UpdateMenuItem(MenuItem menuItem);

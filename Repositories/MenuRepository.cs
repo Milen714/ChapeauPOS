@@ -275,5 +275,6 @@ namespace ChapeauPOS.Repositories
             }
             return menuCategories;
         }
+
     }
 }

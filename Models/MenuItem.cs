@@ -11,6 +11,7 @@
             VAT = vat;
             Category = category;
             Course = course;
+            IsActive = true;
         }
         public MenuItem()
         {
@@ -25,6 +26,7 @@
         public decimal VATPercent { get { return VAT ? 21 : 9; }  }
         public MenuCategory Category { get; set; }
         public MenuCourse Course { get; set; }
+        public bool IsActive { get; set; }
     }
 
 }
