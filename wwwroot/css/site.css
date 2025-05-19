@@ -6,6 +6,10 @@ html {
   html {
     font-size: 16px;
   }
+    body {
+        align-items: flex-start;
+        overflow: scroll;
+    }
 }
 @media (min-width: 1365px) {
     .container {
@@ -13,6 +17,7 @@ html {
     }
     body{
         align-items: flex-start;
+        overflow: scroll;
     }
 }
 

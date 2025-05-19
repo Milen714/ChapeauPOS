@@ -116,6 +116,10 @@
 		});
 		connection.start().catch(err => console.error(err.toString()));
 
+			connection.on("NewOrder", function () {
+			location.reload(); 
+		});
+
 
 		setInterval(() => {
 			document.querySelectorAll('[data-order-id]').forEach(el => {
