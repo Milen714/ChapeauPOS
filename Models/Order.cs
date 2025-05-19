@@ -3,6 +3,7 @@
     public class Order
     {
         public int OrderID { get; set; }
+        public int TemporaryOrderId { get; set; }
         public Table Table { get; set; }
         public Employee Employee { get; set; }
         public OrderStatus OrderStatus { get; set; }
@@ -16,6 +17,12 @@
         }
         public DateTime? ClosedAt { get; set; }
         public List<OrderItem> OrderItems { get; set; }
+        public decimal TotalAmount
+        {
+            get {
+                return TotalAmountToPay();
+            }
+        }
 
         public Order()
         {
@@ -41,5 +48,25 @@
             ClosedAt = closedAt;
             OrderItems = orderItems;
         }
+        private decimal TotalAmountToPay()
+        {
+            decimal total = 0.00m;
+            if(OrderItems != null)
+            {
+                foreach (var item in OrderItems)
+                {
+                    total += item.PriceAccountedForQuantity;
+                }
+            }
+            
+            return total;
+        }
+        public void SetTemporaryOrderId(int id)
+        {
+            TemporaryOrderId = id;
+        }
+
+
+
     }
 }
