@@ -262,10 +262,10 @@ namespace ChapeauPOS.Controllers
             }
             return RedirectToAction("CreateOrder", new { id = order.Table.TableNumber });
         }
-        //Nischal
+        //Nishchal
         public IActionResult Payment(int tableId)
         {
-            Order order = _ordersService.GetOrderByTableId(tableId); //Uses the service layer _ordersService to get the order from the database, not from session because order will stored in database only when the it is send to kitchen.
+            Order order = _ordersService.GetOrderByTableId(tableId); 
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("No order found for this table.");
@@ -276,21 +276,6 @@ namespace ChapeauPOS.Controllers
             };
 
             var items = viewModel.Order.OrderItems;
-
-            foreach (var item in viewModel.Order.OrderItems)
-            {
-                var existing = items.FirstOrDefault(i => i.MenuItem.ItemName == item.MenuItem.ItemName);
-                if (existing != null)
-                {
-                    existing.Quantity += item.Quantity;
-                }
-                else
-                {
-
-                }
-            }
-
-
 
             return View(viewModel);
         }
