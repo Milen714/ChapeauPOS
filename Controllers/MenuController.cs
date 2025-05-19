@@ -62,7 +62,7 @@ namespace ChapeauPOS.Controllers
             if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
                 item.Category.CategoryID = catId;
 
-            Console.WriteLine($"[DEBUG - CREATE] Name={item.ItemName}, Price={item.ItemPrice}, CategoryID={item.Category?.CategoryID}, Course={item.Course}");
+      
 
             // Validate the model
             if (!ModelState.IsValid)
@@ -75,13 +75,13 @@ namespace ChapeauPOS.Controllers
             try
             {
                 _service.AddMenuItem(item); // Save to DB
-                Console.WriteLine("[DEBUG - CREATE] Item saved");
+            
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Something went wrong: " + ex.Message);
-                Console.WriteLine("[ERROR - CREATE] " + ex.Message);
+       
                 ViewBag.Categories = _service.GetMenuCategories();
                 return View(item);
             }

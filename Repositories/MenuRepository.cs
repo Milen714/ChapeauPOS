@@ -12,6 +12,7 @@ namespace ChapeauPOS.Repositories
             _connectionString = configuration.GetConnectionString("ChapeauDB");
         }
 
+        //data mapping method for reading a row of data from the SQL database 
         private MenuItem ReadMenuItem(SqlDataReader reader)
         {
             //int MenuItemID = reader.GetInt32(0);
@@ -59,7 +60,7 @@ namespace ChapeauPOS.Repositories
                     {
                         while (reader.Read())
                         {
-                            MenuItem menuItem = ReadMenuItem(reader);
+                            MenuItem menuItem = ReadMenuItem(reader);// helpeing function to read the data
                             menuItems.Add(menuItem);
                         }
                     }
@@ -89,7 +90,7 @@ namespace ChapeauPOS.Repositories
                                    "WHERE MI.MenuItemID = @MenuItemID";
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@MenuItemID", id);
+                    command.Parameters.AddWithValue("@MenuItemID", id);//parameterized SQL,to prevent SQL injection attacks (security risk).
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -230,7 +231,7 @@ namespace ChapeauPOS.Repositories
                         while (reader.Read())
                         {
                             MenuItem menuItem = ReadMenuItem(reader);
-                            Console.WriteLine($"[MATCH] {menuItem.ItemName} | Course: {menuItem.Course} | Category: {menuItem.Category.CategoryName}");
+                         
                             menuItems.Add(menuItem);
                         }
                     }
