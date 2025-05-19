@@ -18,9 +18,9 @@
         @foreach (var item in Model.Items)
         {
             <tr>
-                <td>@item.Name</td>
+                <td>@item.MenuItem.ItemName</td>
                 <td>@item.Quantity</td>
-                <td>€@item.UnitPrice.ToString("F2")</td>
+                <td>€@item.MenuItem.ItemPrice.ToString("F2")</td>
                 <td>€@item.TotalPrice.ToString("F2")</td>
                 
             </tr>

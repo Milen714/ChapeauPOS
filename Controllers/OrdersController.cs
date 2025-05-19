@@ -269,7 +269,7 @@ namespace ChapeauPOS.Controllers
 
             foreach (var item in order.OrderItems)
             {
-                var existing = items.FirstOrDefault(i => i.Name == item.MenuItem.ItemName); //Checks if the order is already in list if yes add quantity  else add new item in payment screen.
+                var existing = items.FirstOrDefault(i => i.MenuItem.ItemName == item.MenuItem.ItemName);
                 if (existing != null)
                 {
                     existing.Quantity += item.Quantity;
@@ -278,25 +278,16 @@ namespace ChapeauPOS.Controllers
                 {
                     items.Add(new PaymentItemViewModel
                     {
-                        Name = item.MenuItem.ItemName,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.MenuItem.ItemPrice,
-                        VATRate = item.MenuItem.VATPercent
+                        MenuItem = item.MenuItem,
+                        Quantity = item.Quantity
                     });
                 }
             }
 
-            decimal total = items.Sum(i => i.TotalPrice);
-            decimal lowVAT = items.Where(i => i.VATRate ==9).Sum(i => i.TotalPrice * 0.09m);
-            decimal highVAT = items.Where(i => i.VATRate ==21 ).Sum(i => i.TotalPrice * 0.21m);
-
             var viewModel = new PaymentViewModel
             {
                 TableNumber = order.Table.TableNumber,
-                Items = items,
-                TotalAmount = total,
-                LowVAT = lowVAT,
-                HighVAT = highVAT
+                Items = items
             };
 
             return View(viewModel);
