@@ -111,17 +111,12 @@ a{
     align-items:center;
     gap: 5px;
 }
-.Logo{
+.Logo {
     width: 51px;
     height: 52px;
+    background-image: url(/assets/LogoFigmaBlack.svg);
 }
-.Logo::before{
-    width: 55px;
-    height: 55px;
-    content:"asasdd";
-    color: transparent;
-    background-image: src(/assets/LogoFigmaWhite.svg);
-}
+
 .Logo_Image {
     width: 55px;
     height: 55px;
