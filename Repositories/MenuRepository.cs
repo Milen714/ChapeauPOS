@@ -12,6 +12,7 @@ namespace ChapeauPOS.Repositories
             _connectionString = configuration.GetConnectionString("ChapeauDB");
         }
 
+        //data mapping method for reading a row of data from the SQL database 
         private MenuItem ReadMenuItem(SqlDataReader reader)
         {
             //int MenuItemID = reader.GetInt32(0);
@@ -59,7 +60,7 @@ namespace ChapeauPOS.Repositories
                     {
                         while (reader.Read())
                         {
-                            MenuItem menuItem = ReadMenuItem(reader);
+                            MenuItem menuItem = ReadMenuItem(reader);// helpeing function to read the data
                             menuItems.Add(menuItem);
                         }
                     }
@@ -89,7 +90,7 @@ namespace ChapeauPOS.Repositories
                                    "WHERE MI.MenuItemID = @MenuItemID";
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@MenuItemID", id);
+                    command.Parameters.AddWithValue("@MenuItemID", id);//parameterized SQL,to prevent SQL injection attacks (security risk).
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -137,13 +138,14 @@ namespace ChapeauPOS.Repositories
                 Console.WriteLine(ex.Message);
             }
         }
+
         public void UpdateMenuItem(MenuItem menuItem)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "UPDATE MenuItems SET ItemName = @Name, ItemDescription = @Desc, ItemPrice = @Price, VAT = @VAT, CategoryID = @CategoryID, Course = @Course WHERE MenuItemID = @ID";
+                    string query = "UPDATE MenuItems SET ItemName = @Name, ItemDescription = @Desc, ItemPrice = @Price, VAT = @VAT, CategoryID = @CategoryID, Course = @Course, IsActive = @IsActive WHERE MenuItemID = @ID";
 
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@Name", menuItem.ItemName);
@@ -152,17 +154,25 @@ namespace ChapeauPOS.Repositories
                     command.Parameters.AddWithValue("@VAT", menuItem.VAT);
                     command.Parameters.AddWithValue("@CategoryID", menuItem.Category.CategoryID);
                     command.Parameters.AddWithValue("@Course", menuItem.Course.ToString());
+                    command.Parameters.AddWithValue("@IsActive", menuItem.IsActive); 
                     command.Parameters.AddWithValue("@ID", menuItem.MenuItemID);
 
                     connection.Open();
                     command.ExecuteNonQuery();
                 }
             }
+
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //}
+
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                throw new Exception("Database update failed: " + ex.Message); 
             }
         }
+
 
         public void DeleteMenuItem(int id)
         {
@@ -198,18 +208,22 @@ namespace ChapeauPOS.Repositories
                 {
                     string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
                                    "FROM MenuItems AS MI " +
-                                   "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID WHERE MI.IsActive = 1";
+                                   "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
+                                   "WHERE MI.IsActive = 1";
 
                     if (!string.IsNullOrEmpty(course))
-                        query += " AND MI.Course = @Course";
+                        query += " AND LOWER(MI.Course) = LOWER(@Course)";
                     if (!string.IsNullOrEmpty(category))
-                        query += " AND MC.CategoryName = @Category";
+                        query += " AND LOWER(MC.CategoryName) = LOWER(@Category)";
 
                     SqlCommand command = new SqlCommand(query, connection);
+
                     if (!string.IsNullOrEmpty(course))
-                        command.Parameters.AddWithValue("@Course", course);
+                        command.Parameters.AddWithValue("@Course", course.Trim());
                     if (!string.IsNullOrEmpty(category))
-                        command.Parameters.AddWithValue("@Category", category);
+                        command.Parameters.AddWithValue("@Category", category.Trim());
+
+                    Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
 
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -217,6 +231,7 @@ namespace ChapeauPOS.Repositories
                         while (reader.Read())
                         {
                             MenuItem menuItem = ReadMenuItem(reader);
+                         
                             menuItems.Add(menuItem);
                         }
                     }

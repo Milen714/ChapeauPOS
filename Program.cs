@@ -12,8 +12,8 @@ namespace ChapeauPOS
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// Add services to the container.
-			builder.Services.AddControllersWithViews();
+            // Add services to the container (dependency injection).
+            builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
 			builder.Services.AddSingleton<IEmployeesService, EmployeesService>();
 			builder.Services.AddSingleton<ITableRepository, TableRepository>();

@@ -1,0 +1,98 @@
+﻿@model ChapeauPOS.Models.ViewModels.MenuViewModel
+
+@{
+    ViewData["Title"] = "Menu Items";
+
+    var selectedCourse = Context.Request.Query["course"].ToString();
+    var selectedCategory = Context.Request.Query["category"].ToString();
+}
+
+<div class="container text-center mt-4">
+    <h2 class="mb-3">@ViewData["Title"]</h2>
+    <p>Total items returned: @Model.Category?.Count</p>
+
+    <!-- Filter Form -->
+    <form method="get" asp-action="Index" asp-controller="Menu" class="row justify-content-center mb-3">
+        <div class="col-md-auto">
+            <label class="form-label me-2">Course:</label>
+            <select name="course" class="form-select d-inline w-auto me-3">
+                @{
+                    var courseList = new[] { "Starter", "Entree", "Main", "Dessert", "Drink" };
+                    foreach (var course in courseList)
+                    {
+                        var selected = selectedCourse == course ? "selected" : "";
+                        @:<option value="@course" @selected>@course</option>
+                    }
+                    var allCourseSelected = string.IsNullOrEmpty(selectedCourse) ? "selected" : "";
+                    @:<option value="" @allCourseSelected>All Courses</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-auto">
+            <label class="form-label me-2">Category:</label>
+            <select name="category" class="form-select d-inline w-auto me-3">
+                @{
+                    var categoryList = new[] { "Lunch", "Dinner", "Drinks" };
+                    foreach (var category in categoryList)
+                    {
+                        var selected = selectedCategory == category ? "selected" : "";
+                        @:<option value="@category" @selected>@category</option>
+                    }
+                    var allCategorySelected = string.IsNullOrEmpty(selectedCategory) ? "selected" : "";
+                    @:<option value="" @allCategorySelected>All Categories</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-auto">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+
+    <!-- Add Button -->
+    <p class="mb-4">
+        <a asp-controller="Menu" asp-action="Create" class="btn btn-success">➕ Add New Item</a>
+    </p>
+
+    <!-- Menu Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover table-dark w-auto mx-auto">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price (€)</th>
+                    <th>VAT</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Category != null && Model.Category.Any())
+                {
+                    foreach (var item in Model.Category)
+                    {
+                        <tr>
+                            <td>@item.ItemName</td>
+                            <td>@item.ItemDescription</td>
+                            <td>@item.ItemPrice.ToString("F2")</td>
+                            <td>@(item.VAT ? "Yes" : "No")</td>
+                            <td>@(item.IsActive ? "Active" : "Inactive")</td>
+                            <td>
+                                <a asp-controller="Menu" asp-action="Edit" asp-route-id="@item.MenuItemID" class="link-info me-2">Edit</a>
+                                <a asp-controller="Menu" asp-action="Toggle" asp-route-id="@item.MenuItemID" asp-route-isActive="@(!item.IsActive)" class="link-warning">
+                                    @(item.IsActive ? "Deactivate" : "Activate")
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6">No menu items found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

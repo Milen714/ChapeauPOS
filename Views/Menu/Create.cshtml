@@ -1,0 +1,76 @@
+﻿@model ChapeauPOS.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Add New Menu Item";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <h1 class="text-center mb-4">@ViewData["Title"]</h1>
+
+            <form asp-action="Create" method="post" class="needs-validation">
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="ItemName" class="form-label"></label>
+                    <input asp-for="ItemName" class="form-control" required />
+                    <span asp-validation-for="ItemName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ItemDescription" class="form-label"></label>
+                    <textarea asp-for="ItemDescription" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="ItemDescription" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ItemPrice" class="form-label"></label>
+                    <input asp-for="ItemPrice" type="number" step="0.01" class="form-control" required />
+                    <span asp-validation-for="ItemPrice" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="VAT" type="checkbox" class="form-check-input" />
+                    <label asp-for="VAT" class="form-check-label">Apply VAT?</label>
+                    <span asp-validation-for="VAT" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Category.CategoryID" class="form-label">Category</label>
+                    <select asp-for="Category.CategoryID" class="form-select"
+                            asp-items="@(new SelectList(ViewBag.Categories, "CategoryID", "CategoryName"))">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                    <span asp-validation-for="Category.CategoryID" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Course" class="form-label">Course</label>
+                    <select asp-for="Course" class="form-select" asp-items="Html.GetEnumSelectList<ChapeauPOS.Models.MenuCourse>()">
+                        <option value="">-- Select Course --</option>
+                    </select>
+                    <span asp-validation-for="Course" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="IsActive" class="form-label">Is Active</label>
+                    <select asp-for="IsActive" class="form-select">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">Add Menu Item</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
