@@ -15,6 +15,8 @@ namespace ChapeauPOS.Models
             Course = course;
             IsActive = true; // Default to active when constructed
         }
+
+        // Constructor overloading for creating a new MenuItem
         public MenuItem()
         {
             IsActive = true;
