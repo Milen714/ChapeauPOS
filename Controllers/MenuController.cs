@@ -67,7 +67,6 @@ namespace ChapeauPOS.Controllers
             // Validate the model
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("[DEBUG - CREATE] ModelState is invalid");
                 ViewBag.Categories = _service.GetMenuCategories();
                 return View(item);
             }
