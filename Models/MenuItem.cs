@@ -1,4 +1,6 @@
-﻿namespace ChapeauPOS.Models
+﻿using Microsoft.IdentityModel.Logging;
+
+namespace ChapeauPOS.Models
 {
     public class MenuItem
     {
@@ -11,10 +13,13 @@
             VAT = vat;
             Category = category;
             Course = course;
+            IsActive = true; // Default to active when constructed
         }
+
+        // Constructor overloading for creating a new MenuItem
         public MenuItem()
         {
-
+            IsActive = true;
         }
 
         public int MenuItemID { get; set; }
@@ -25,6 +30,7 @@
         public decimal VATPercent { get { return VAT ? 21 : 9; }  }
         public MenuCategory Category { get; set; }
         public MenuCourse Course { get; set; }
+        public bool IsActive { get; set; } // Indicates if the item is active or inactive
     }
 
 }

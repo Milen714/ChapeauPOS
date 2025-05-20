@@ -1,44 +1,32 @@
 ﻿@model IEnumerable<ChapeauPOS.Models.Table>
 @{
-	ViewData["Title"] = "Tables";
+    ViewData["Title"] = "Tables";
 }
 
 <h1>@ViewData["Title"]</h1>
-<a href="/Orders/ChangeOrderStatus">Test</a>
-
 
 <div class="Table_Overview">
-	@{
-		foreach(Table table in Model)
-		{
-			string tableStatusStyle = "";
-			switch (table.TableStatus)
-			{
-				case TableStatus.Occupied:
-					tableStatusStyle = "background-color: #FF6347;"; // Tomato
-					break;
-				case TableStatus.Reserved:
-					tableStatusStyle = "background-color: #FFD700;"; // Gold
-					break;
-				case TableStatus.Free:
-					tableStatusStyle = "background-color: #90EE90;"; // LightGreen
-					break;
-			}
-			<a href="/Orders/CreateOrder/@table.TableNumber">
-			<div class="Restaurant_Table">
-					<div style="@tableStatusStyle" class="Top_Chair"></div>
-					<div style="@tableStatusStyle" class="Left_Chair"></div>
-				<div style="@tableStatusStyle" class="table_card">
-					<div class="table_card_body">
-						<h5 class="card-title">Table @table.TableNumber</h5>
-						<p class="card-text">Seats: @table.NumberOfSeats</p>
-						<p class="card-text">Status: @table.TableStatus</p>
-					</div>
-				</div>
-					<div style="@tableStatusStyle" class="Right_Chair"></div>
-					<div style="@tableStatusStyle" class="Bottom_Chair"></div>
-			</div>
-			</a>
-		}
-	}
+    @foreach (var table in Model)
+    {
+        string tableStatusStyle = table.TableStatus switch
+        {
+            TableStatus.Occupied => "background-color: #FF6347;",   // Tomato
+            TableStatus.Reserved => "background-color: #FFD700;",   // Gold
+            TableStatus.Free => "background-color: #90EE90;",       // LightGreen
+            _ => ""
+        };
+        <div class="Restaurant_Table" onclick="location.href='/Orders/CreateOrder/@table.TableNumber'">
+            <div class="chair top" style="@tableStatusStyle"></div>
+            <div class="chair left" style="@tableStatusStyle"></div>
+            <div class="table_card" style="@tableStatusStyle">
+                <div class="table_card_body">
+                    <h5>Table @table.TableNumber</h5>
+                    <p>Seats: @table.NumberOfSeats</p>
+                    <p>Status: @table.TableStatus</p>
+                </div>
+            </div>
+            <div class="chair right" style="@tableStatusStyle"></div>
+            <div class="chair bottom" style="@tableStatusStyle"></div>
+        </div>
+    }
 </div>

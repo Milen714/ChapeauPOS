@@ -111,17 +111,12 @@ a{
     align-items:center;
     gap: 5px;
 }
-.Logo{
+.Logo {
     width: 51px;
     height: 52px;
+    background-image: url(/assets/LogoFigmaBlack.svg);
 }
-.Logo::before{
-    width: 55px;
-    height: 55px;
-    content:"asasdd";
-    color: transparent;
-    background-image: src(/assets/LogoFigmaWhite.svg);
-}
+
 .Logo_Image {
     width: 55px;
     height: 55px;
@@ -221,24 +216,79 @@ li a {
 .LoginPage_nav {
 
 }
-.table_card {
-    width: fit-content;
-    padding: 5px;
-    border-radius: 10px;
-    color: black;
-}
-.Table_Overview{
+
+
+.Table_Overview {
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
-    width: 50vw;
-    gap: 2px;
+    gap: 16px;
+    padding: 20px;
+    justify-content: center;
 }
-.table_card_body{
-    display: flex;
-    flex-direction: column;
+
+.Restaurant_Table {
+    display: grid;
+    grid-template-areas:
+        ". top ."
+        "left table right"
+        ". bottom .";
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto auto;
+    gap: 5px;
+    align-items: center;
+    justify-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+    .Restaurant_Table:hover {
+        transform: scale(1.03);
+    }
+
+.table_card {
+    grid-area: table;
+    background-color: #e5e5e5;
+    padding: 10px 15px;
+    border-radius: 8px;
     text-align: center;
-    gap: 0px;
+    width: 100px;
+}
+
+.table_card_body p,
+.table_card_body h5 {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.chair {
+    width: 30px;
+    height: 60px;
+    background-color: #d9d9d9;
+    border-radius: 10px;
+}
+
+.top {
+    grid-area: top;
+    width: 60px;
+    height: 30px;
+    border-radius: 10px 10px 0 0;
+}
+
+.bottom {
+    grid-area: bottom;
+    width: 60px;
+    height: 30px;
+    border-radius: 0 0 10px 10px;
+}
+
+.left {
+    grid-area: left;
+}
+
+.right {
+    grid-area: right;
 }
 
 /*
