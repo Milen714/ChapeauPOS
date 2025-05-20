@@ -88,6 +88,21 @@ namespace ChapeauPOS.Controllers
             }
             return NotFound();
         }
+        [HttpPost]
+        public IActionResult GetMenuItemsBySearch(string searchParams)
+        {
+            List<MenuItem> menuItems = _menuService.GetAllMenuItems();
+            if (!string.IsNullOrEmpty(searchParams))
+            {
+                menuItems = menuItems.Where(mi => mi.ItemName.Contains(searchParams, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (menuItems == null || menuItems.Count == 0)
+            {
+                return NotFound("No items found.");
+            }
+            MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
+            return PartialView("_MenuPartial", searchMenu);
+        }
         public IActionResult DisplayOrderView(string tableId)
         {
             int tableNumber = int.Parse(tableId);
@@ -112,6 +127,24 @@ namespace ChapeauPOS.Controllers
                 order.OrderStatus = OrderStatus.Pending;
             }
             //order.SetTemporaryOrderId(table.TableNumber);
+            AddMenuItemToExistingOrder(itemId, note, menuItem, order);
+            // Save the order to the session
+            _ordersService.SaveOrderToSession(HttpContext, tableId, order);
+
+
+            // Check if the table is already occupied
+            if (table.TableStatus != TableStatus.Occupied)
+            {
+                table.TableStatus = TableStatus.Occupied;
+                _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
+            }
+
+
+            return PartialView("_OrderListPartial", order);
+        }
+
+        private static void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order)
+        {
             // Check if the item already exists in the order, aswell as if the notes are the same
             var existingItem = order.OrderItems.FirstOrDefault(oi =>
                 oi.MenuItem.MenuItemID == itemId &&
@@ -138,21 +171,7 @@ namespace ChapeauPOS.Controllers
             {
                 order.OrderItems[i].SetOrderItemTemporaryItemId(i);
             }
-            // Save the order to the session
-            _ordersService.SaveOrderToSession(HttpContext, tableId, order);
-
-
-            // Check if the table is already occupied
-            if (table.TableStatus != TableStatus.Occupied)
-            {
-                table.TableStatus = TableStatus.Occupied;
-                _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
-            }
-
-
-            return PartialView("_OrderListPartial", order);
         }
-
 
         public async Task<IActionResult> SendOrder(int id)
         {
