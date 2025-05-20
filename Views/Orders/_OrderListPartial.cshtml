@@ -8,10 +8,10 @@
     <div class="OrderItem_Row">
     <div class="OrderItem_RowBody">
         <div>@item.Quantity x</div>
-        <div>@item.MenuItem.ItemName -</div>
-        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
-    </div>
+        <div>@item.MenuItem.ItemName</div>
         <span class="Notes_span">@item.Notes</span>
+    </div>
+        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
         <div class="popupOverlay">
             <div class="popupContainer">
                 <div class="crudWindow_OrderIteRow">

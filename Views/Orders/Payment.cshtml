@@ -1,6 +1,6 @@
 ﻿@model ChapeauPOS.ViewModels.PaymentViewModel
 
-<h2>Payment Summary - Table @Model.TableNumber</h2>
+<h2>Payment Summary - Table @Model.Order.Table.TableNumber</h2>
 
 <table class="table">
     <thead>
@@ -9,20 +9,20 @@
             <th>Qty</th>
             <th>Unit Price</th>
             <th>Total</th>
-            
-            
+
+
 
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Items)
+        @foreach (var item in Model.Order.OrderItems)
         {
             <tr>
-                <td>@item.Name</td>
+                <td>@item.MenuItem.ItemName</td>
                 <td>@item.Quantity</td>
-                <td>€@item.UnitPrice.ToString("F2")</td>
-                <td>€@item.TotalPrice.ToString("F2")</td>
-                
+                <td>€@item.MenuItem.ItemPrice.ToString("F2")</td>
+                <td>€@item.PriceAccountedForQuantity.ToString("F2")</td>
+
             </tr>
         }
     </tbody>

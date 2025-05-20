@@ -1,0 +1,67 @@
+﻿@model ChapeauPOS.Models.MenuItem
+@{
+    ViewData["Title"] = "Edit Menu Item";
+}
+
+<h2>Edit Menu Item</h2>
+
+<form asp-action="Edit" method="post">
+    
+     <div asp-validation-summary="All" class="text-danger"></div>  
+    <input type="hidden" asp-for="MenuItemID" />
+
+    <div>
+        <label asp-for="ItemName"></label>
+        <input asp-for="ItemName" />
+        <span asp-validation-for="ItemName" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="ItemDescription"></label>
+        <input asp-for="ItemDescription" />
+        <span asp-validation-for="ItemDescription" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="ItemPrice"></label>
+        <input asp-for="ItemPrice" type="number" step="0.01" />
+        <span asp-validation-for="ItemPrice" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="VAT"></label>
+        <input asp-for="VAT" type="checkbox" />
+        <span asp-validation-for="VAT" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Category.CategoryID">Category</label>
+        <select asp-for="Category.CategoryID" asp-items="@(new SelectList(ViewBag.Categories, "CategoryID", "CategoryName", Model.Category?.CategoryID))">
+            <option value="">-- Select Category --</option>
+        </select>
+        <span asp-validation-for="Category.CategoryID" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Course"></label>
+        <select asp-for="Course" asp-items="Html.GetEnumSelectList<ChapeauPOS.Models.MenuCourse>()">
+            <option value="">-- Select Course --</option>
+        </select>
+        <span asp-validation-for="Course" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="IsActive">Is Active</label>
+        <input asp-for="IsActive" type="checkbox" />
+        <span asp-validation-for="IsActive" class="text-danger"></span>
+    </div>
+
+    <button type="submit">Update</button>
+    <a asp-action="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

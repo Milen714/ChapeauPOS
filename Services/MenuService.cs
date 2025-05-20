@@ -9,11 +9,13 @@ namespace ChapeauPOS.Services
     {
         private readonly IMenuRepository _menuRepository;
         private List<MenuCategory> _menuCategories;
+
         public MenuService(IMenuRepository menuRepository)
         {
             _menuRepository = menuRepository;
             _menuCategories = _menuRepository.GetMenuCategories();
         }
+
         public void AddMenuItem(MenuItem menuItem)
         {
             _menuRepository.AddMenuItem(menuItem);
@@ -26,7 +28,7 @@ namespace ChapeauPOS.Services
 
         public List<MenuItem> GetAllMenuItems()
         {
-            return _menuRepository.GetAllMenuItems();   
+            return _menuRepository.GetAllMenuItems();
         }
 
         public List<MenuItem> GetDinner()
@@ -39,7 +41,7 @@ namespace ChapeauPOS.Services
                     dinnerItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
                 }
             }
-            
+
             return dinnerItems;
         }
 
@@ -53,7 +55,7 @@ namespace ChapeauPOS.Services
                     drinkItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
                 }
             }
-            
+
             return drinkItems;
         }
 
@@ -67,7 +69,7 @@ namespace ChapeauPOS.Services
                     lunchItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
                 }
             }
-            
+
             return lunchItems;
         }
 
@@ -95,6 +97,37 @@ namespace ChapeauPOS.Services
         {
             return _menuRepository.GetMenuItemsByName(name);
         }
+
+        public void ToggleMenuItemStatus(int id, bool isActive)
+        {
+            _menuRepository.ToggleMenuItemStatus(id, isActive);
+        }
+        public List<MenuItem> FilterMenuItems(string course, string category)
+        {
+            var allItems = _menuRepository.GetAllMenuItems();
+
+            var filtered = allItems.Where(i =>
+                (string.IsNullOrEmpty(course) ||
+                 i.Course.ToString().Equals(course, StringComparison.OrdinalIgnoreCase)) &&
+
+                (string.IsNullOrEmpty(category) ||
+                 (i.Category != null &&
+                  !string.IsNullOrEmpty(i.Category.CategoryName) &&
+                  i.Category.CategoryName.Equals(category, StringComparison.OrdinalIgnoreCase)))
+            ).ToList();
+
+       
+
+            return filtered;
+        }
+
+
+
+
+
+
+
+
 
         //public void GetWholeMenu()
         //{
@@ -130,12 +163,11 @@ namespace ChapeauPOS.Services
         //            Console.WriteLine($"Unknown category: {menuCategory.CategoryName}");
         //        }
         //    }
-            
         //}
 
         public void UpdateMenuItem(MenuItem menuItem)
         {
-             _menuRepository.UpdateMenuItem(menuItem);
+            _menuRepository.UpdateMenuItem(menuItem);
         }
     }
 }

@@ -5,6 +5,9 @@ using ChapeauPOS.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using ChapeauPOS.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 
 namespace ChapeauPOS.Controllers
 {
@@ -15,29 +18,16 @@ namespace ChapeauPOS.Controllers
         private readonly ITablesService _tablesService;
         private readonly IOrdersService _ordersService;
         private readonly IMenuService _menuService;
-        public OrdersController(IEmployeesService employeesService, ITablesService tablesService, IOrdersService ordersService, IMenuService menuService)
+        private readonly IHubContext<RestaurantHub> _hubContext;
+        public OrdersController(IEmployeesService employeesService, ITablesService tablesService, IOrdersService ordersService, IMenuService menuService, IHubContext<RestaurantHub> hubContext)
         {
             _employeesService = employeesService;
             _tablesService = tablesService;
             _ordersService = ordersService;
             _menuService = menuService;
+            _hubContext = hubContext;
         }
-        private const string OrderSessionKeyPrefix = "TableOrder_";
-        //Gets the order from the session based on table Number
-        private Order GetOrderFromSession(int tableId)
-        {
-            return HttpContext.Session.GetObject<Order>($"{OrderSessionKeyPrefix}{tableId}") ?? new Order
-            {
-                OrderItems = new List<OrderItem>(),
-                CreatedAt = DateTime.Now
-            };
-        }
-        //Milen
-        //Saves table order to the session based on table Number
-        private void SaveOrderToSession(int tableId, Order order)
-        {
-            HttpContext.Session.SetObject($"{OrderSessionKeyPrefix}{tableId}", order);
-        }
+
 
         public IActionResult Index()
         {
@@ -46,9 +36,9 @@ namespace ChapeauPOS.Controllers
         public IActionResult ChangeOrderStatus()
         {
             int tableNumber = 1; // Example table number
-            Order order = GetOrderFromSession(tableNumber);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, tableNumber);
             order.OrderStatus = OrderStatus.Ordered;
-            SaveOrderToSession(tableNumber, order);
+            _ordersService.SaveOrderToSession(HttpContext, tableNumber, order);
             return RedirectToAction("Index", "Tables");
         }
         [HttpGet]
@@ -59,15 +49,15 @@ namespace ChapeauPOS.Controllers
             ViewBag.LoggedInEmployee = loggedInEmployee;
             Table table = _tablesService.GetTableByID(id);
             //get the order from the session
-            Order order = GetOrderFromSession(id);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, id);//GetOrderFromSession(id);
             //Check if the the ocupied table's order has been sent to kithchen/bar and if not load the order from DB
             if (table.TableStatus == TableStatus.Occupied && order.OrderStatus != OrderStatus.Pending)
             {
                 Console.WriteLine("order has been sent to the kitchen/bar and DB Previously: Loading order from the DB and storing it in a session");
                 order = _ordersService.GetOrderByTableId(table.TableNumber);
-                SaveOrderToSession(table.TableNumber, order);
+                _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
             }
-            
+
 
             return View(table);
         }
@@ -98,20 +88,35 @@ namespace ChapeauPOS.Controllers
             }
             return NotFound();
         }
+        [HttpPost]
+        public IActionResult GetMenuItemsBySearch(string searchParams)
+        {
+            List<MenuItem> menuItems = _menuService.GetAllMenuItems();
+            if (!string.IsNullOrEmpty(searchParams))
+            {
+                menuItems = menuItems.Where(mi => mi.ItemName.Contains(searchParams, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (menuItems == null || menuItems.Count == 0)
+            {
+                return NotFound("No items found.");
+            }
+            MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
+            return PartialView("_MenuPartial", searchMenu);
+        }
         public IActionResult DisplayOrderView(string tableId)
         {
             int tableNumber = int.Parse(tableId);
-            Order order = GetOrderFromSession(tableNumber);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, tableNumber);
             return PartialView("_OrderListPartial", order);
         }
         [HttpPost]
-       
+
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
             MenuItem menuItem = _menuService.GetMenuItemById(itemId);
             Table table = _tablesService.GetTableByID(tableId);
             Employee employee = _employeesService.GetEmployeeById(employeeId);
-            Order order = GetOrderFromSession(tableId);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, tableId);
 
             // If this is a new order (i.e., table wasn't previously occupied)
             if (order.Table == null)
@@ -122,7 +127,24 @@ namespace ChapeauPOS.Controllers
                 order.OrderStatus = OrderStatus.Pending;
             }
             //order.SetTemporaryOrderId(table.TableNumber);
-            //SaveOrderToSession(tableId, order);
+            AddMenuItemToExistingOrder(itemId, note, menuItem, order);
+            // Save the order to the session
+            _ordersService.SaveOrderToSession(HttpContext, tableId, order);
+
+
+            // Check if the table is already occupied
+            if (table.TableStatus != TableStatus.Occupied)
+            {
+                table.TableStatus = TableStatus.Occupied;
+                _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
+            }
+
+
+            return PartialView("_OrderListPartial", order);
+        }
+
+        private static void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order)
+        {
             // Check if the item already exists in the order, aswell as if the notes are the same
             var existingItem = order.OrderItems.FirstOrDefault(oi =>
                 oi.MenuItem.MenuItemID == itemId &&
@@ -143,47 +165,27 @@ namespace ChapeauPOS.Controllers
                     OrderItemStatus = OrderItemStatus.Ordered
                 };
                 order.OrderItems.Add(orderItem);
-                
+
             }
             for (int i = 0; i < order.OrderItems.Count; i++)
             {
                 order.OrderItems[i].SetOrderItemTemporaryItemId(i);
             }
-            // Save the order to the session
-            SaveOrderToSession(tableId, order);
-            
-
-            // Check if the table is already occupied
-            if (table.TableStatus != TableStatus.Occupied)
-            {
-                table.TableStatus = TableStatus.Occupied;
-                _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
-            }
-            
-
-            return PartialView("_OrderListPartial", order);
         }
-        //[HttpPost]
-        //public IActionResult OrderTotal(int table)
-        //{
-        //    var order = GetOrderFromSession(table);
 
-        //    ViewBag.Total = order.TotalAmount;
-        //    return PartialView("_OrderTotalPartial");
-        //}
-
-        public IActionResult SendOrder(int id)
+        public async Task<IActionResult> SendOrder(int id)
         {
             // Here Iam gonna send the order to the kitchen and bar 
             // and update the order status to Ordered
             // and save the order to the database
-            // Finally Remove the order from the session
-            Order order = GetOrderFromSession(id);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, id);
             order.OrderStatus = OrderStatus.Ordered;
-            
+
             _ordersService.AddOrder(order);
-            SaveOrderToSession(order.Table.TableNumber, order);
-            
+            _ordersService.SaveOrderToSession(HttpContext, id, order);
+
+            await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
+            await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
 
 
             return RedirectToAction("Index", "Tables");
@@ -194,7 +196,7 @@ namespace ChapeauPOS.Controllers
             // Here Iam gonna delete the order from the database
             // and remove the order from the session
             // and update the table status to Available
-            Order order = GetOrderFromSession(id);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, id);
             Console.WriteLine(order.OrderStatus.ToString());
             if (order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
             {
@@ -203,30 +205,30 @@ namespace ChapeauPOS.Controllers
                 // Update the table status to Available
                 _tablesService.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
                 // Remove the order from the session
-                HttpContext.Session.Remove($"{OrderSessionKeyPrefix}{id}");
-                
+                _ordersService.RemoveOrderFromSession(HttpContext, id);
+
             }
             else
             {
                 // If the order is not in the database, just remove it from the session
                 // and update the table status to Available
                 _tablesService.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
-                HttpContext.Session.Remove($"{OrderSessionKeyPrefix}{id}");
+                _ordersService.RemoveOrderFromSession(HttpContext, id);
             }
 
-                //Table table = _tablesService.GetTableByID(id);
-                order.Table.TableStatus = TableStatus.Free;
+            //Table table = _tablesService.GetTableByID(id);
+            order.Table.TableStatus = TableStatus.Free;
             _tablesService.UpdateTableStatus(order.Table.TableNumber, order.Table.TableStatus);
-            HttpContext.Session.Remove($"{OrderSessionKeyPrefix}{id}");
+            _ordersService.RemoveOrderFromSession(HttpContext, id);
             return RedirectToAction("Index", "Tables");
         }
         [HttpPost]
         public IActionResult RemoveOrderItem(int tableId, int orderItemIdTemp, int orderItemId)
         {
             // Get the order from the session
-            Order order = GetOrderFromSession(tableId);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, tableId);
             Console.WriteLine(order.OrderStatus.ToString());
-            if(order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
+            if (order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
             {
                 var orderItemDB = _ordersService.GetOrderItemById(orderItemId);
                 if (orderItemDB != null)
@@ -234,7 +236,7 @@ namespace ChapeauPOS.Controllers
                     // Remove the item from the database
                     _ordersService.RemoveOrderItem(order.OrderID, orderItemDB.OrderItemId);
                     order.OrderItems.Remove(orderItemDB);
-                    SaveOrderToSession(tableId, order);
+                    _ordersService.SaveOrderToSession(HttpContext, tableId, order);
                 }
             }
             // Find the order item to remove
@@ -244,15 +246,15 @@ namespace ChapeauPOS.Controllers
                 // Remove the item from the order
                 order.OrderItems.Remove(orderItem);
                 // Save the updated order back to the session
-                SaveOrderToSession(tableId, order);
+                _ordersService.SaveOrderToSession(HttpContext, tableId, order);
             }
-            return RedirectToAction("CreateOrder", new{ id = order.Table.TableNumber});
+            return RedirectToAction("CreateOrder", new { id = order.Table.TableNumber });
         }
         [HttpPost]
         public IActionResult UpdateOrderItem(int tableId, int orderItemIdTemp, int orderItemId, int quantity, string? note)
         {
             // Get the order from the session
-            Order order = GetOrderFromSession(tableId);
+            Order order = _ordersService.GetOrderFromSession(HttpContext, tableId);
             Console.WriteLine(order.OrderStatus.ToString());
             if (order.OrderStatus != OrderStatus.Pending && order.OrderStatus != OrderStatus.Finalized)
             {
@@ -264,10 +266,10 @@ namespace ChapeauPOS.Controllers
                     orderItemDB.Notes = note;
                     _ordersService.UpdateOrderItem(orderItemDB);
                     // Update the item in the session
-                    SaveOrderToSession(order.Table.TableNumber, order);
+                    _ordersService.SaveOrderToSession(HttpContext, tableId, order);
                 }
             }
-                // Find the order item to update
+            // Find the order item to update
             var orderItem = order.OrderItems.FirstOrDefault(oi => oi.TemporaryId == orderItemIdTemp);
             if (orderItem != null)
             {
@@ -275,111 +277,27 @@ namespace ChapeauPOS.Controllers
                 orderItem.Quantity = quantity;
                 orderItem.Notes = note;
                 // Save the updated order back to the session
-                SaveOrderToSession(tableId, order);
+                _ordersService.SaveOrderToSession(HttpContext, tableId, order);
             }
             return RedirectToAction("CreateOrder", new { id = order.Table.TableNumber });
         }
-        //Nischal
+        //Nishchal
         public IActionResult Payment(int tableId)
         {
-            Order order = _ordersService.GetOrderByTableId(tableId); //Uses the service layer _ordersService to get the order from the database, not from session because order will stored in database only when the it is send to kitchen.
+            Order order = _ordersService.GetOrderByTableId(tableId); 
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("No order found for this table.");
             }
-
-            var items = new List<PaymentItemViewModel>();
-
-            foreach (var item in order.OrderItems)
+            PaymentViewModel viewModel = new PaymentViewModel
             {
-                var existing = items.FirstOrDefault(i => i.Name == item.MenuItem.ItemName); //Checks if the order is already in list if yes add quantity  else add new item in payment screen.
-                if (existing != null)
-                {
-                    existing.Quantity += item.Quantity;
-                }
-                else
-                {
-                    items.Add(new PaymentItemViewModel
-                    {
-                        Name = item.MenuItem.ItemName,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.MenuItem.ItemPrice,
-                        VATRate = item.MenuItem.VATPercent
-                    });
-                }
-            }
-
-            decimal total = items.Sum(i => i.TotalPrice);
-            decimal lowVAT = items.Where(i => i.VATRate ==9).Sum(i => i.TotalPrice * 0.09m);
-            decimal highVAT = items.Where(i => i.VATRate ==21 ).Sum(i => i.TotalPrice * 0.21m);
-
-            var viewModel = new PaymentViewModel
-            {
-                TableNumber = order.Table.TableNumber,
-                Items = items,
-                TotalAmount = total,
-                LowVAT = lowVAT,
-                HighVAT = highVAT
+                Order = order
             };
+
+            var items = viewModel.Order.OrderItems;
 
             return View(viewModel);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 }

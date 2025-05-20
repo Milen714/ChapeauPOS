@@ -15,5 +15,9 @@ namespace ChapeauPOS.Services.Interfaces
         List<Order> GetOrdersByStatus(OrderStatus status);
         OrderItem GetOrderItemById(int id);
         void RemoveOrderItem(int orderId, int orderItemId);
+
+        Order GetOrderFromSession(HttpContext context, int tableId);
+        void SaveOrderToSession(HttpContext context, int tableId, Order order);
+        void RemoveOrderFromSession(HttpContext context, int tableId);
     }
 }

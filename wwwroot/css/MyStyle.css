@@ -111,17 +111,12 @@ a{
     align-items:center;
     gap: 5px;
 }
-.Logo{
+.Logo {
     width: 51px;
     height: 52px;
+    background-image: url(/assets/LogoFigmaBlack.svg);
 }
-.Logo::before{
-    width: 55px;
-    height: 55px;
-    content:"asasdd";
-    color: transparent;
-    background-image: src(/assets/LogoFigmaWhite.svg);
-}
+
 .Logo_Image {
     width: 55px;
     height: 55px;
@@ -377,9 +372,14 @@ li a {
     flex-direction: column;
     height: 475px; 
     width: 495.35px;
+    
     overflow:scroll;
     overflow-x:hidden;
     background-color: var(--Collection1-Greys-SideContainerGrey);
+}
+#orderList p{
+    color: white;
+
 }
 #orderList::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
@@ -388,26 +388,28 @@ li a {
 .OrderItem_Row {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     border-block-end: 1px #ffffff41 solid;
-    padding: 5px;
+    padding: 5px 10px 5px 10px;
 }
 .OrderItem_RowBody {
     display: flex;
+    flex-wrap: wrap;
     width:100%;
     gap: 5px;
 }
 .OrderItem_RowBody div{
     color: white;
-    display:flex;
-    flex-wrap:wrap;
     max-width:200px;
 }
 .OrderItemRow_Price{
-    margin-left: 210px;
+    color: white;
 }
 .Notes_span {
     text-align: center;
+    font-style: italic;
+    color: white;
+    font-size: 12px;
 }
 .order_summary {
     color: white;
@@ -477,10 +479,9 @@ li a {
 #Menu_SearchBar{
     border: none;
     background-color: transparent;
+    color: white;
 }
 #Menu_SearchBar_Button{
-    position: absolute;
-    left: 250px;
     border: none;
     background: none;
 }

@@ -1,4 +1,5 @@
-﻿using ChapeauPOS.Models;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 
@@ -61,6 +62,27 @@ namespace ChapeauPOS.Services
         public void RemoveOrderItem(int orderId, int orderItemId)
         {
             _ordersRepository.RemoveOrderItem(orderId, orderItemId);
+        }
+
+        private const string OrderSessionKeyPrefix = "TableOrder_";
+
+        public Order GetOrderFromSession(HttpContext context, int tableId)
+        {
+            return context.Session.GetObject<Order>($"{OrderSessionKeyPrefix}{tableId}") ?? new Order
+            {
+                OrderItems = new List<OrderItem>(),
+                CreatedAt = DateTime.Now
+            };
+        }
+
+        public void SaveOrderToSession(HttpContext context, int tableId, Order order)
+        {
+            context.Session.SetObject($"{OrderSessionKeyPrefix}{tableId}", order);
+        }
+
+        public void RemoveOrderFromSession(HttpContext context, int tableId)
+        {
+            context.Session.Remove($"{OrderSessionKeyPrefix}{tableId}");
         }
     }
     

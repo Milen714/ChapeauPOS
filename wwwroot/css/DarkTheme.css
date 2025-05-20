@@ -101,7 +101,10 @@ li a {
 */
 
 
-
+.Logo {
+    
+    background-image: url(/assets/LogoFigmaWhite.svg);
+}
 
 .LogoText {
     font-family: var(--Collection1-Paragpraph_font);

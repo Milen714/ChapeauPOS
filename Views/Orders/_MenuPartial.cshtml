@@ -49,6 +49,8 @@
             </div>
         </form>
     }
+    @if(Model.Drinks != null)
+    {
     @foreach (var item in Model.Drinks)
     {
         <form class="menu-item-form" method="post">
@@ -61,6 +63,7 @@
                 <input type="text" class="note-input" name="note" placeholder="Add note" data-course="drink" />
             </div>
         </form>
+    }
     }
 </div>
 

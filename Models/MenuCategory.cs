@@ -1,4 +1,6 @@
-﻿namespace ChapeauPOS.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace ChapeauPOS.Models
 {
     public class MenuCategory
     {
@@ -7,12 +9,15 @@
             CategoryID = categoryID;
             CategoryName = categoryName;
         }
+
+        //  constructor overloading
         public MenuCategory()
         {
             
         }
 
         public int CategoryID { get; set; }
+        [ValidateNever] //  Add this line
         public string CategoryName { get; set; }
     }
 }

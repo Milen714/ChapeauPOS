@@ -11,6 +11,8 @@ namespace ChapeauPOS.Repositories
         {
             _connectionString = configuration.GetConnectionString("ChapeauDB");
         }
+
+        //data mapping method for reading a row of data from the SQL database 
         private MenuItem ReadMenuItem(SqlDataReader reader)
         {
             //int MenuItemID = reader.GetInt32(0);
@@ -21,28 +23,36 @@ namespace ChapeauPOS.Repositories
             //int CategoryID = reader.GetInt32(5);
             //string CategoryName = reader.GetString(6);
             //MenuCourse Course = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader.GetString(7));
-            
+
             int MenuItemID = reader.GetInt32(reader.GetOrdinal("MenuItemID"));
             string ItemName = reader.GetString(reader.GetOrdinal("ItemName"));
             string ItemDescription = reader["ItemDescription"] == DBNull.Value ? "No Description" : (string)reader["ItemDescription"];
             decimal ItemPrice = reader.GetDecimal(reader.GetOrdinal("ItemPrice"));
-            bool VAT = reader.GetBoolean(reader.GetOrdinal("VAT")); // still works fine
+            bool VAT = reader.GetBoolean(reader.GetOrdinal("VAT"));
             int CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID"));
             string CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"));
             MenuCourse Course = Enum.Parse<MenuCourse>(reader.GetString(reader.GetOrdinal("Course")));
+            bool IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"));
+
             MenuCategory category = new MenuCategory(CategoryID, CategoryName);
-            return new MenuItem(MenuItemID, ItemName, ItemDescription, ItemPrice, VAT, category, Course);
+            var item = new MenuItem(MenuItemID, ItemName, ItemDescription, ItemPrice, VAT, category, Course);
+            item.IsActive = IsActive;
+            return item;
         }
-        public List<MenuItem> GetAllMenuItems()
+
+        public List<MenuItem> GetAllMenuItems(bool includeInactive = false)
         {
             List<MenuItem> menuItems = new List<MenuItem>();
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MC.CategoryID, MC.CategoryName, MI.Course " +
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
                                    "FROM MenuItems AS MI " +
-                                   "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID ";
+                                   "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID";
+
+                    if (!includeInactive)
+                        query += " WHERE MI.IsActive = 1";
 
                     SqlCommand command = new SqlCommand(query, connection);
                     connection.Open();
@@ -50,8 +60,7 @@ namespace ChapeauPOS.Repositories
                     {
                         while (reader.Read())
                         {
-                            MenuItem menuItem = ReadMenuItem(reader);
-
+                            MenuItem menuItem = ReadMenuItem(reader);// helpeing function to read the data
                             menuItems.Add(menuItem);
                         }
                     }
@@ -67,6 +76,7 @@ namespace ChapeauPOS.Repositories
             }
             return menuItems;
         }
+
         public MenuItem GetMenuItemById(int id)
         {
             MenuItem menuItem = new MenuItem();
@@ -74,13 +84,13 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MC.CategoryID, MC.CategoryName, MI.Course " +
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
                                    "WHERE MI.MenuItemID = @MenuItemID";
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@MenuItemID", id);
+                    command.Parameters.AddWithValue("@MenuItemID", id);//parameterized SQL,to prevent SQL injection attacks (security risk).
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -101,47 +111,131 @@ namespace ChapeauPOS.Repositories
             }
             return menuItem;
         }
+
         public void AddMenuItem(MenuItem menuItem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "INSERT INTO MenuItems (ItemName, ItemDescription, ItemPrice, VAT, CategoryID, Course, IsActive) " +
+                                   "VALUES (@Name, @Desc, @Price, @VAT, @CategoryID, @Course, 1)";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@Name", menuItem.ItemName);
+                    command.Parameters.AddWithValue("@Desc", menuItem.ItemDescription ?? "");
+                    command.Parameters.AddWithValue("@Price", menuItem.ItemPrice);
+                    command.Parameters.AddWithValue("@VAT", menuItem.VAT);
+                    command.Parameters.AddWithValue("@CategoryID", menuItem.Category.CategoryID);
+                    command.Parameters.AddWithValue("@Course", menuItem.Course.ToString());
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
+
         public void UpdateMenuItem(MenuItem menuItem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE MenuItems SET ItemName = @Name, ItemDescription = @Desc, ItemPrice = @Price, VAT = @VAT, CategoryID = @CategoryID, Course = @Course, IsActive = @IsActive WHERE MenuItemID = @ID";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@Name", menuItem.ItemName);
+                    command.Parameters.AddWithValue("@Desc", menuItem.ItemDescription ?? "");
+                    command.Parameters.AddWithValue("@Price", menuItem.ItemPrice);
+                    command.Parameters.AddWithValue("@VAT", menuItem.VAT);
+                    command.Parameters.AddWithValue("@CategoryID", menuItem.Category.CategoryID);
+                    command.Parameters.AddWithValue("@Course", menuItem.Course.ToString());
+                    command.Parameters.AddWithValue("@IsActive", menuItem.IsActive); 
+                    command.Parameters.AddWithValue("@ID", menuItem.MenuItemID);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine(ex.Message);
+            //}
+
+            catch (Exception ex)
+            {
+                throw new Exception("Database update failed: " + ex.Message); 
+            }
         }
+
+
         public void DeleteMenuItem(int id)
         {
-            throw new NotImplementedException();
+            ToggleMenuItemStatus(id, false);
         }
-        public List<MenuItem> GetMenuItemsByCategory(MenuCategory category)
-        { 
+
+        public void ToggleMenuItemStatus(int id, bool isActive)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE MenuItems SET IsActive = @IsActive WHERE MenuItemID = @ID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@ID", id);
+                    command.Parameters.AddWithValue("@IsActive", isActive);
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public List<MenuItem> FilterMenuItems(string course, string category)
+        {
             List<MenuItem> menuItems = new List<MenuItem>();
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MC.CategoryID, MC.CategoryName, MI.Course " +
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
-                                   "WHERE MI.CategoryID = @CategoryID ";
+                                   "WHERE MI.IsActive = 1";
+
+                    if (!string.IsNullOrEmpty(course))
+                        query += " AND LOWER(MI.Course) = LOWER(@Course)";
+                    if (!string.IsNullOrEmpty(category))
+                        query += " AND LOWER(MC.CategoryName) = LOWER(@Category)";
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@CategoryID", category.CategoryID);
+
+                    if (!string.IsNullOrEmpty(course))
+                        command.Parameters.AddWithValue("@Course", course.Trim());
+                    if (!string.IsNullOrEmpty(category))
+                        command.Parameters.AddWithValue("@Category", category.Trim());
+
+                    Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
+
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             MenuItem menuItem = ReadMenuItem(reader);
-
+                         
                             menuItems.Add(menuItem);
                         }
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {
@@ -149,21 +243,22 @@ namespace ChapeauPOS.Repositories
             }
             return menuItems;
         }
+
+        public List<MenuItem> GetMenuItemsByCategory(MenuCategory category)
+        {
+            return FilterMenuItems(null, category.CategoryName);
+        }
+
         public List<MenuItem> GetMenuItemsByCourse(MenuCourse course)
         {
-            throw new NotImplementedException();
+            return FilterMenuItems(course.ToString(), null);
         }
+
         public List<MenuItem> GetMenuItemsByName(string name)
         {
-            throw new NotImplementedException();
+            return GetAllMenuItems().Where(item => item.ItemName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
         }
-        private MenuCategory ReadMenuCategory(SqlDataReader reader)
-        {
-            int CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID"));
-            string CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"));
-            MenuCategory category = new MenuCategory(CategoryID, CategoryName);
-            return category;
-        }
+
         public List<MenuCategory> GetMenuCategories()
         {
             List<MenuCategory> menuCategories = new List<MenuCategory>();
@@ -178,8 +273,9 @@ namespace ChapeauPOS.Repositories
                     {
                         while (reader.Read())
                         {
-                            MenuCategory menuCategory = ReadMenuCategory(reader);
-                            menuCategories.Add(menuCategory);
+                            int CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID"));
+                            string CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"));
+                            menuCategories.Add(new MenuCategory(CategoryID, CategoryName));
                         }
                     }
                 }
@@ -193,14 +289,6 @@ namespace ChapeauPOS.Repositories
                 Console.WriteLine(ex.Message);
             }
             return menuCategories;
-
-
-
-
         }
     }
 }
-    
-    
-    
-
