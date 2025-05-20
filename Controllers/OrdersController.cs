@@ -264,7 +264,7 @@ namespace ChapeauPOS.Controllers
             {
                 return NotFound("No order found for this table.");
             }
-            PaymentViewModel viewModel = new PaymentViewModel
+            PaymentViewModel viewModel = new PaymentViewModel 
             {
                 Order = order
             };
