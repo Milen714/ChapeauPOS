@@ -5,6 +5,9 @@ using ChapeauPOS.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using ChapeauPOS.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using System.Threading.Tasks;
 
 namespace ChapeauPOS.Controllers
 {
@@ -15,12 +18,14 @@ namespace ChapeauPOS.Controllers
         private readonly ITablesService _tablesService;
         private readonly IOrdersService _ordersService;
         private readonly IMenuService _menuService;
-        public OrdersController(IEmployeesService employeesService, ITablesService tablesService, IOrdersService ordersService, IMenuService menuService)
+        private readonly IHubContext<RestaurantHub> _hubContext;
+        public OrdersController(IEmployeesService employeesService, ITablesService tablesService, IOrdersService ordersService, IMenuService menuService, IHubContext<RestaurantHub> hubContext)
         {
             _employeesService = employeesService;
             _tablesService = tablesService;
             _ordersService = ordersService;
             _menuService = menuService;
+            _hubContext = hubContext;
         }
 
 
@@ -149,18 +154,19 @@ namespace ChapeauPOS.Controllers
         }
 
 
-        public IActionResult SendOrder(int id)
+        public async Task<IActionResult> SendOrder(int id)
         {
             // Here Iam gonna send the order to the kitchen and bar 
             // and update the order status to Ordered
             // and save the order to the database
-            // Finally Remove the order from the session
             Order order = _ordersService.GetOrderFromSession(HttpContext, id);
             order.OrderStatus = OrderStatus.Ordered;
 
             _ordersService.AddOrder(order);
             _ordersService.SaveOrderToSession(HttpContext, id, order);
 
+            await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
+            await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
 
 
             return RedirectToAction("Index", "Tables");

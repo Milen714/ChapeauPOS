@@ -116,7 +116,7 @@ namespace ChapeauPOS.Services
                   i.Category.CategoryName.Equals(category, StringComparison.OrdinalIgnoreCase)))
             ).ToList();
 
-            Console.WriteLine($"Filtered: {filtered.Count} items for course={course} and category={category}");
+       
 
             return filtered;
         }
