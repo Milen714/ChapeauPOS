@@ -9,13 +9,15 @@ namespace ChapeauPOS.Models
             CategoryID = categoryID;
             CategoryName = categoryName;
         }
+
+        //  constructor overloading
         public MenuCategory()
         {
             
         }
 
         public int CategoryID { get; set; }
-        [ValidateNever] // ✅ Add this line
+        [ValidateNever] //  Add this line
         public string CategoryName { get; set; }
     }
 }
