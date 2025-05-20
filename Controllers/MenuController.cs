@@ -67,7 +67,6 @@ namespace ChapeauPOS.Controllers
             // Validate the model
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("[DEBUG - CREATE] ModelState is invalid");
                 ViewBag.Categories = _service.GetMenuCategories();
                 return View(item);
             }
@@ -81,7 +80,6 @@ namespace ChapeauPOS.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Something went wrong: " + ex.Message);
-       
                 ViewBag.Categories = _service.GetMenuCategories();
                 return View(item);
             }
@@ -145,9 +143,6 @@ namespace ChapeauPOS.Controllers
                         item.Category.CategoryID = catId;
                     else
                         throw new Exception("Category ID was not selected.");
-
-                    // DEBUG LINE GOES RIGHT HERE
-                    Console.WriteLine($"[DEBUG] ID: {item.MenuItemID}, Name: {item.ItemName}, CategoryID: {item.Category?.CategoryID}, Price: {item.ItemPrice}");
 
 
                     _service.UpdateMenuItem(item); // Update in DB
