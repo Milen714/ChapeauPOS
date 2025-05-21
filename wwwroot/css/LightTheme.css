@@ -1,0 +1,39 @@
+﻿
+
+
+
+
+
+
+
+.ManagerIcon {
+    background-image: url('/assets/ManagerIcon_L.svg');
+}
+
+.WaiterIcon {
+    background-image: url('/assets/WaiterIcon_L.svg')
+}
+
+.BartenderIcon {
+    background-image: url('/assets/BartenderIcon_L.svg')
+}
+
+.CookIcon {
+    background-image: url('/assets/CookIcon_L.svg')
+}
+
+.ManagerIconF {
+    background-image: url('/assets/ManagerIconF_L.svg')
+}
+
+.WaitressIcon {
+    background-image: url('/assets/WaitressIcon_L.svg')
+}
+
+.BartenderIconF {
+    background-image: url('/assets/BartenderIconF_L.svg')
+}
+
+.CookIconF {
+    background-image: url('/assets/CookIconF_L.svg')
+}
