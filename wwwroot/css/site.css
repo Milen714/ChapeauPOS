@@ -33,7 +33,7 @@ html {
 body {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+  /*  overflow: hidden; */
   margin-bottom: 60px;
   justify-content: center;
   align-items: center;
@@ -42,4 +42,12 @@ body {
 .nav_bar {
     width: 100vw;
     align-items: center;
+}
+
+.order-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    width:400px;
+    height:fit-content;
 }
