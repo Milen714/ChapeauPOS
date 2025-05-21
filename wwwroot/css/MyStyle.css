@@ -186,30 +186,7 @@ li a {
     background-color: var(--Collection1-Greys-LightGreyLoginBackground);
     border-radius: 5px;
 }
-.ManagerIcon {
-    background-image: url('/assets/ManagerIcon_L.svg');
-}
-.WaiterIcon {
-    background-image: url('/assets/WaiterIcon_L.svg')
-}
-.BartenderIcon {
-    background-image: url('/assets/BartenderIcon_L.svg')
-}
-.CookIcon {
-    background-image: url('/assets/CookIcon_L.svg')
-}
-.ManagerIconF {
-    background-image: url('/assets/ManagerIconF_L.svg')
-}
-.WaitressIcon {
-    background-image: url('/assets/WaitressIcon_L.svg')
-}
-.BartenderIconF {
-    background-image: url('/assets/BartenderIconF_L.svg')
-}
-.CookIconF {
-    background-image: url('/assets/CookIconF_L.svg')
-}
+
 /*
     TableStyles
 */
@@ -290,7 +267,82 @@ li a {
 .right {
     grid-area: right;
 }
+                        /*TABLE NOTIFICATIONS*/
+.Bar_Orders, .Kitcthen_Orders {
+    text-align: center;
+    padding: 10px;
+        
+}
+.TableView_OrderNotifications {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.Kitcthen_Orders_Body, .Bar_Orders_Body {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    font-size: 12px;
+}
+@property --a { /* must register --a to animate it */
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false
+}
+@keyframes a {
+    to {
+        --a: 1turn
+    }
+}
 
+.Order_notification_row {
+    border: solid 3px;
+    inset: -16px;
+    border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    align-items: center;
+    background-color: var(--Collection1-Greys-SideContainerGrey);
+}
+.Order_notification_row p{
+    margin:0;
+}
+.PrepairingBorder {
+    border-image: conic-gradient(from var(--a), #669900, #99cc33, #ccee66, #006699, #3399cc, #990066, #cc3399, #ff6600, #ff9900, #ffcc00, #669900) 1;
+    transition: 500ms;
+    animation: a 6s linear infinite;
+}
+.OrderedBorder {
+    border-image: conic-gradient( from var(--a), #fff176, /* bright pastel yellow */
+    #ffd54f, /* sunflower */
+    #ffca28, /* golden amber */
+    #ffb300, /* vibrant mustard */
+    #ffe082, /* mellow gold */
+    #fff9c4 /* soft lemon cream */
+    ) 1;
+    transition: 500ms;
+    animation: a 6s linear infinite;
+}
+
+.ReadyBorder {
+    border-image: conic-gradient( from var(--a), #9cdb9c, /* very light greenish white */
+    #89e789, /* pastel mint green */
+    #97ee97, /* soft lime green */
+    #99d699, /* calm pastel green */
+    #67c267, /* medium pastel green */
+    #6edb6e, /* return to mint */
+    #50da50 /* pure white for contrast */
+    ) 1;
+    transition: 500ms;
+    animation: a 6s linear infinite;
+}
+.Order_notification_row_ATAG {
+    pointer-events: none;
+}
+.atag{
+    text-decoration:none;
+    color:white;
+}
 /*
     ORDER PAGE STYLES
 */
@@ -372,9 +424,14 @@ li a {
     flex-direction: column;
     height: 475px; 
     width: 495.35px;
+    
     overflow:scroll;
     overflow-x:hidden;
     background-color: var(--Collection1-Greys-SideContainerGrey);
+}
+#orderList p{
+    color: white;
+
 }
 #orderList::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
@@ -383,26 +440,28 @@ li a {
 .OrderItem_Row {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     border-block-end: 1px #ffffff41 solid;
-    padding: 5px;
+    padding: 5px 10px 5px 10px;
 }
 .OrderItem_RowBody {
     display: flex;
+    flex-wrap: wrap;
     width:100%;
     gap: 5px;
 }
 .OrderItem_RowBody div{
     color: white;
-    display:flex;
-    flex-wrap:wrap;
     max-width:200px;
 }
 .OrderItemRow_Price{
-    margin-left: 210px;
+    color: white;
 }
 .Notes_span {
     text-align: center;
+    font-style: italic;
+    color: white;
+    font-size: 12px;
 }
 .order_summary {
     color: white;
@@ -472,10 +531,9 @@ li a {
 #Menu_SearchBar{
     border: none;
     background-color: transparent;
+    color: white;
 }
 #Menu_SearchBar_Button{
-    position: absolute;
-    left: 250px;
     border: none;
     background: none;
 }

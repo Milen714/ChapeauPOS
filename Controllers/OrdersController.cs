@@ -88,6 +88,21 @@ namespace ChapeauPOS.Controllers
             }
             return NotFound();
         }
+        [HttpPost]
+        public IActionResult GetMenuItemsBySearch(string searchParams)
+        {
+            List<MenuItem> menuItems = _menuService.GetAllMenuItems();
+            if (!string.IsNullOrEmpty(searchParams))
+            {
+                menuItems = menuItems.Where(mi => mi.ItemName.Contains(searchParams, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (menuItems == null || menuItems.Count == 0)
+            {
+                return NotFound("No items found.");
+            }
+            MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
+            return PartialView("_MenuPartial", searchMenu);
+        }
         public IActionResult DisplayOrderView(string tableId)
         {
             int tableNumber = int.Parse(tableId);
@@ -111,33 +126,8 @@ namespace ChapeauPOS.Controllers
                 order.CreatedAt = DateTime.Now;
                 order.OrderStatus = OrderStatus.Pending;
             }
-            //order.SetTemporaryOrderId(table.TableNumber);
-            // Check if the item already exists in the order, aswell as if the notes are the same
-            var existingItem = order.OrderItems.FirstOrDefault(oi =>
-                oi.MenuItem.MenuItemID == itemId &&
-                string.Equals(oi.Notes?.Trim(), note?.Trim(), StringComparison.OrdinalIgnoreCase)
-            );
-            // If the item exists, increase the quantity
-            if (existingItem != null)
-            {
-                existingItem.Quantity++;
-            }
-            else
-            {// If the item doesn't exist, create a new order item
-                OrderItem orderItem = new OrderItem
-                {
-                    MenuItem = menuItem,
-                    Quantity = 1,
-                    Notes = note,
-                    OrderItemStatus = OrderItemStatus.Ordered
-                };
-                order.OrderItems.Add(orderItem);
-
-            }
-            for (int i = 0; i < order.OrderItems.Count; i++)
-            {
-                order.OrderItems[i].SetOrderItemTemporaryItemId(i);
-            }
+           
+            _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
             // Save the order to the session
             _ordersService.SaveOrderToSession(HttpContext, tableId, order);
 
@@ -153,6 +143,7 @@ namespace ChapeauPOS.Controllers
             return PartialView("_OrderListPartial", order);
         }
 
+        
 
         public async Task<IActionResult> SendOrder(int id)
         {
@@ -160,14 +151,24 @@ namespace ChapeauPOS.Controllers
             // and update the order status to Ordered
             // and save the order to the database
             Order order = _ordersService.GetOrderFromSession(HttpContext, id);
-            order.OrderStatus = OrderStatus.Ordered;
+            
 
-            _ordersService.AddOrder(order);
-            _ordersService.SaveOrderToSession(HttpContext, id, order);
+            if(order.OrderStatus != OrderStatus.Pending)
+            {
+                _ordersService.AddToOrder(order);
+                _menuService.DeductStock(order);
+            }
+            if (order.OrderStatus == OrderStatus.Pending)
+            {
+                order.OrderStatus = OrderStatus.Ordered;
+                _ordersService.AddOrder(order);
+                _menuService.DeductStock(order);
+
+                _ordersService.SaveOrderToSession(HttpContext, id, order);
+            }
 
             await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
             await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
-
 
             return RedirectToAction("Index", "Tables");
 

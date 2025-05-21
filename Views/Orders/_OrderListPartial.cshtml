@@ -8,10 +8,10 @@
     <div class="OrderItem_Row">
     <div class="OrderItem_RowBody">
         <div>@item.Quantity x</div>
-        <div>@item.MenuItem.ItemName -</div>
-        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
-    </div>
+        <div>@item.MenuItem.ItemName</div>
         <span class="Notes_span">@item.Notes</span>
+    </div>
+        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
         <div class="popupOverlay">
             <div class="popupContainer">
                 <div class="crudWindow_OrderIteRow">
@@ -36,6 +36,43 @@
                     </div>
         </div>
         </div>
+        </div>
+    </div>
+}
+@foreach (var item in Model.InterumOrderItems)
+{
+
+    <div class="OrderItem_Row">
+        <div class="OrderItem_RowBody">
+            <div>@item.Quantity x</div>
+            <div>@item.MenuItem.ItemName</div>
+            <span class="Notes_span">@item.Notes</span>
+        </div>
+        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
+        <div class="popupOverlay">
+            <div class="popupContainer">
+                <div class="crudWindow_OrderIteRow">
+                    <button class="confirmation_cancelation">X</button>
+                    <div>
+                        <form action="/Orders/RemoveOrderItem" method="post">
+                            <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                            <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                            <button type="submit">RemoveItem</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form action="/Orders/UpdateOrderItem" method="post">
+                            <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                            <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                            <input type="number" name="quantity" value="@item.Quantity" />
+                            <input type="text" name="note" placeholder="Add note..." />
+                            <button type="submit">UpdateItem</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 }
