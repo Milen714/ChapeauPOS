@@ -169,5 +169,10 @@ namespace ChapeauPOS.Services
         {
             _menuRepository.UpdateMenuItem(menuItem);
         }
+
+        public void DeductStock(Order order)
+        {
+            _menuRepository.DeductStock(order);
+        }
     }
 }

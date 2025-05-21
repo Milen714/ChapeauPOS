@@ -6,7 +6,6 @@
     
 
 }  
-<h1>@ViewData["Title"]</h1>  
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
 <input id="table" name="table" type="hidden" value="@Model.TableNumber" placeholder="Search...">
@@ -17,11 +16,13 @@
         
   </select>  
     <div>
-        <form action="/" method="post">
-            <input type="text" id="Menu_SearchBar" name="name" value="" placeholder="SearchMenu"/>  
+        <form  id="MenuSearchBar" action="/Orders/GetMenuItemsBySearch" method="post">
+            <input type="text" id="Menu_SearchBar" name="searchParams" value="" placeholder="SearchMenu" />
             <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
         </form>
     </div>
+    <p>@ViewData["Title"]</p>
+
 </header>  
 
 <article class="OrderViewBody">
@@ -83,25 +84,51 @@
 
             $(document).ready(loadPartialView());
 
-            $(document).ready(function () {
-                var tableId = document.getElementById('tableId').value;
-                $.ajax({
-                    url: "/Orders/DisplayOrderView?tableId=" + encodeURIComponent(tableId),
-                    type: "GET",
-                    success: function (data) {
-                        $("#orderList").html(data);
-                    },
-                    error: function (error) {
-                        console.error("Error fetching users:", error);
-                    }
+              $(document).ready(function () {
+                  var tableId = document.getElementById('tableId').value;
+                  $.ajax({
+                      url: "/Orders/DisplayOrderView?tableId=" + encodeURIComponent(tableId),
+                      type: "GET",
+                      success: function (data) {
+                          $("#orderList").html(data);
+                      },
+                      error: function (error) {
+                          console.error("Error fetching users:", error);
+                      }
+                  });
+              });
+
+                 $(document).ready(function () {
+                    $('#MenuSearchBar').on('submit', function (event) {
+                        event.preventDefault();
+                        var SearchParameters = document.getElementById('Menu_SearchBar').value;
+                        $.ajax({
+                            url: "/Orders/GetMenuItemsBySearch",
+                            type: "POST",
+                            data: {
+                                searchParams: SearchParameters
+                            },
+                            success: function (data) {
+                                $("#partialViewContainer").html(data);
+                            },
+                            error: function (error) {
+                                console.error("Error fetching users:", error);
+                            }
+                        });
+                    });
                 });
-            });
+
+				  
+            
 
             $(document).on('click', '.clickable-item', function () {
                 const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
                 var tableId = document.getElementById('tableId').value;
                 var employeeId = document.getElementById('employeeId').value;
-                const note = $(this).closest('.menu-item-form').find('.note-input').val();
+                let note = $(this).closest('.menu-item-form').find('.note-input').val();
+                if (note && note.trim() !== "") {
+                    note = `"${note}"`;
+                }
                 $.ajax({
                     url: '/Orders/AddItemToOrder',
                     type: 'POST',
@@ -120,12 +147,12 @@
                 });
             });
 
-                  document.getElementById("Actions_Select").addEventListener("change", function () {
-            const selectedValue = this.value;
-            if (selectedValue) {
-                window.location.href = selectedValue; 
-            }
-        });
+            document.getElementById("Actions_Select").addEventListener("change", function () {
+                const selectedValue = this.value;
+                if (selectedValue) {
+                    window.location.href = selectedValue; 
+                }
+            });
 
   </script>  
 }
