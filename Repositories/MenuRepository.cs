@@ -300,13 +300,27 @@ namespace ChapeauPOS.Repositories
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    foreach (var orderItem in order.OrderItems)
+                    if (order.InterumOrderItems.Count() == 0)
                     {
-                        string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
-                        SqlCommand command = new SqlCommand(query, connection);
-                        command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
-                        command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
-                        command.ExecuteNonQuery();
+                        foreach (var orderItem in order.OrderItems)
+                        {
+                            string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
+                            SqlCommand command = new SqlCommand(query, connection);
+                            command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                            command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    else if (order.InterumOrderItems.Count() != 0)
+                    {
+                        foreach (var orderItem in order.InterumOrderItems)
+                        {
+                            string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
+                            SqlCommand command = new SqlCommand(query, connection);
+                            command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                            command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                            command.ExecuteNonQuery();
+                        }
                     }
                 }
             }

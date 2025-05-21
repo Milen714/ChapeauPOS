@@ -17,6 +17,7 @@
         }
         public DateTime? ClosedAt { get; set; }
         public List<OrderItem> OrderItems { get; set; }
+        public List<OrderItem> InterumOrderItems { get; set; } 
         public decimal TotalAmount
         {
             get {
@@ -26,7 +27,8 @@
 
         public Order()
         {
-            
+            InterumOrderItems = new List<OrderItem>();
+            OrderItems = new List<OrderItem>();
         }
 
         public Order(int orderID, Table table, Employee employee, DateTime createdAt, DateTime? closedAt)
@@ -37,6 +39,7 @@
             CreatedAt = createdAt;
             ClosedAt = closedAt;
             OrderItems = new List<OrderItem>();
+            InterumOrderItems = new List<OrderItem>();
         }
 
         public Order(int orderID, Table table, Employee employee, DateTime createdAt, DateTime? closedAt, List<OrderItem> orderItems)

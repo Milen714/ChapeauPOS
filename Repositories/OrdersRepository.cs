@@ -388,6 +388,40 @@ namespace ChapeauPOS.Repositories
                 throw new Exception("Error removing order item from database", ex);
             }
         }
+
+        public void AddToOrder(Order order)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {   connection.Open();
+
+                    foreach (var item in order.InterumOrderItems)
+                    {   //Insert each order item into the OrderItems table Using the new OrderID
+                        string itemQuery = "INSERT INTO OrderItems (OrderID, MenuItemID, Quantity, OrderItemStatus, Notes) " +
+                                           "VALUES (@OrderID, @MenuItemID, @Quantity, @OrderItemStatus, @Notes)";
+                        SqlCommand itemCommand = new SqlCommand(itemQuery, connection);
+                        itemCommand.Parameters.AddWithValue("@OrderID", order.OrderID);
+                        itemCommand.Parameters.AddWithValue("@MenuItemID", item.MenuItem.MenuItemID);
+                        itemCommand.Parameters.AddWithValue("@Quantity", item.Quantity);
+                        //itemCommand.Parameters.AddWithValue("@MenuCourse", item.MenuCourse.ToString());
+                        itemCommand.Parameters.AddWithValue("@OrderItemStatus", item.OrderItemStatus.ToString());
+                        // itemCommand.Parameters.AddWithValue("@CourseStatus", item.CourseStatus.ToString());
+                        itemCommand.Parameters.AddWithValue("@Notes", (object)item.Notes ?? DBNull.Value);
+
+                        itemCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error adding order to database", ex);
+            }
+        }
     }
 
 }
