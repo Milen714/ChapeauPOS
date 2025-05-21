@@ -6,7 +6,6 @@
     
 
 }  
-<h1>@ViewData["Title"]</h1>  
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
 <input id="table" name="table" type="hidden" value="@Model.TableNumber" placeholder="Search...">
@@ -22,6 +21,8 @@
             <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
         </form>
     </div>
+    <p>@ViewData["Title"]</p>
+
 </header>  
 
 <article class="OrderViewBody">
