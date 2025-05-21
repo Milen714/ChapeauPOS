@@ -37,3 +37,11 @@
 .CookIconF {
     background-image: url('/assets/CookIconF_L.svg')
 }
+
+
+
+
+
+.Kitcthen_Orders_Body, .Bar_Orders_Body{
+    color: black;
+}

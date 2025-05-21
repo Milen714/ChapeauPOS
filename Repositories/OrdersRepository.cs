@@ -51,7 +51,10 @@ namespace ChapeauPOS.Repositories
             bool VAT = reader.GetBoolean(reader.GetOrdinal("VAT"));
             int stock = reader.GetInt32(reader.GetOrdinal("Stock"));
 
-            MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, ItemPrice = itemPrice, VAT = VAT, Stock = stock };
+            MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, 
+                                               ItemName = itemName, ItemDescription = itemDescription, 
+                                               ItemPrice = itemPrice, VAT = VAT, 
+                                               Stock = stock, Course = menuCourse };
             return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
         }
         public List<Order> GetAllOrders()
@@ -235,7 +238,49 @@ namespace ChapeauPOS.Repositories
         }
         public List<Order> GetOrdersByStatus(OrderStatus status)
         {
-            throw new NotImplementedException();
+            List<Order> orders = new List<Order>();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock " +
+                   "FROM Orders " +
+                   "JOIN Tables t ON Orders.TableID = t.TableID " +
+                   "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
+                   "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
+                   "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                   "WHERE OrderStatus = @OrderStatus  ";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderStatus", status.ToString());
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int orderId = (int)reader["OrderID"];
+                            // Try to find the order in the list
+                            var order = orders.FirstOrDefault(o => o.OrderID == orderId);
+                            if (order == null)
+                            {
+                                order = ReadOrder(reader);
+                                orders.Add(order);
+                            }
+                            OrderItem orderItem = ReadOrderItem(reader);
+                            order.OrderItems.Add(orderItem);
+                        }
+
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving orders from database", ex);
+            }
+            return orders;
         }
 
         public Order GetOrderByTableId(int tableId)
