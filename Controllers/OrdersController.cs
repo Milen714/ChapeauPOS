@@ -264,9 +264,9 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("CreateOrder", new { id = order.Table.TableNumber });
         }
         //Nishchal
-        public IActionResult Payment(int tableId)
+        public IActionResult Payment(int id)
         {
-            Order order = _ordersService.GetOrderByTableId(tableId); 
+            Order order = _ordersService.GetOrderByTableId(id); 
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("No order found for this table.");
