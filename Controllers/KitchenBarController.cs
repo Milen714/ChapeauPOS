@@ -86,12 +86,20 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("BarRunningOrders");
         }
 
-        public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, string courseStatus)
+        public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, CourseStatus courseStatus)
         {
-            // Parse the course status string to enum
-            if (!Enum.TryParse(courseStatus, out OrderItemStatus orderItemStatus))
+            OrderItemStatus orderItemStatus;
+            if (courseStatus == CourseStatus.Ordered)
             {
-                return BadRequest("Invalid course status");
+                orderItemStatus = OrderItemStatus.Ordered;
+            }
+            else if (courseStatus == CourseStatus.Preparing)
+            {
+                orderItemStatus = OrderItemStatus.Preparing;
+            }
+            else
+            {
+                orderItemStatus = OrderItemStatus.Ready;
             }
 
             _kitchenBarService.UpdateItemStatusBasedOnCourse(orderId, course, orderItemStatus);
