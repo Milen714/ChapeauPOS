@@ -127,7 +127,7 @@ namespace ChapeauPOS.Controllers
                 order.OrderStatus = OrderStatus.Pending;
             }
             //order.SetTemporaryOrderId(table.TableNumber);
-            AddMenuItemToExistingOrder(itemId, note, menuItem, order);
+            _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
             // Save the order to the session
             _ordersService.SaveOrderToSession(HttpContext, tableId, order);
 
@@ -143,35 +143,7 @@ namespace ChapeauPOS.Controllers
             return PartialView("_OrderListPartial", order);
         }
 
-        private static void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order)
-        {
-            // Check if the item already exists in the order, aswell as if the notes are the same
-            var existingItem = order.OrderItems.FirstOrDefault(oi =>
-                oi.MenuItem.MenuItemID == itemId &&
-                string.Equals(oi.Notes?.Trim(), note?.Trim(), StringComparison.OrdinalIgnoreCase)
-            );
-            // If the item exists, increase the quantity
-            if (existingItem != null)
-            {
-                existingItem.Quantity++;
-            }
-            else
-            {// If the item doesn't exist, create a new order item
-                OrderItem orderItem = new OrderItem
-                {
-                    MenuItem = menuItem,
-                    Quantity = 1,
-                    Notes = note,
-                    OrderItemStatus = OrderItemStatus.Ordered
-                };
-                order.OrderItems.Add(orderItem);
-
-            }
-            for (int i = 0; i < order.OrderItems.Count; i++)
-            {
-                order.OrderItems[i].SetOrderItemTemporaryItemId(i);
-            }
-        }
+        
 
         public async Task<IActionResult> SendOrder(int id)
         {
@@ -182,6 +154,7 @@ namespace ChapeauPOS.Controllers
             order.OrderStatus = OrderStatus.Ordered;
 
             _ordersService.AddOrder(order);
+            _menuService.DeductStock(order);
             _ordersService.SaveOrderToSession(HttpContext, id, order);
 
             await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");

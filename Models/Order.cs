@@ -65,7 +65,13 @@
         {
             TemporaryOrderId = id;
         }
-
+        public void TemporaryItemIdSetter()
+        {
+            for (int i = 0; i < OrderItems.Count; i++)
+            {
+                OrderItems[i].SetOrderItemTemporaryItemId(i);
+            }
+        }
 
 
     }

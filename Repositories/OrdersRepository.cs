@@ -49,8 +49,9 @@ namespace ChapeauPOS.Repositories
             string itemName = (string)reader["ItemName"];
             string itemDescription = reader["ItemDescription"] == DBNull.Value ? "" : (string)reader["ItemDescription"];
             bool VAT = reader.GetBoolean(reader.GetOrdinal("VAT"));
+            int stock = reader.GetInt32(reader.GetOrdinal("Stock"));
 
-            MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, ItemPrice = itemPrice, VAT = VAT };
+            MenuItem menuItem = new MenuItem { MenuItemID = menuItemID, ItemName = itemName, ItemDescription = itemDescription, ItemPrice = itemPrice, VAT = VAT, Stock = stock };
             return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
         }
         public List<Order> GetAllOrders()
@@ -60,7 +61,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT,  oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT,  oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.Stock " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -194,13 +195,13 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, oi.CourseStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT  " +
-                    "FROM Orders " +
-                    "JOIN Tables t ON Orders.TableID = t.TableID " +
-                    "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
-                    "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
-                    "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE t.TableNumber = @TableNumber";
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock " +
+                   "FROM Orders " +
+                   "JOIN Tables t ON Orders.TableID = t.TableID " +
+                   "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
+                   "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
+                   "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                   "WHERE t.TableNumber = @TableNumber  ";
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@TableNumber", tableId);
                     connection.Open();
@@ -244,7 +245,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -292,7 +293,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.OrderItemStatus, oi.Notes, mi.ItemName, mi.ItemDescription, mi.ItemPrice, mi.Course, mi.VAT " +
+                    string query = "SELECT oi.OrderItemID, oi.MenuItemID, oi.Quantity, oi.OrderItemStatus, oi.Notes, mi.ItemName, mi.ItemDescription, mi.ItemPrice, mi.Course, mi.VAT, mi.Stock " +
                     "FROM OrderItems oi " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
                     "WHERE oi.OrderItemID = @OrderItemID";
