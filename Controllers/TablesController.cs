@@ -9,19 +9,31 @@ namespace ChapeauPOS.Controllers
     {
         private readonly ITablesService _tablesService;
         private readonly IOrdersService _ordersService;
-        public TablesController(ITablesService tablesService, IOrdersService ordersService)
+        private readonly IKitchenBarService _kitchenBarService;
+        public TablesController(ITablesService tablesService, IOrdersService ordersService, IKitchenBarService kitchenBarService)
         {
             _tablesService = tablesService;
             _ordersService = ordersService;
+            _kitchenBarService = kitchenBarService;
         }
-      
+
         public IActionResult Index()
         {
             var tables = _tablesService.GetAllTables();
             _tablesService.SynchronizeTableStatuses(tables);
+            var orders = _ordersService.GetOrdersByStatus(OrderStatus.Ordered);
+            ViewBag.KitchenOrders = orders;
             return View(tables);
         }
+        public IActionResult SetOrderItemAsServed(int id)
+        {
+            Console.WriteLine(id);
+            _kitchenBarService.UpdateKitchenOrderItemStatus(id, OrderItemStatus.Served);
+            var tables = _tablesService.GetAllTables();
+            return RedirectToAction("Index", tables);
+        }
 
-        
+
+
     }
 }
