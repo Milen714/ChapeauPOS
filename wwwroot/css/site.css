@@ -26,17 +26,17 @@ html {
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
     display: flex;
     flex-direction: column;
-  /*  overflow: hidden; */
-  margin-bottom: 60px;
-  justify-content: center;
-  align-items: center;
+    overflow: hidden;
+    margin-bottom: 60px;
+    justify-content: center;
+    align-items: center;
 }
 
 .nav_bar {

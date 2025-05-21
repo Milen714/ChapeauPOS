@@ -31,6 +31,7 @@ namespace ChapeauPOS.Models
         public MenuCategory Category { get; set; }
         public MenuCourse Course { get; set; }
         public bool IsActive { get; set; } // Indicates if the item is active or inactive
+        public int Stock { get; set; }  
     }
 
 }

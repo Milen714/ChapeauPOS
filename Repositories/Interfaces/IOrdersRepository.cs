@@ -16,5 +16,6 @@ namespace ChapeauPOS.Repositories.Interfaces
         List<Order> GetOrdersByStatus(OrderStatus status);
         OrderItem GetOrderItemById(int id);
         void RemoveOrderItem(int orderId, int orderItemId);
+        void AddToOrder(Order order);
     }
 }

@@ -32,29 +32,18 @@
                     <li class="nav_item">
                         <a class="" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
                     </li>
-                    <li class="nav_item">
-                        <form action="/Home/SetTheme" method="post">
-                            <article class="input_group">
-                                <label for="Theme">Theme</label>
-                                <select onchange="this.form.submit()" id="Theme" name="theme" class="input_field">
-                                    <option value="">Theme:</option>
-                                    <option value="Dark">Dark</option>
-                                    <option value="Light">Light</option>
-                                </select>
-                            </article>
-                        </form>
-                    </li>
+                    
                 </ul>
             </div>
             <div class="Logo_container">
                 <div class="Logo"></div>
-                <a class="LogoText" asp-area="" asp-controller="Home" asp-action="Index">ChapeauPOS</a>
+                <a class="LogoText" asp-area="" asp-controller="Home" asp-action="Index"></a>
             </div>
             <div class="nav_status_Right">
-                <div>
-                    <a href="/Orders/SendOrder/@ViewBag.TableNumber">Send from Table: @ViewBag.TableNumber</a>
-                    <button>Check</button>
-                    <a asp-controller="Orders" asp-action="Payment" asp-route-tableId="@ViewBag.TableNumber" class="btn btn-outline-dark">Settle Payment</a>
+                <div class="nav_status_Right">
+                    <a class="Buttons_IntableActions" href="/Orders/SendOrder/@ViewBag.TableNumber"><img src="/assets/Smallicons/Send24White.svg" alt="Alternate Text" />Send</a>
+                    <a class="Buttons_IntableActions"><img src="/assets/Smallicons/Check24White.svg" alt="Alternate Text" />Check</a>
+                    <a class="Buttons_IntableActions" href="/Orders/Payment/@ViewBag.TableNumber"><img src="/assets/Smallicons/Settlepayment24White.svg" alt="Alternate Text" />Settle Payment</a>
 
                 </div>
             </div>
