@@ -126,7 +126,7 @@ namespace ChapeauPOS.Controllers
                 order.CreatedAt = DateTime.Now;
                 order.OrderStatus = OrderStatus.Pending;
             }
-            //order.SetTemporaryOrderId(table.TableNumber);
+           
             _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
             // Save the order to the session
             _ordersService.SaveOrderToSession(HttpContext, tableId, order);
@@ -151,15 +151,24 @@ namespace ChapeauPOS.Controllers
             // and update the order status to Ordered
             // and save the order to the database
             Order order = _ordersService.GetOrderFromSession(HttpContext, id);
-            order.OrderStatus = OrderStatus.Ordered;
+            
 
-            _ordersService.AddOrder(order);
-            _menuService.DeductStock(order);
-            _ordersService.SaveOrderToSession(HttpContext, id, order);
+            if(order.OrderStatus != OrderStatus.Pending)
+            {
+                _ordersService.AddToOrder(order);
+                _menuService.DeductStock(order);
+            }
+            if (order.OrderStatus == OrderStatus.Pending)
+            {
+                order.OrderStatus = OrderStatus.Ordered;
+                _ordersService.AddOrder(order);
+                _menuService.DeductStock(order);
+
+                _ordersService.SaveOrderToSession(HttpContext, id, order);
+            }
 
             await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
             await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
-
 
             return RedirectToAction("Index", "Tables");
 
