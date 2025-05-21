@@ -84,6 +84,33 @@ namespace ChapeauPOS.Services
         {
             context.Session.Remove($"{OrderSessionKeyPrefix}{tableId}");
         }
+
+        public void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order)
+        {
+            // Check if the item already exists in the order, aswell as if the notes are the same
+            var existingItem = order.OrderItems.FirstOrDefault(oi =>
+                oi.MenuItem.MenuItemID == itemId &&
+                string.Equals(oi.Notes?.Trim(), note?.Trim(), StringComparison.OrdinalIgnoreCase)
+            );
+            // If the item exists, increase the quantity
+            if (existingItem != null)
+            {
+                existingItem.Quantity++;
+            }
+            else
+            {// If the item doesn't exist, create a new order item
+                OrderItem orderItem = new OrderItem
+                {
+                    MenuItem = menuItem,
+                    Quantity = 1,
+                    Notes = note,
+                    OrderItemStatus = OrderItemStatus.Ordered
+                };
+                order.OrderItems.Add(orderItem);
+
+            }
+            order.TemporaryItemIdSetter();
+        }
     }
     
 }

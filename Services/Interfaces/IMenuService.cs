@@ -19,5 +19,6 @@ namespace ChapeauPOS.Services.Interfaces
         List<MenuItem> GetDinner();
         List<MenuItem> GetDrinks();
         List<MenuItem> FilterMenuItems(string course, string category);
+        void DeductStock(Order order);
     }
 }
