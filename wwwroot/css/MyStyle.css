@@ -595,3 +595,19 @@ footer li a{
 #mealType option{
     color:black;
 }
+                                /*PAYMENTTTTTTTTTTTTTTTTTTTT*/
+
+
+.PaymentButtons_Container{
+    display:flex;
+    flex-direction: row;
+    gap: 5px;
+}
+.PaymentButtons {
+    height: 61px;
+    border: none;
+    background-color: black;
+    color: white;
+    font-weight: 500;
+    font-size: 18px;
+}
