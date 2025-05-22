@@ -123,7 +123,7 @@
 
 		setInterval(() => {
 			document.querySelectorAll('[data-order-id]').forEach(el => {
-				fetch(`/KitchenBar/GetRunningTime?orderId=${el.dataset.orderId}`)
+				fetch(`/KitchenBar/GetRunningBarTime?orderId=${el.dataset.orderId}`)
 					.then(response => response.text())
 					.then(time => el.textContent = time);
 			});

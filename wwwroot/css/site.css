@@ -33,7 +33,6 @@ html {
 body {
     display: flex;
     flex-direction: column;
-    /*overflow: hidden;*/
     margin-bottom: 60px;
     justify-content: center;
     align-items: center;
