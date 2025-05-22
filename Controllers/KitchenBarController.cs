@@ -47,7 +47,6 @@ namespace ChapeauPOS.Controllers
             return View(orders);
         }
 
-
         public IActionResult BarRunningOrders()
         {
             List<Order> orders = _kitchenBarService.GetRunningBarOrders();
@@ -86,21 +85,39 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("BarRunningOrders");
         }
 
-        public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, string courseStatus)
+        public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, CourseStatus courseStatus)
         {
-            // Parse the course status string to enum
-            if (!Enum.TryParse(courseStatus, out OrderItemStatus orderItemStatus))
+            OrderItemStatus orderItemStatus;
+            if (courseStatus == CourseStatus.Ordered)
             {
-                return BadRequest("Invalid course status");
+                orderItemStatus = OrderItemStatus.Ordered;
+            }
+            else if (courseStatus == CourseStatus.Preparing)
+            {
+                orderItemStatus = OrderItemStatus.Preparing;
+            }
+            else
+            {
+                orderItemStatus = OrderItemStatus.Ready;
             }
 
             _kitchenBarService.UpdateItemStatusBasedOnCourse(orderId, course, orderItemStatus);
             return RedirectToAction("KitchenRunningOrders");
         }
 
-        public IActionResult GetRunningTime(int orderId)
+        public IActionResult GetRunningKitchenTime(int orderId)
         {
             var order = _kitchenBarService.GetRunningKitchenOrders().FirstOrDefault(o => o.OrderID == orderId);
+
+            if (order?.CreatedAt == null)
+                return Content("00:00:00");
+
+            return Content((DateTime.Now - order.CreatedAt).ToString(@"hh\:mm\:ss"));
+        }
+
+        public IActionResult GetRunningBarTime(int orderId)
+        {
+            var order = _kitchenBarService.GetRunningBarOrders().FirstOrDefault(o => o.OrderID == orderId);
 
             if (order?.CreatedAt == null)
                 return Content("00:00:00");

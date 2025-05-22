@@ -23,7 +23,7 @@ namespace ChapeauPOS.Repositories
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE oi.OrderItemStatus <> 'Served' AND mi.Course <> 'Drink' " +
+                    "WHERE (oi.OrderItemStatus <> 'Served' AND oi.OrderItemStatus <> 'Ready') AND mi.Course <> 'Drink' " +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -177,7 +177,7 @@ namespace ChapeauPOS.Repositories
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE oi.OrderItemStatus = 'Served' AND mi.Course <> 'Drink' AND CAST(ClosedAt AS DATE) = CAST(GETDATE() AS DATE) " +
+                    "WHERE (oi.OrderItemStatus = 'Served' OR oi.OrderItemStatus = 'Ready') AND mi.Course <> 'Drink' AND CAST(Orders.CreatedAt AS DATE) = CAST(GETDATE() AS DATE) " +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -225,7 +225,7 @@ namespace ChapeauPOS.Repositories
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE oi.OrderItemStatus <> 'Served' AND mi.Course = 'Drink' " +
+                    "WHERE (oi.OrderItemStatus <> 'Served' AND oi.OrderItemStatus <> 'Ready') AND mi.Course = 'Drink' " +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -312,11 +312,12 @@ namespace ChapeauPOS.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
+                string query = "UPDATE oi SET OrderItemStatus = 'Ready' " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                               "WHERE OrderID = @OrderID AND mi.Course <> 'Drink' " +
-                               "UPDATE Orders SET ClosedAt = GETDATE()";
+                               "WHERE OrderID = @OrderID AND mi.Course <> 'Drink'; " +
+                               "UPDATE Orders SET ClosedAt = GETDATE() " +
+                               "WHERE OrderID = @OrderID";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@OrderID", orderId);
 
@@ -336,10 +337,12 @@ namespace ChapeauPOS.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                string query = "UPDATE oi SET OrderItemStatus = 'Served' " +
+                string query = "UPDATE oi SET OrderItemStatus = 'Ready' " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                               "WHERE OrderID = @OrderID AND mi.Course = 'Drink'";
+                               "WHERE OrderID = @OrderID AND mi.Course = 'Drink'; " +
+                               "UPDATE Orders SET ClosedAt = GETDATE() " +
+                               "WHERE OrderID = @OrderID";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@OrderID", orderId);
 
@@ -362,7 +365,7 @@ namespace ChapeauPOS.Repositories
                 string query = "UPDATE oi SET OrderItemStatus = @OrderItemStatus " +
                                "FROM OrderItems oi " +
                                "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                               "WHERE OrderID = @OrderID AND mi.Course = @Course AND OrderItemStatus <> 'Ready'";
+                               "WHERE OrderID = @OrderID AND mi.Course = @Course AND oi.OrderItemStatus <> 'Ready'";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@OrderItemStatus", orderItemStatus.ToString());
                 cmd.Parameters.AddWithValue("@OrderID", orderId);
@@ -392,7 +395,7 @@ namespace ChapeauPOS.Repositories
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
                     "JOIN OrderItems oi ON Orders.OrderID = oi.OrderID " +
                     "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
-                    "WHERE oi.OrderItemStatus = 'Served' AND mi.Course = 'Drink' AND CAST(ClosedAt AS DATE) = CAST(GETDATE() AS DATE)" +
+                    "WHERE (oi.OrderItemStatus = 'Served' OR oi.OrderItemStatus = 'Ready') AND mi.Course = 'Drink' AND CAST(Orders.CreatedAt AS DATE) = CAST(GETDATE() AS DATE)" +
                     "ORDER BY Orders.CreatedAt";
 
                 SqlCommand cmd = new SqlCommand(query, conn);

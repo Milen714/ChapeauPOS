@@ -136,22 +136,58 @@ a{
 /* NAV BARSS  
 
 */
+                /*OrderNav*/
+.nav_status_Right{
+    display: flex;
+    gap: 10px;
+}
+.Buttons_IntableActions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    text-decoration: none;
+    color: white;
+    font-family: var(--Collection1-Paragpraph_font);
+    font-weight: 500;
+    border: none;
+    padding: 5px 10px 5px 10px;
+}
+.Buttons_IntableActions:hover{
+    color: white;
+}
 .nav_bar {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
+footer .nav_ul_container {
+    position: fixed;
+    bottom: 0;
+    background-color: black;
+    left: 0;
+    right: 0;
+}
 .nav_ul {
     display: flex;
     flex-direction: row;
+    width:100%;
 }
 .nav_item {
     display: flex;
+    flex-grow: 1; /* Make items grow to fill available space */
+    justify-content:center;
+    align-items:center;
 }
 li a {
     padding: .5rem 1rem;
     text-decoration: none;
     color: black;
+}
+
+footer li a{
+    color:white;
 }
 
 /* 
@@ -469,7 +505,7 @@ li a {
     flex-direction: column;
     width: 495.38px;
     box-sizing: border-box;
-    top: 675px;
+    top: 645px;
     position: absolute;
     background-color: var(--Collection1-Greys-BarsLightGrey);
     border-radius: 0 0 10px 10px;
@@ -493,6 +529,15 @@ li a {
 }
 #courseSidebar button img{
     width:24px;
+}
+.menu-item.out-of-stock {
+    opacity: 0.5;
+    pointer-events: none;
+    background-color: #e0e0e0 !important;
+}
+
+.menu-item.low-stock {
+    background-color: #CC0023; /* light yellow */
 }
 .square{
     display: flex;
@@ -525,8 +570,12 @@ li a {
     background-color: var(--Collection1-Greys-BarsLightGrey);
     border-radius: 5px ;
     margin-bottom: 5px;
-
-
+}
+.MenuItem_Header p{
+    margin:0;
+    font-size: 18px;
+    font-weight: 500;
+    align-self: flex-end;
 }
 #Menu_SearchBar{
     border: none;
