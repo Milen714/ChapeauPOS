@@ -106,9 +106,19 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("KitchenRunningOrders");
         }
 
-        public IActionResult GetRunningTime(int orderId)
+        public IActionResult GetRunningKitchenTime(int orderId)
         {
             var order = _kitchenBarService.GetRunningKitchenOrders().FirstOrDefault(o => o.OrderID == orderId);
+
+            if (order?.CreatedAt == null)
+                return Content("00:00:00");
+
+            return Content((DateTime.Now - order.CreatedAt).ToString(@"hh\:mm\:ss"));
+        }
+
+        public IActionResult GetRunningBarTime(int orderId)
+        {
+            var order = _kitchenBarService.GetRunningBarOrders().FirstOrDefault(o => o.OrderID == orderId);
 
             if (order?.CreatedAt == null)
                 return Content("00:00:00");

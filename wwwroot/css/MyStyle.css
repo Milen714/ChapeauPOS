@@ -161,19 +161,33 @@ a{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 25px;
+}
+footer .nav_ul_container {
+    position: fixed;
+    bottom: 0;
+    background-color: black;
+    left: 0;
+    right: 0;
 }
 .nav_ul {
     display: flex;
     flex-direction: row;
+    width:100%;
 }
 .nav_item {
     display: flex;
+    flex-grow: 1; /* Make items grow to fill available space */
+    justify-content:center;
+    align-items:center;
 }
 li a {
     padding: .5rem 1rem;
     text-decoration: none;
     color: black;
+}
+
+footer li a{
+    color:white;
 }
 
 /* 
