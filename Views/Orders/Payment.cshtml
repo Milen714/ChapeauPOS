@@ -1,7 +1,7 @@
 ﻿@model ChapeauPOS.ViewModels.PaymentViewModel
 
 <h2>Payment Summary - Table @Model.Order.Table.TableNumber</h2>
-
+<div>
 <table class="table">
     <thead>
         <tr>
@@ -27,7 +27,20 @@
         }
     </tbody>
 </table>
-
-<p><strong>Total Amount:</strong> €@Model.TotalAmount.ToString("F2")</p>
-<p><strong>Low VAT (9%):</strong> €@Model.LowVAT.ToString("F2")</p>
-<p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>
+</div>
+<div>
+    <div>
+        <p><strong>Total Amount:</strong> €@Model.TotalAmount.ToString("F2")</p>
+        <p><strong>Low VAT (9%):</strong> €@Model.LowVAT.ToString("F2")</p>
+        <p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>
+    </div>
+    <div class="PaymentButtons_Container">
+     <button class="PaymentButtons">Cash</button>
+        <button class="PaymentButtons">Maestro</button>
+        <button class="PaymentButtons">Split</button>
+        <button class="PaymentButtons">Voucher</button>
+        <button class="PaymentButtons">Voucher</button>
+        <button class="PaymentButtons">Discount</button>
+        <button class="PaymentButtons">Feedback</button>
+    </div>
+</div>
