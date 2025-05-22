@@ -47,7 +47,6 @@ namespace ChapeauPOS.Controllers
             return View(orders);
         }
 
-
         public IActionResult BarRunningOrders()
         {
             List<Order> orders = _kitchenBarService.GetRunningBarOrders();
