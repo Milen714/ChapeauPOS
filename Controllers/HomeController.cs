@@ -81,13 +81,13 @@ namespace ChapeauPOS.Controllers
                 {
                     Expires = DateTime.Now.AddDays(5),
                     Path = "/",
-                    Secure = true,
+                    Secure = false,
                     HttpOnly = true,
                     IsEssential = true
                 };
                 Response.Cookies.Append("PreferedTheme", theme, options);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login");
         }
         public IActionResult Privacy()
 		{

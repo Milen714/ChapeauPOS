@@ -1,7 +1,17 @@
 ﻿@model ChapeauPOS.Models.Order
+@{
+    string orderStrokeStyle = "";
+        if (Model.OrderStatus == OrderStatus.Ordered)
+        {
+            orderStrokeStyle = "PrepairingBorder";
+        }
+    else if (Model.OrderStatus == OrderStatus.Pending)
+        {
+            orderStrokeStyle = "OrderedBorder";
+    }
+}
+<div class="Order_stroke @orderStrokeStyle"></div>
 
-
-<p>Order Status: @Model.OrderStatus.ToString()</p>
 @foreach (var item in Model.OrderItems)
 {
     

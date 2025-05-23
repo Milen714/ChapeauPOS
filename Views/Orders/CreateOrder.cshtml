@@ -1,11 +1,17 @@
 ﻿@model ChapeauPOS.Models.Table
-@{  
+@{
     ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
     Layout = "~/Views/Shared/_OrderLayout.cshtml";
-	ViewBag.TableNumber = Model.TableNumber;
-    
-
+    ViewBag.TableNumber = Model.TableNumber;
 }  
+@{
+    if (TempData["Success"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
+        </div>
+    }
+}
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
 <input id="table" name="table" type="hidden" value="@Model.TableNumber" placeholder="Search...">
@@ -30,8 +36,8 @@
   <!-- Partial view will be loaded here -->  
 </div>  
 
-<div class="order_container">  
-    <div class="order_items_Header">
+<div class="order_container">
+        <div class="order_items_Header">
             <p>@DateTime.Now.ToString("dd/MM/yyyy, hh:mm tt")</p>
 
             <h4 class="OrdersH4">Order Items</h4>

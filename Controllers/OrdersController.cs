@@ -33,30 +33,40 @@ namespace ChapeauPOS.Controllers
         {
             return View();
         }
-        public IActionResult ChangeOrderStatus()
-        {
-            int tableNumber = 1; // Example table number
-            Order order = _ordersService.GetOrderFromSession(HttpContext, tableNumber);
-            order.OrderStatus = OrderStatus.Ordered;
-            _ordersService.SaveOrderToSession(HttpContext, tableNumber, order);
-            return RedirectToAction("Index", "Tables");
-        }
+        
         [HttpGet]
         public IActionResult CreateOrder(int id)
         {
-            Employee? loggedInEmployee = new Employee();
-            loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+            Employee loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             ViewBag.LoggedInEmployee = loggedInEmployee;
             Table table = _tablesService.GetTableByID(id);
             //get the order from the session
             Order order = _ordersService.GetOrderFromSession(HttpContext, id);//GetOrderFromSession(id);
             //Check if the the ocupied table's order has been sent to kithchen/bar and if not load the order from DB
-            if (table.TableStatus == TableStatus.Occupied && order.OrderStatus != OrderStatus.Pending)
+            if (table.TableStatus == TableStatus.Free)
             {
-                Console.WriteLine("order has been sent to the kitchen/bar and DB Previously: Loading order from the DB and storing it in a session");
-                order = _ordersService.GetOrderByTableId(table.TableNumber);
-                _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
+                // Table is now free: clear any lingering session orders
+                _ordersService.RemoveOrderFromSession(HttpContext, id);
+                order = new Order(); // start fresh
             }
+            else if (table.TableStatus == TableStatus.Occupied)
+            {
+                var dbOrder = _ordersService.GetOrderByTableId(table.TableNumber);
+
+                if (dbOrder != null && dbOrder.OrderStatus == OrderStatus.Finalized)
+                {
+                    // Another user finalized the order
+                    _ordersService.RemoveOrderFromSession(HttpContext, id);
+                    order = new Order(); // start fresh
+                }
+                else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
+                {
+                    // Load and override from DB
+                    order = dbOrder;
+                    _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
+                }
+            }
+            ViewBag.OrderStatus = order.OrderStatus;
 
 
             return View(table);
@@ -169,6 +179,7 @@ namespace ChapeauPOS.Controllers
 
             await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
             await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
+            TempData["Success"] = "Order has been succesfully sent!";
 
             return RedirectToAction("Index", "Tables");
 

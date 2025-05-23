@@ -2,13 +2,68 @@ html {
   font-size: 16px;
 }
 
-@media (min-width: 768px) {
+@media only screen and (max-width: 768px) {
   html {
-    font-size: 16px;
+    font-size: 12px;
   }
-    body {
+  body {
         align-items: flex-start;
         overflow: scroll;
+    }
+    .LogoText{
+        display: none;
+    }
+    .OrderViewBody {
+        flex-direction: column;
+        height: 400px;
+    }
+    #partialViewContainer {
+        grid-template-columns: 76px auto;
+        height: 325px
+    }
+    #courseSidebar button {
+        width: 75px;
+        height: 75px;
+    }
+    #courseSidebar{
+        width: 76px;
+    }
+    .square {
+        width: 95px;
+        height: 95px;
+    }
+    .note-input{
+       
+    }
+    .square h4 {
+        font-size: 12px;
+    }
+    
+    #menuItemsContainer {
+        width: 75vw;
+    }
+    .MenuItemButton_Wrap {
+        font-size: 12px;
+        width: 95px
+        
+    }
+    .menu-item-form {
+        flex: 0 0 95px; 
+        box-sizing: border-box;
+    }
+    #menuItemsContainer{
+
+    }
+    .order_items_Header{
+        margin-top: 10px
+    }
+    #orderList {
+        width: 100%;
+        height: 240px
+    }
+    .order_summary {
+        width: 412px;
+        top: 772.8px;
     }
 }
 @media (min-width: 1365px) {
