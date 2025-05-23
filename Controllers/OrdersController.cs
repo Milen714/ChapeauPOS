@@ -28,48 +28,45 @@ namespace ChapeauPOS.Controllers
             _hubContext = hubContext;
         }
 
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-        
         [HttpGet]
         public IActionResult CreateOrder(int id)
         {
-            Employee loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            ViewBag.LoggedInEmployee = loggedInEmployee;
-            Table table = _tablesService.GetTableByID(id);
-            //get the order from the session
-            Order order = _ordersService.GetOrderFromSession(HttpContext, id);//GetOrderFromSession(id);
-            //Check if the the ocupied table's order has been sent to kithchen/bar and if not load the order from DB
-            if (table.TableStatus == TableStatus.Free)
+            try
             {
-                // Table is now free: clear any lingering session orders
-                _ordersService.RemoveOrderFromSession(HttpContext, id);
-                order = new Order(); // start fresh
-            }
-            else if (table.TableStatus == TableStatus.Occupied)
-            {
-                var dbOrder = _ordersService.GetOrderByTableId(table.TableNumber);
+                Employee loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+                ViewBag.LoggedInEmployee = loggedInEmployee;
 
-                if (dbOrder != null && dbOrder.OrderStatus == OrderStatus.Finalized)
+                Table table = _tablesService.GetTableByID(id);
+                Order order = _ordersService.GetOrderFromSession(HttpContext, id);
+
+                if (table.TableStatus == TableStatus.Free)
                 {
-                    // Another user finalized the order
                     _ordersService.RemoveOrderFromSession(HttpContext, id);
-                    order = new Order(); // start fresh
+                    order = new Order();
                 }
-                else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
+                else if (table.TableStatus == TableStatus.Occupied)
                 {
-                    // Load and override from DB
-                    order = dbOrder;
-                    _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
+                    var dbOrder = _ordersService.GetOrderByTableId(table.TableNumber);
+                    if (dbOrder != null && dbOrder.OrderStatus == OrderStatus.Finalized)
+                    {
+                        _ordersService.RemoveOrderFromSession(HttpContext, id);
+                        order = new Order();
+                    }
+                    else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
+                    {
+                        order = dbOrder;
+                        _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
+                    }
                 }
+
+                ViewBag.OrderStatus = order.OrderStatus;
+                return View(table);
             }
-            ViewBag.OrderStatus = order.OrderStatus;
-
-
-            return View(table);
+            catch (Exception ex)
+            {
+                TempData["Error"] = "An error occurred while creating the order: " + ex.Message;
+                return RedirectToAction("Index", "Tables");
+            }
         }
 
         public IActionResult GetMenuItems(string category)
@@ -123,65 +120,74 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
-            MenuItem menuItem = _menuService.GetMenuItemById(itemId);
-            Table table = _tablesService.GetTableByID(tableId);
-            Employee employee = _employeesService.GetEmployeeById(employeeId);
-            Order order = _ordersService.GetOrderFromSession(HttpContext, tableId);
-
-            // If this is a new order (i.e., table wasn't previously occupied)
-            if (order.Table == null)
+            try
             {
-                order.Table = table;
-                order.Employee = employee;
-                order.CreatedAt = DateTime.Now;
-                order.OrderStatus = OrderStatus.Pending;
+                MenuItem menuItem = _menuService.GetMenuItemById(itemId);
+                Table table = _tablesService.GetTableByID(tableId);
+                Employee employee = _employeesService.GetEmployeeById(employeeId);
+                Order order = _ordersService.GetOrderFromSession(HttpContext, tableId);
+
+                if (order.Table == null)
+                {
+                    order.Table = table;
+                    order.Employee = employee;
+                    order.CreatedAt = DateTime.Now;
+                    order.OrderStatus = OrderStatus.Pending;
+                }
+
+                _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
+                _ordersService.SaveOrderToSession(HttpContext, tableId, order);
+
+                if (table.TableStatus != TableStatus.Occupied)
+                {
+                    table.TableStatus = TableStatus.Occupied;
+                    _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
+                }
+
+                return PartialView("_OrderListPartial", order);
             }
-           
-            _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
-            // Save the order to the session
-            _ordersService.SaveOrderToSession(HttpContext, tableId, order);
-
-
-            // Check if the table is already occupied
-            if (table.TableStatus != TableStatus.Occupied)
+            catch (Exception ex)
             {
-                table.TableStatus = TableStatus.Occupied;
-                _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
+                TempData["Error"] = "An error occurred while adding the item to the order." + ex.Message;
+                return RedirectToAction("Index", "Tables");
             }
-
-
-            return PartialView("_OrderListPartial", order);
         }
 
-        
+
 
         public async Task<IActionResult> SendOrder(int id)
         {
             // Here Iam gonna send the order to the kitchen and bar 
             // and update the order status to Ordered
             // and save the order to the database
-            Order order = _ordersService.GetOrderFromSession(HttpContext, id);
-            
-
-            if(order.OrderStatus != OrderStatus.Pending)
+            try
             {
-                _ordersService.AddToOrder(order);
-                _menuService.DeductStock(order);
+                Order order = _ordersService.GetOrderFromSession(HttpContext, id);
+
+                if (order.OrderStatus != OrderStatus.Pending)
+                {
+                    _ordersService.AddToOrder(order);
+                    _menuService.DeductStock(order);
+                }
+                else
+                {
+                    order.OrderStatus = OrderStatus.Ordered;
+                    _ordersService.AddOrder(order);
+                    _menuService.DeductStock(order);
+                    _ordersService.SaveOrderToSession(HttpContext, id, order);
+                }
+
+                await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
+                await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
+
+                TempData["Success"] = "Order has been successfully sent!";
+                return RedirectToAction("Index", "Tables");
             }
-            if (order.OrderStatus == OrderStatus.Pending)
+            catch (Exception ex)
             {
-                order.OrderStatus = OrderStatus.Ordered;
-                _ordersService.AddOrder(order);
-                _menuService.DeductStock(order);
-
-                _ordersService.SaveOrderToSession(HttpContext, id, order);
+                TempData["Error"] = "Failed to send the order." + ex.Message;
+                return RedirectToAction("CreateOrder", new { id });
             }
-
-            await _hubContext.Clients.Group("Bartenders").SendAsync("NewOrder");
-            await _hubContext.Clients.Group("Cooks").SendAsync("NewOrder");
-            TempData["Success"] = "Order has been succesfully sent!";
-
-            return RedirectToAction("Index", "Tables");
 
         }
         public IActionResult DeleteOrder(int id)
@@ -189,31 +195,40 @@ namespace ChapeauPOS.Controllers
             // Here Iam gonna delete the order from the database
             // and remove the order from the session
             // and update the table status to Available
-            Order order = _ordersService.GetOrderFromSession(HttpContext, id);
-            Console.WriteLine(order.OrderStatus.ToString());
-            if (order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
+            try
             {
-                // Remove the order from the database
-                _ordersService.DeleteOrder(order.OrderID);
-                // Update the table status to Available
-                _tablesService.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
-                // Remove the order from the session
-                _ordersService.RemoveOrderFromSession(HttpContext, id);
+                Order order = _ordersService.GetOrderFromSession(HttpContext, id);
+                Console.WriteLine(order.OrderStatus.ToString());
+                if (order.OrderStatus != OrderStatus.Pending || order.OrderStatus != OrderStatus.Finalized)
+                {
+                    // Remove the order from the database
+                    _ordersService.DeleteOrder(order.OrderID);
+                    // Update the table status to Available
+                    _tablesService.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
+                    // Remove the order from the session
+                    _ordersService.RemoveOrderFromSession(HttpContext, id);
 
+                }
+                else
+                {
+                    // If the order is not in the database, just remove it from the session
+                    // and update the table status to Available
+                    _tablesService.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
+                    _ordersService.RemoveOrderFromSession(HttpContext, id);
+                }
+
+                //Table table = _tablesService.GetTableByID(id);
+                order.Table.TableStatus = TableStatus.Free;
+                _tablesService.UpdateTableStatus(order.Table.TableNumber, order.Table.TableStatus);
+                _ordersService.RemoveOrderFromSession(HttpContext, id);
+                return RedirectToAction("Index", "Tables");
             }
-            else
+            catch (Exception ex)
             {
-                // If the order is not in the database, just remove it from the session
-                // and update the table status to Available
-                _tablesService.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
-                _ordersService.RemoveOrderFromSession(HttpContext, id);
-            }
 
-            //Table table = _tablesService.GetTableByID(id);
-            order.Table.TableStatus = TableStatus.Free;
-            _tablesService.UpdateTableStatus(order.Table.TableNumber, order.Table.TableStatus);
-            _ordersService.RemoveOrderFromSession(HttpContext, id);
-            return RedirectToAction("Index", "Tables");
+                TempData["Error"] = "Failed to delete the order.";
+                return RedirectToAction("CreateOrder", new { id });
+            }
         }
         [HttpPost]
         public IActionResult RemoveOrderItem(int tableId, int orderItemIdTemp, int orderItemId)
@@ -273,6 +288,19 @@ namespace ChapeauPOS.Controllers
                 _ordersService.SaveOrderToSession(HttpContext, tableId, order);
             }
             return RedirectToAction("CreateOrder", new { id = order.Table.TableNumber });
+        }
+        public IActionResult MoveTable(int id)
+        {
+            List<Table>tables = _tablesService.GetAllUnoccupiedTables();
+            ViewBag.Order = _ordersService.GetOrderByTableId(id);
+            return PartialView("_MoveTable", tables);
+        }
+        [HttpPost]
+        public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber,int MovetableNumber)
+        {
+            _ordersService.MoveOrderToAnotherTable(tableId, order);
+            TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
+            return RedirectToAction("Index", "Tables");
         }
         //Nishchal
         public IActionResult Payment(int id)

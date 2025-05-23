@@ -8,5 +8,6 @@ namespace ChapeauPOS.Services.Interfaces
         Table GetTableByID(int id);
         void UpdateTableStatus(int tableNumber, TableStatus tableStatus);
         void SynchronizeTableStatuses(List<Table> tables);
+        List<Table> GetAllUnoccupiedTables();
     }
 }

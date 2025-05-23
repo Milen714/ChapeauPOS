@@ -422,6 +422,35 @@ namespace ChapeauPOS.Repositories
                 throw new Exception("Error adding order to database", ex);
             }
         }
+
+        public void MoveOrderToAnotherTable(int tableId, Order order)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = " UPDATE Orders SET TableID = @TableID  " +
+                                   " WHERE OrderID = @OrderID; " +
+                                   " UPDATE Tables SET TableStatus = @TableStatus " +
+                                   " WHERE TableID = @TableID; ";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@TableID", tableId);
+                    command.Parameters.AddWithValue("@OrderID", order.OrderID);
+                    command.Parameters.AddWithValue("@TableStatus", TableStatus.Occupied.ToString());
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating order item in database", ex);
+            }
+        }
     }
 
 }

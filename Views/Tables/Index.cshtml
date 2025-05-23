@@ -4,6 +4,12 @@
 }
 
 @{
+    if (TempData["Error"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/Property 1=RedCross.svg" alt="Checkmark" /><h4>@TempData["Error"]</h4>
+        </div>
+    }
     if (TempData["Success"] != null)
     {
         <div id="SuccesMessage">

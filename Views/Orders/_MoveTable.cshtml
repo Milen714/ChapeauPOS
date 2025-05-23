@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ChapeauPOS.Models.Table>
+
+<div class="Table_OverviewMove">
+    @foreach (var table in Model)
+    {
+        string tableStatusStyle = table.TableStatus switch
+        {
+            TableStatus.Occupied => "background-color: #FF6347;",   // Tomato
+            TableStatus.Reserved => "background-color: #FFD700;",   // Gold
+            TableStatus.Free => "background-color: #90EE90;",       // LightGreen
+            _ => ""
+        };
+        <form method="post" action="/Orders/MoveOrderToTable">
+            <input type="hidden" name="tableId" value="@table.TableID" />
+            <input type="hidden" name="MovetableNumber" value="@table.TableNumber" />
+            @{
+                if (ViewBag.Order !=null)
+                {
+					Order order = ViewBag.Order;
+					<input type="hidden" name="orderId" value="@order.OrderID" />
+                    <input type="hidden" name="CurrentTableNumber" value="@order.Table.TableNumber" />
+                    <p>@order.OrderID</p>
+				}
+			 }
+            <button type="submit" class="Restaurant_Table_Move">
+                <div class="chair top" style="@tableStatusStyle"></div>
+                <div class="chair left" style="@tableStatusStyle"></div>
+                <div class="table_card" style="@tableStatusStyle">
+                    <div class="table_card_body">
+                        <h5>@table.TableNumber</h5>
+                        <p>@table.TableStatus</p>
+                    </div>
+                </div>
+                <div class="chair right" style="@tableStatusStyle"></div>
+                <div class="chair bottom" style="@tableStatusStyle"></div>
+            </button>
+        </form>
+    }
+</div>

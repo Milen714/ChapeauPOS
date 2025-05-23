@@ -115,5 +115,39 @@ namespace ChapeauPOS.Repositories
                 throw new Exception("Error updating table status in database", ex);
             }
         }
+
+        public List<Table> GetAllUnoccupiedTables()
+        {
+            List<Table> tables = new List<Table>();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT TableID, TableNumber, NumberOfSeats, TableStatus " +
+                                   " FROM [Tables] " +
+                                   " WHERE TableStatus != 'Occupied'; ";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Table table = ReadTable(reader);
+                            tables.Add(table);
+                        }
+                    }
+
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving tables from database", ex);
+            }
+            return tables;
+        }
     }
 }
