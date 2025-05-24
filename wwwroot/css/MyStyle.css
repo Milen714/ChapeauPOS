@@ -178,6 +178,7 @@ footer .nav_ul_container {
     display: flex;
     flex-direction: row;
     width:100%;
+    align-items: center;
 }
 .nav_item {
     display: flex;
@@ -378,8 +379,16 @@ footer li a{
     background-color: transparent;
     border-top: 2px solid;
 }
+.Order_notification_row_Body{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.Order_notification_row_Body p{
+    margin: 0;
+}
 .Order_notification_row {
-    border: solid 3px;
+    border: solid 2px;
     inset: -16px;
     border-radius: 10px;
     padding: 5px;
@@ -618,6 +627,7 @@ footer li a{
 .MenuItem_Header {
     display: flex;
     justify-content: space-between;
+    align-items:center;
     width: 90.5%;
     padding: 10px;
     background-color: var(--Collection1-Greys-BarsLightGrey);
@@ -675,6 +685,7 @@ footer li a{
     backdrop-filter: blur(3px);
     justify-content: center;
     align-items: center;
+    
 }
 
 .popupMoveContainer {
@@ -683,8 +694,8 @@ footer li a{
     top: 30%;
     left: 15%;
 }
-#Move_Table_Container{
-   
+#Move_Table_Container {
+    overflow: scroll;
 }
 .Table_OverviewMove {
     display: flex;

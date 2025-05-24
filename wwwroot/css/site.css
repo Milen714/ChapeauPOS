@@ -54,16 +54,64 @@ html {
     #menuItemsContainer{
 
     }
-    .order_items_Header{
-        margin-top: 10px
+    #mealType{
+        font-size: 14px;
+    }
+    #MoveTableButton{
+        font-size:14px;
+    }
+    .MenuItem_Header {
+        width: 100.5%;
+    }
+    #MenuSearchBar{
+        display: flex;
+        align-items: center;
+    }
+    #Menu_SearchBar{
+        width: 100px;
+    }
+    .order_items_Header {
+        margin-top: 10px;
+        width: 100.5%;
+        padding: 5px;
+    }
+    .order_items_Header h4{
+/*        display: none;*/
     }
     #orderList {
-        width: 100%;
-        height: 240px
+        width: 100.5%;
+        height: 277px;
     }
     .order_summary {
-        width: 412px;
-        top: 772.8px;
+        width: 96%;
+        top: 84%;
+    }
+    .popupMoveOverlay {
+        overflow: scroll;
+    }
+    .popupMoveContainer {
+        width: 100%;
+        top: 15%;
+        overflow: scroll;
+    }
+    .Table_Overview{
+        gap: 0;
+        margin: 0;
+        padding: 0; 
+    }
+    .nav_item a{
+        font-size: 13px;
+    }
+    .nav_status_Right{
+        gap:5px;
+    }
+    .nav_ul{
+        height: 100%;
+        padding-left: 10px;
+        justify-content: center;
+    }
+    .nav_item {
+        height: 100%;
     }
 }
 @media (min-width: 1365px) {
