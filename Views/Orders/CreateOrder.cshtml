@@ -29,6 +29,7 @@
   </select>  
     <div>
         <form  id="MenuSearchBar" action="/Orders/GetMenuItemsBySearch" method="post">
+            <input type="hidden" name="tableNumber" value="@Model.TableNumber" />
             <input type="text" id="Menu_SearchBar" name="searchParams" value="" placeholder="SearchMenu" />
             <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
         </form>
@@ -93,14 +94,14 @@
               document.querySelectorAll('.menu-item, .note-input').forEach(item => {
                 item.style.display = item.dataset.course === course ? 'block' : 'none';
             });
-                document.querySelectorAll('.note-input').forEach(item => {
-                  item.style.display = item.dataset.course === course ? 'block' : 'none';
-              });
+                
         }
-          
 
 
-            $(document).ready(loadPartialView());
+
+        $(document).ready(function () {
+            loadPartialView();
+        });
 
               $(document).ready(function () {
                   var tableId = document.getElementById('tableId').value;
@@ -171,7 +172,6 @@
                     window.location.href = selectedValue; 
                 }
             });
-            // Replace the selected code block with the following:
 
                     $(document).on('click', '#MoveTableButton', function () {
                         var tableId = document.getElementById('tableId').value;

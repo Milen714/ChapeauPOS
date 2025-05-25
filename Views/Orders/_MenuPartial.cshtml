@@ -8,7 +8,7 @@
 </div>
 
 <div id="menuItemsContainer">
-    @foreach (var item in Model.Starters.Where(i => i != null))
+    @foreach (var item in Model.Starters)
     {
         var menuItemClass = "menu-item square clickable-item";
         if (item.Stock == 0)
@@ -33,7 +33,7 @@
             </div>
         </form>
     }
-    @foreach (var item in Model.MainCourses.Where(i => i != null))
+    @foreach (var item in Model.MainCourses)
     {
         var menuItemClass = "menu-item square clickable-item";
         if (item.Stock == 0)
@@ -58,7 +58,7 @@
             </div>
         </form>
     }
-    @foreach (var item in Model.Desserts.Where(i => i != null))
+    @foreach (var item in Model.Desserts)
     {
         var menuItemClass = "menu-item square clickable-item";
         if (item.Stock == 0)
@@ -86,7 +86,8 @@
     }
     @if(Model.Drinks != null)
     {
-        foreach (var item in Model.Drinks.Where(i => i != null))
+
+        foreach (var item in Model.Drinks)
         {
             var menuItemClass = "menu-item square clickable-item";
             if (item.Stock == 0)
@@ -105,7 +106,7 @@
                         <div class="Stock_PriceDiv">
                             <p><img src="~/assets/Smallicons/StockWhite.svg" /> @item.Stock</p>
                             <p>@item.ItemPrice.ToString("C")</p>
-                        </div>>
+                        </div>
                     </div>
                     <input type="text" class="note-input" name="note" placeholder="Add note" data-course="drink" @(item.Stock == 0 ? "disabled" : "") />
                 </div>

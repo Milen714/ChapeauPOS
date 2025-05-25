@@ -96,7 +96,7 @@ namespace ChapeauPOS.Controllers
             return NotFound();
         }
         [HttpPost]
-        public IActionResult GetMenuItemsBySearch(string searchParams)
+        public IActionResult GetMenuItemsBySearch(string searchParams , int tableNumber)
         {
             List<MenuItem> menuItems = _menuService.GetAllMenuItems();
             if (!string.IsNullOrEmpty(searchParams))
@@ -105,7 +105,8 @@ namespace ChapeauPOS.Controllers
             }
             if (menuItems == null || menuItems.Count == 0)
             {
-                return NotFound("No items found.");
+                TempData["Error"] = $"No items found matching your search criteria: {searchParams}";
+                return RedirectToAction("CreateOrder", tableNumber);
             }
             MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
             return PartialView("_MenuPartial", searchMenu);

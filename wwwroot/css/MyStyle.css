@@ -727,6 +727,9 @@ footer li a{
     .Restaurant_Table_Move:hover {
         transform: scale(1.03);
     }
+#Move_Table_Container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
 /*PAYMENTTTTTTTTTTTTTTTTTTTT*/
 .PaymentButtons_Container {
     display: flex;
