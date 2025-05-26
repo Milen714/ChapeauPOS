@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using ChapeauPOS.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
+using ChapeauPOS.Services;
 
 namespace ChapeauPOS.Controllers
 {
@@ -96,7 +97,7 @@ namespace ChapeauPOS.Controllers
             return NotFound();
         }
         [HttpPost]
-        public IActionResult GetMenuItemsBySearch(string searchParams , int tableNumber)
+        public IActionResult GetMenuItemsBySearch(string searchParams, int tableNumber)
         {
             List<MenuItem> menuItems = _menuService.GetAllMenuItems();
             if (!string.IsNullOrEmpty(searchParams))
@@ -292,12 +293,12 @@ namespace ChapeauPOS.Controllers
         }
         public IActionResult MoveTable(int id)
         {
-            List<Table>tables = _tablesService.GetAllUnoccupiedTables();
+            List<Table> tables = _tablesService.GetAllUnoccupiedTables();
             ViewBag.Order = _ordersService.GetOrderByTableId(id);
             return PartialView("_MoveTable", tables);
         }
         [HttpPost]
-        public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber,int MovetableNumber)
+        public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber, int MovetableNumber)
         {
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
@@ -306,19 +307,33 @@ namespace ChapeauPOS.Controllers
         //Nishchal
         public IActionResult Payment(int id)
         {
-            Order order = _ordersService.GetOrderByTableId(id); 
+            Order order = _ordersService.GetOrderByTableId(id);
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("No order found for this table.");
             }
-            PaymentViewModel viewModel = new PaymentViewModel 
+            PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
             };
 
             var items = viewModel.Order.OrderItems;
+            ViewBag.PaymentModel = viewModel;
 
             return View(viewModel);
+        }
+        public IActionResult PaymentConfirmationPopup(int tableId)
+        {
+            var order = _ordersService.GetOrderByTableId(tableId);
+            var viewModel = new PaymentViewModel { Order = order };
+            return PartialView("_PaymentConfirmationPopup", viewModel);
+        }
+        [HttpPost]
+        public IActionResult FinalizePayment(string total, int tableId)
+        {
+            var order = _ordersService.GetOrderByTableId(tableId);
+            TempData["Success"] = $"Order has been successfully Paid! {total}";
+            return RedirectToAction("Index", "Tables");
         }
 
     }

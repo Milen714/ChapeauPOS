@@ -1,0 +1,27 @@
+﻿@using ChapeauPOS.ViewModels
+@model ChapeauPOS.ViewModels.PaymentViewModel
+<h1>THIS IS THE PAYMENT POPUP!!!!!</h1>
+
+<div class="PaymentPopupContainer_Body">
+	<div class="PaymentPopupContainer_Header">
+		<h3>Bill Number::</h3>
+	</div>
+	<form action="/Orders/FinalizePayment" method="post">
+		<input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
+		<article class="PaymentPopupContainer_Body_Middle">
+		
+			<label for="TotalToPay">Total:</label>
+			<input id="TotalToPay" type="text" name="total" value="@Model.TotalAmount.ToString("0.##")" />
+
+			<div class="PaymentPopupContainer_Tip">
+				<p>Tip: 0.00</p>
+			</div>
+			<div class="PaymentPopupContainer_Vats">
+				<p>High VAT: @Model.HighVAT</p>
+				<p>Low VAT: @Model.LowVAT</p>
+			</div>
+
+		</article>
+		<button type="submit">Finalize</button>
+	</form>
+</div>

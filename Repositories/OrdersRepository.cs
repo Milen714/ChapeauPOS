@@ -283,7 +283,7 @@ namespace ChapeauPOS.Repositories
             return orders;
         }
 
-        public Order GetOrderByTableId(int tableId)
+        public Order GetOrderByTableId(int tableId)//TABLE NUMBER
         {
             Order order = new Order();
             try
