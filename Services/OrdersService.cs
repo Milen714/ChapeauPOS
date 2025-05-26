@@ -137,6 +137,11 @@ namespace ChapeauPOS.Services
         {
             _ordersRepository.AddToOrder(order);
         }
+
+        public void MoveOrderToAnotherTable(int tableId, Order order)
+        {
+            _ordersRepository.MoveOrderToAnotherTable(tableId, order);
+        }
     }
 
 }

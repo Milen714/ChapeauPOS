@@ -18,6 +18,11 @@ namespace ChapeauPOS.Services
             return _tableRepository.GetAllTables();
         }
 
+        public List<Table> GetAllUnoccupiedTables()
+        {
+            return _tableRepository.GetAllUnoccupiedTables();
+        }
+
         public Table GetTableByID(int id)
         {
             return _tableRepository.GetTableByID(id);

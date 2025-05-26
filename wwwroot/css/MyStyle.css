@@ -85,10 +85,10 @@ a{
     text-decoration: none;
     font-family: var(--nav-font);
     font-weight: 600;
-    background-color: var(--highlightcolor-lIGHTPurple);
+    background-color: var(--Collection1-Greens-PastelGreen);
 }
 .confirmation_cancelation {
-    background-color: var(--highlightcolor-dangerRED);
+    background-color: var(--Collection1-Reds-PastelRed);
 }
 
 .add_entity_main {
@@ -137,7 +137,11 @@ a{
 
 */
                 /*OrderNav*/
-.nav_status_Right{
+.Logout_Button{
+    font-size: 16px;
+    border-bottom: 2px white solid
+}
+.nav_status_Right {
     display: flex;
     gap: 10px;
 }
@@ -153,6 +157,7 @@ a{
     font-weight: 500;
     border: none;
     padding: 5px 10px 5px 10px;
+    color: white;
 }
 .Buttons_IntableActions:hover{
     color: white;
@@ -165,7 +170,7 @@ a{
 footer .nav_ul_container {
     position: fixed;
     bottom: 0;
-    background-color: black;
+    background-color: var(--Collection1-Greys-DarkGrey);
     left: 0;
     right: 0;
 }
@@ -173,12 +178,17 @@ footer .nav_ul_container {
     display: flex;
     flex-direction: row;
     width:100%;
+    align-items: center;
 }
 .nav_item {
     display: flex;
     flex-grow: 1; /* Make items grow to fill available space */
     justify-content:center;
     align-items:center;
+}
+.nav_item p{
+    margin: 0 ;
+    font-weight: 500;
 }
 li a {
     padding: .5rem 1rem;
@@ -188,6 +198,8 @@ li a {
 
 footer li a{
     color:white;
+    font-weight:500;
+    font-size: 20px;
 }
 
 /* 
@@ -214,6 +226,23 @@ footer li a{
     align-items: center;
 
 }
+
+.Password_input {
+    border: none;
+    background-color: var(--Collection1-Greys-BarsLightGrey);
+    padding: 5px;
+    border-radius: 5px;
+    margin: 5px;
+    color: white;
+}
+.Login_popup_Buttons_Wraps button{
+    border:none;
+}
+.Login_popup_Buttons_Wraps{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 .ManagerIcon, .WaiterIcon, .BartenderIcon, .CookIcon, .ManagerIconF, .WaitressIcon, .BartenderIconF, .CookIconF {
     width: 109px;
     height: 123px;
@@ -229,7 +258,21 @@ footer li a{
 .LoginPage_nav {
 
 }
+                /*SUCCESS MESSAGE*/
 
+#SuccesMessage{
+    display:flex;
+    flex-direction: row;
+    gap: 5px;
+    justify-content: center;
+    padding: 10px;
+    background-color: var(--Collection1-Greys-BarsLightGrey);
+    border-radius: 7px;
+}
+#SuccesMessage h4{
+    margin: 0;
+    color: white;
+}
 
 .Table_Overview {
     display: flex;
@@ -237,6 +280,7 @@ footer li a{
     gap: 16px;
     padding: 20px;
     justify-content: center;
+    margin-top: 25px;
 }
 
 .Restaurant_Table {
@@ -330,9 +374,21 @@ footer li a{
         --a: 1turn
     }
 }
-
+.Order_stroke{
+    height: 4px;
+    background-color: transparent;
+    border-top: 2px solid;
+}
+.Order_notification_row_Body{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.Order_notification_row_Body p{
+    margin: 0;
+}
 .Order_notification_row {
-    border: solid 3px;
+    border: solid 2px;
     inset: -16px;
     border-radius: 10px;
     padding: 5px;
@@ -383,18 +439,17 @@ footer li a{
     ORDER PAGE STYLES
 */
 #partialViewContainer {
-    width: 777px;
     display: grid;
     grid-template-areas: "courses items";
-    grid-template-columns: 150px auto;
+    grid-template-columns: 125px auto;
 }
 .order_container {
+    width:100%;
 }
 .order_items_Header{
     display: flex;
     flex-direction: row;
     align-items: baseline;
-    width:495.38px;
     justify-content: space-between;
     background-color: var(--Collection1-Greys-BarsLightGrey);
     border-radius: 10px 10px 0 0;
@@ -433,14 +488,15 @@ footer li a{
     grid-area: courses;
     gap: 5px;
 }
-#menuItemsContainer{
+#menuItemsContainer {
     grid-area: items;
-    padding-left: 10px;
-    width:637px;
-    height:600px;
+    padding-left: 5px;
+    width: 95%;
+    
     display: flex;
     flex-direction: row;
-    flex-wrap:wrap;
+    flex-wrap: wrap;
+    align-content: flex-start;
     gap: 5px;
     overflow: scroll;
     overflow-x: hidden;
@@ -449,16 +505,16 @@ footer li a{
     display: none; /* Chrome, Safari, Opera */
 }
 
+
 .OrderViewBody {
     height: 600px;
-    width: 100vw;
     display: flex;
     flex-direction: row;
 }
 #orderList{
     display:flex;
     flex-direction: column;
-    height: 475px; 
+    height: 84%; 
     width: 495.35px;
     
     overflow:scroll;
@@ -505,8 +561,8 @@ footer li a{
     flex-direction: column;
     width: 495.38px;
     box-sizing: border-box;
+    position: fixed;
     top: 645px;
-    position: absolute;
     background-color: var(--Collection1-Greys-BarsLightGrey);
     border-radius: 0 0 10px 10px;
     padding: 10px;
@@ -551,7 +607,12 @@ footer li a{
 .square h4{
     font-size: 16px;
 }
-.note-input{
+.Stock_PriceDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.note-input {
     width: 125px;
     background-color: transparent;
     border: none;
@@ -563,13 +624,16 @@ footer li a{
     border-radius:5px;
     color: white;
 }
-.MenuItem_Header{
-    display:flex;
-    width: 777px;
+.MenuItem_Header {
+    display: flex;
+    justify-content: space-between;
+    align-items:center;
+    width: 90.5%;
     padding: 10px;
     background-color: var(--Collection1-Greys-BarsLightGrey);
-    border-radius: 5px ;
+    border-radius: 5px;
     margin-bottom: 5px;
+    margin-top: 20px;
 }
 .MenuItem_Header p{
     margin:0;
@@ -595,11 +659,80 @@ footer li a{
 #mealType option{
     color:black;
 }
-                                /*PAYMENTTTTTTTTTTTTTTTTTTTT*/
+.menu-item-form {
+    flex: 0 0 125px; /* or whatever width fits nicely */
+    box-sizing: border-box;
+}
+.menu-item-form {
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+                /*MOVE  TABLEEEEE*/
 
 
-.PaymentButtons_Container{
-    display:flex;
+.popupMoveOverlay {
+    display: none;
+    position: fixed;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.popupMoveContainer {
+    position: absolute;
+    width: 80%;
+    top: 30%;
+    left: 15%;
+}
+#Move_Table_Container {
+    overflow: scroll;
+}
+.Table_OverviewMove {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.Move_Table_Container {
+}
+
+.Restaurant_Table_Move {
+    display: grid;
+    grid-template-areas:
+        ". top ."
+        "left table right"
+        ". bottom .";
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto auto;
+    gap: 5px;
+    align-items: center;
+    justify-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: transform 0.2s;
+    border: none;
+    background-color: transparent;
+}
+
+    .Restaurant_Table_Move:hover {
+        transform: scale(1.03);
+    }
+#Move_Table_Container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+/*PAYMENTTTTTTTTTTTTTTTTTTTT*/
+.PaymentButtons_Container {
+    display: flex;
     flex-direction: row;
     gap: 5px;
 }
@@ -611,3 +744,6 @@ footer li a{
     font-weight: 500;
     font-size: 18px;
 }
+
+
+

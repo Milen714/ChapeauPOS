@@ -21,5 +21,6 @@ namespace ChapeauPOS.Services.Interfaces
         void RemoveOrderFromSession(HttpContext context, int tableId);
         void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order);
         void AddToOrder(Order order);
+        void MoveOrderToAnotherTable(int tableId, Order order);
     }
 }

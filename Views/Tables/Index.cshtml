@@ -3,7 +3,20 @@
     ViewData["Title"] = "Tables";
 }
 
-<h1>@ViewData["Title"]</h1>
+@{
+    if (TempData["Error"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/Property 1=RedCross.svg" alt="Checkmark" /><h4>@TempData["Error"]</h4>
+        </div>
+    }
+    if (TempData["Success"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
+        </div>
+    }
+}
 
 <div class="Table_Overview">
     @foreach (var table in Model)
@@ -43,7 +56,7 @@
                 {
                     foreach (Order order in ViewBag.KitchenOrders)
                     {
-                        <div>
+                        <div class="Order_notification_row_Body">
                             <p>@order.Table.TableNumber</p>
 
                             @{var KitchenItems = order.OrderItems
@@ -136,4 +149,6 @@
             }
 </div>
 </div>
+
+
 

@@ -1,11 +1,23 @@
 ﻿@model ChapeauPOS.Models.Table
-@{  
+@{
     ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
     Layout = "~/Views/Shared/_OrderLayout.cshtml";
-	ViewBag.TableNumber = Model.TableNumber;
-    
-
+    ViewBag.TableNumber = Model.TableNumber;
 }  
+@{
+    if (TempData["Error"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/Property 1=RedCross.svg" alt="Checkmark" /><h4>@TempData["Error"]</h4>
+        </div>
+    }
+    if (TempData["Success"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
+        </div>
+    }
+}
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
 <input id="table" name="table" type="hidden" value="@Model.TableNumber" placeholder="Search...">
@@ -17,21 +29,28 @@
   </select>  
     <div>
         <form  id="MenuSearchBar" action="/Orders/GetMenuItemsBySearch" method="post">
+            <input type="hidden" name="tableNumber" value="@Model.TableNumber" />
             <input type="text" id="Menu_SearchBar" name="searchParams" value="" placeholder="SearchMenu" />
             <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
         </form>
     </div>
-    <p>@ViewData["Title"]</p>
+    <p id="MoveTableButton">@ViewData["Title"]</p>
 
 </header>  
 
 <article class="OrderViewBody">
+    <div class="popupMoveOverlay">
+        <div class="popupMoveContainer">
+            <div id="Move_Table_Container">
+            </div>
+        </div>
+    </div>
 <div id="partialViewContainer">  
   <!-- Partial view will be loaded here -->  
 </div>  
 
-<div class="order_container">  
-    <div class="order_items_Header">
+<div class="order_container">
+        <div class="order_items_Header">
             <p>@DateTime.Now.ToString("dd/MM/yyyy, hh:mm tt")</p>
 
             <h4 class="OrdersH4">Order Items</h4>
@@ -75,14 +94,14 @@
               document.querySelectorAll('.menu-item, .note-input').forEach(item => {
                 item.style.display = item.dataset.course === course ? 'block' : 'none';
             });
-                document.querySelectorAll('.note-input').forEach(item => {
-                  item.style.display = item.dataset.course === course ? 'block' : 'none';
-              });
+                
         }
-          
 
 
-            $(document).ready(loadPartialView());
+
+        $(document).ready(function () {
+            loadPartialView();
+        });
 
               $(document).ready(function () {
                   var tableId = document.getElementById('tableId').value;
@@ -153,6 +172,30 @@
                     window.location.href = selectedValue; 
                 }
             });
+
+                    $(document).on('click', '#MoveTableButton', function () {
+                        var tableId = document.getElementById('tableId').value;
+                        $.ajax({
+                            url: "/Orders/MoveTable?id=" + encodeURIComponent(tableId),
+                            type: "GET",
+                            success: function (data) {
+                                $("#Move_Table_Container").html(data);
+                                var overlay = document.getElementsByClassName('popupMoveOverlay')[0];
+                                if (overlay) {
+                                    overlay.style.display = 'block';
+                                    $(overlay).off('click').on('click', function (e) {
+                                        if (e.target === overlay) {
+                                            overlay.style.display = 'none';
+                                        }
+                                    });
+                                }
+                            },
+                            error: function (error) {
+                                console.error("Error fetching users:", error);
+                            }
+                        });
+                    });
+                    
 
   </script>  
 }

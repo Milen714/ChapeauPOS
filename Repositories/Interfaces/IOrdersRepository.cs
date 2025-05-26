@@ -17,5 +17,6 @@ namespace ChapeauPOS.Repositories.Interfaces
         OrderItem GetOrderItemById(int id);
         void RemoveOrderItem(int orderId, int orderItemId);
         void AddToOrder(Order order);
+        void MoveOrderToAnotherTable(int tableId, Order order);
     }
 }

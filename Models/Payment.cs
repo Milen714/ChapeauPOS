@@ -3,7 +3,7 @@
     public class Payment
     {
         public int PaytmentID { get; set; }
-        public int BillID { get; set; }
+        public Bill Bill { get; set; }
         
 
         public PaymentMethod PaymentMethod { get; set; }
@@ -19,10 +19,9 @@
             
         }
 
-        public Payment(int paytmentID, int billID, PaymentMethod paymentMethod, decimal totalAmount, DateTime paidAt, decimal tipAmount, decimal lowVAT, decimal highVAT, string feedBack)
+        public Payment(int paytmentID, PaymentMethod paymentMethod, decimal totalAmount, DateTime paidAt, decimal tipAmount, decimal lowVAT, decimal highVAT, string feedBack)
         {
             PaytmentID = paytmentID;
-            BillID = billID;
             PaymentMethod = paymentMethod;
             TotalAmount = totalAmount;
             PaidAt = paidAt;
