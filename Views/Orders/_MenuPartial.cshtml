@@ -1,66 +1,116 @@
 ﻿@model ChapeauPOS.Models.ViewModels.MenuViewModel
 
-
 <div id="courseSidebar">
     <button class="CourseSelectionButtons" onclick="filterCourse('starter')"><img src="/assets/Property 1=AppetizerWhite.svg" alt="Alternate Text" /> Starter</button>
     <button onclick="filterCourse('main')"><img src="/assets/Property 1=MainWhite.svg" alt="Alternate Text" /> Main</button>
     <button onclick="filterCourse('dessert')"><img src="/assets/Property 1=DesertWhite.svg" alt="Alternate Text" /> Dessert</button>
-    <button onclick="filterCourse('drink')">Drinks</button>
+    <button onclick="filterCourse('drink')"><img src="/assets/LoginIconsWhite/Property 1=GlassWhite.svg" alt="Alternate Text" /> Drinks</button>
 </div>
 
 <div id="menuItemsContainer">
     @foreach (var item in Model.Starters)
     {
-       
-        <form class="menu-item-form" method="post">
-            <div class="MenuItemButton_Wrap">
-                 <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-                     <div class="menu-item square clickable-item" data-course="starter">
-                        <h4>@item.ItemName</h4>
-                        <p>@item.ItemPrice.ToString("C")</p>
-                     </div>
-                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="starter" />
-			</div>
-		</form>
-    }
-    @foreach (var item in Model.MainCourses)
-    {
+        var menuItemClass = "menu-item square clickable-item";
+        if (item.Stock == 0)
+        {
+            menuItemClass += " out-of-stock";
+        }
+        else if (item.Stock < 10)
+        {
+            menuItemClass += " low-stock";
+        }
         <form class="menu-item-form" method="post">
             <div class="MenuItemButton_Wrap">
                 <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-                <div class="menu-item square clickable-item" data-course="main">
+                <div class="@menuItemClass" data-course="starter">
                     <h4>@item.ItemName</h4>
-                    <p>@item.ItemPrice.ToString("C")</p>
+                    <div class="Stock_PriceDiv">
+                        <p><img src="~/assets/Smallicons/StockWhite.svg"/> @item.Stock</p>
+                        <p>@item.ItemPrice.ToString("C")</p>
+                    </div>
                 </div>
-                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="main" />
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="starter" @(item.Stock == 0 ? "disabled" : "") />
+            </div>
+        </form>
+    }
+    @foreach (var item in Model.MainCourses)
+    {
+        var menuItemClass = "menu-item square clickable-item";
+        if (item.Stock == 0)
+        {
+            menuItemClass += " out-of-stock";
+        }
+        else if (item.Stock < 10)
+        {
+            menuItemClass += " low-stock";
+        }
+        <form class="menu-item-form" method="post">
+            <div class="MenuItemButton_Wrap">
+                <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+                <div class="@menuItemClass" data-course="main">
+                    <h4>@item.ItemName</h4>
+                    <div class="Stock_PriceDiv">
+                        <p><img src="~/assets/Smallicons/StockWhite.svg" /> @item.Stock</p>
+                        <p>@item.ItemPrice.ToString("C")</p>
+                    </div>
+                </div>
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="main" @(item.Stock == 0 ? "disabled" : "") />
             </div>
         </form>
     }
     @foreach (var item in Model.Desserts)
     {
+        var menuItemClass = "menu-item square clickable-item";
+        if (item.Stock == 0)
+        {
+            menuItemClass += " out-of-stock";
+        }
+        else if (item.Stock < 10)
+        {
+            menuItemClass += " low-stock";
+        }
+        
         <form class="menu-item-form" method="post">
             <div class="MenuItemButton_Wrap">
                 <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-                <div class="menu-item square clickable-item" data-course="dessert">
+                <div class="@menuItemClass" data-course="dessert">
                     <h4>@item.ItemName</h4>
-                    <p>@item.ItemPrice.ToString("C")</p>
+                    <div class="Stock_PriceDiv">
+                        <p><img src="~/assets/Smallicons/StockWhite.svg" /> @item.Stock</p>
+                        <p>@item.ItemPrice.ToString("C")</p>
+                    </div>
                 </div>
-                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="dessert" />
+                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="dessert" @(item.Stock == 0 ? "disabled" : "") />
             </div>
         </form>
     }
-    @foreach (var item in Model.Drinks)
+    @if(Model.Drinks != null)
     {
-        <form class="menu-item-form" method="post">
-            <div class="MenuItemButton_Wrap">
-                <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
-                <div class="menu-item square clickable-item" data-course="drink">
-                    <h4>@item.ItemName</h4>
-                    <p>@item.ItemPrice.ToString("C")</p>
+
+        foreach (var item in Model.Drinks)
+        {
+            var menuItemClass = "menu-item square clickable-item";
+            if (item.Stock == 0)
+            {
+                menuItemClass += " out-of-stock";
+            }
+            else if (item.Stock < 10)
+            {
+                menuItemClass += " low-stock";
+            }
+            <form class="menu-item-form" method="post">
+                <div class="MenuItemButton_Wrap">
+                    <input class="item-id" type="hidden" name="itemId" value="@item.MenuItemID" />
+                    <div class="@menuItemClass" data-course="drink">
+                        <h4>@item.ItemName</h4>
+                        <div class="Stock_PriceDiv">
+                            <p><img src="~/assets/Smallicons/StockWhite.svg" /> @item.Stock</p>
+                            <p>@item.ItemPrice.ToString("C")</p>
+                        </div>
+                    </div>
+                    <input type="text" class="note-input" name="note" placeholder="Add note" data-course="drink" @(item.Stock == 0 ? "disabled" : "") />
                 </div>
-                <input type="text" class="note-input" name="note" placeholder="Add note" data-course="drink" />
-            </div>
-        </form>
+            </form>
+        }
     }
 </div>
-

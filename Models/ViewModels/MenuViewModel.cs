@@ -50,5 +50,11 @@ namespace ChapeauPOS.Models.ViewModels
             Category = category ?? new List<MenuItem>();
             Drinks = drinks ?? new List<MenuItem>();
         }
+
+        public MenuViewModel(string categoryName, List<MenuItem> category)
+        {
+            CategoryName = categoryName;
+            Category = category;
+        }
     }
 }

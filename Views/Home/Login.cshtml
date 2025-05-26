@@ -4,12 +4,10 @@
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
 <header>
-    
-        <div class="Logo_container">
-            <div class="Logo_Image"></div>
-            <h2 class="Logo">ChapeauPOS</h2>
-        </div>
-    
+    <div class="Logo_container">
+        <div class="Logo"></div>
+        <h2 class="LogoText">ChapeauPOS</h2>
+    </div>
     <h1>@ViewData["Title"]</h1>
     <nav class="LoginPage_nav">
         <ul class="navbar-nav flex-grow-1">
@@ -29,7 +27,6 @@
     </nav>
 </header>
 
-
 @if(ViewBag.ErrorMessage != null)
 {
     <div class="alert alert-danger"> @ViewBag.ErrorMessage</div>
@@ -41,102 +38,89 @@
     }
 }
 <div class="LoginPage_body">
-    @foreach (Employee employee in  ViewBag.Employees)
+    @{
+        int employeeIndex = 0;
+    }
+    @foreach (Employee employee in ViewBag.Employees)
     {
         string employeeIcon = "";
         switch (employee.Role)
         {
             case Roles.Manager:
-                if(employee.Gender == EmployeeGender.Male)
-                {
-                employeeIcon = "ManagerIcon";
-				}
-				else
-				{
-					employeeIcon = "ManagerIconF";
-				}
+                employeeIcon = employee.Gender == EmployeeGender.Male ? "ManagerIcon" : "ManagerIconF";
                 break;
             case Roles.Waiter:
-                if (employee.Gender == EmployeeGender.Male)
-                {
-                    employeeIcon = "WaiterIcon";
-                }
-                else
-                {
-                    employeeIcon = "WaitressIcon";
-                }
+                employeeIcon = employee.Gender == EmployeeGender.Male ? "WaiterIcon" : "WaitressIcon";
                 break;
             case Roles.Bartender:
-                if (employee.Gender == EmployeeGender.Male)
-                {
-                    employeeIcon = "BartenderIcon";
-                }
-                else
-                {
-                    employeeIcon = "BartenderIconF";
-                }
+                employeeIcon = employee.Gender == EmployeeGender.Male ? "BartenderIcon" : "BartenderIconF";
                 break;
             case Roles.Cook:
-                if (employee.Gender == EmployeeGender.Male)
-                {
-                    employeeIcon = "CookIcon";
-                }
-                else
-                {
-                    employeeIcon = "CookIconF";
-                }
+                employeeIcon = employee.Gender == EmployeeGender.Male ? "CookIcon" : "CookIconF";
                 break;
-
         }
+        var popupId = $"popupOverlay_{employeeIndex}";
+        var loginBtnId = $"loginBtn_{employeeIndex}";
+        var cancelBtnId = $"cancelBtn_{employeeIndex}";
     <div class="Login_card">
-		<div class="Login_card_body">
+        <div class="Login_card_body">
             <div class="@employeeIcon"></div>
-			<h5 class="card-title">@employee.FirstName @employee.LastName</h5>
-			<p class="card-text">Role: @employee.Role</p>
-            <a class="conf_button" >Login</a>
+            <h5 class="card-title">@employee.FirstName @employee.LastName</h5>
+            <p class="card-text">Role: @employee.Role</p>
+            <a class="conf_button" id="@loginBtnId" href="javascript:void(0);">Login</a>
 
-            <div class="popupOverlay">
+            <div class="popupOverlay" id="@popupId" style="display:none;">
                 <div class="popupContainer">
                     <div class="popupHeader">
-						<h2>Login</h2>
-						<button class="confirmation_cancelation">X</button>
-					</div>
-					<p>Are you sure you want to login as @employee.FirstName @employee.LastName?</p>
-					<p>Enter your password:</p>
-                <form action="/Home/Login" method="POST">
-                    <article class="form-group">
+                        <h2>Welcome</h2>
+                    </div>
+                    <div class="Login_card">
+                        <div class="Login_card_body">
+                            <div class="@employeeIcon"></div>
+                            <h5 class="card-title">@employee.FirstName @employee.LastName</h5>
+                            <p class="card-text">@employee.Role</p>
+                        </div>
+                    </div>
+                    <form action="/Home/Login" method="POST">
+                        <article class="form-group">
                             <input type="hidden" name="EmployeeID" value="@employee.EmployeeId" required />
-                    </article>
-                    <article class="form-group">
-                        <label for="Password">Password</label>
-                        <input type="password" class="form-control" asp-for="Password" required />
-                    </article>
-                    <button type="submit" class="btn btn-primary">Login as @employee.FirstName</button>
-                </form>
-                 </div>
+                        </article>
+                        <article class="form-group">
+                            <div class="Password_input_Wrap">
+                                <input class="Password_input form-control" type="password" name="Password" required placeholder="Enter password... " />
+                            </div>
+                        </article>
+                        <div class="Login_popup_Buttons_Wraps">
+                            <button type="button" class="confirmation_cancelation" id="@cancelBtnId">Cancel</button>
+                            <button type="submit" class="conf_button">Login as @employee.FirstName</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-		</div>
-	</div>
-}
+        </div>
+    </div>
+    employeeIndex++;
+    }
 </div>
 
 <script>
-    const loginButtons = document.getElementsByClassName("conf_button");
-    const popupOverlays = document.getElementsByClassName("popupOverlay");
-    const confirmationButton = document.getElementById("confirmation_button");
-    const confirmationCancelation = document.getElementsByClassName("confirmation_cancelation");
-
-    for (let i = 0; i < loginButtons.length; i++)
-    {
-        loginButtons[i].addEventListener("click", function () {
-            popupOverlays[i].style.display = "block";
-        });
-    }
-    for (let i = 0; i < loginButtons.length; i++) {
-        confirmationCancelation[i].addEventListener("click", function () {
-            popupOverlays[i].style.display = "none";
-        });
-    }
-    
+    document.addEventListener("DOMContentLoaded", function () {
+        const count = @ViewBag.Employees.Count;
+        for (let i = 0; i < count; i++) {
+            const loginBtn = document.getElementById(`loginBtn_${i}`);
+            const popup = document.getElementById(`popupOverlay_${i}`);
+            const cancelBtn = document.getElementById(`cancelBtn_${i}`);
+            if (loginBtn && popup) {
+                loginBtn.addEventListener("click", function () {
+                    popup.style.display = "block";
+                });
+            }
+            if (cancelBtn && popup) {
+                cancelBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    popup.style.display = "none";
+                });
+            }
+        }
+    });
 </script>
-

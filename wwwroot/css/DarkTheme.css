@@ -41,6 +41,12 @@
     --Collection1-TextBlue: #0A60DA;
     --Collection1-Paragpraph_font: "Rubik", sans-serif;
 }
+
+
+
+
+
+
 .table{
     color: white;
 }
@@ -101,7 +107,10 @@ li a {
 */
 
 
-
+.Logo {
+    
+    background-image: url(/assets/LogoFigmaWhite.svg);
+}
 
 .LogoText {
     font-family: var(--Collection1-Paragpraph_font);

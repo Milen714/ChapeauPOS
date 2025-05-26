@@ -3,7 +3,20 @@
     ViewData["Title"] = "Tables";
 }
 
-<h1>@ViewData["Title"]</h1>
+@{
+    if (TempData["Error"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/Property 1=RedCross.svg" alt="Checkmark" /><h4>@TempData["Error"]</h4>
+        </div>
+    }
+    if (TempData["Success"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
+        </div>
+    }
+}
 
 <div class="Table_Overview">
     @foreach (var table in Model)
@@ -20,9 +33,8 @@
             <div class="chair left" style="@tableStatusStyle"></div>
             <div class="table_card" style="@tableStatusStyle">
                 <div class="table_card_body">
-                    <h5>Table @table.TableNumber</h5>
-                    <p>Seats: @table.NumberOfSeats</p>
-                    <p>Status: @table.TableStatus</p>
+                    <h5>@table.TableNumber</h5>
+                    <p>@table.TableStatus</p>
                 </div>
             </div>
             <div class="chair right" style="@tableStatusStyle"></div>
@@ -30,3 +42,113 @@
         </div>
     }
 </div>
+<div class="TableView_OrderNotifications">
+    @{
+        string orderNotificationStyle = "";
+        string hreference = "";
+        string pointerEvents = "";
+    }
+    <div class="Kitcthen_Orders">
+        <p>Kitchen</p>
+        <div class="Kitcthen_Orders_Body">
+            @{
+                if (ViewBag.KitchenOrders != null)
+                {
+                    foreach (Order order in ViewBag.KitchenOrders)
+                    {
+                        <div class="Order_notification_row_Body">
+                            <p>@order.Table.TableNumber</p>
+
+                            @{var KitchenItems = order.OrderItems
+                                                        .Where(Ki => Ki.MenuItem.Course != MenuCourse.Drink)  
+                                                        .ToList();}
+                            @foreach (OrderItem orderItem in KitchenItems)
+                            {
+                                if (orderItem.OrderItemStatus != OrderItemStatus.Served)
+                                {
+                                    if (orderItem.OrderItemStatus == OrderItemStatus.Preparing)
+                                    {
+                                        orderNotificationStyle = "PrepairingBorder";
+                                        pointerEvents = "Order_notification_row_ATAG";
+                                    }
+                                    else if (orderItem.OrderItemStatus == OrderItemStatus.Ordered)
+                                    {
+                                        orderNotificationStyle = "OrderedBorder";
+                                        pointerEvents = "Order_notification_row_ATAG";
+                                    }
+                                    else if (orderItem.OrderItemStatus == OrderItemStatus.Ready)
+                                    {
+                                        orderNotificationStyle = "ReadyBorder";
+                                        hreference = $"/Tables/SetOrderItemAsServed/{orderItem.OrderItemId}";
+                                    }
+                                    <div>
+                                            <div>
+                                            <a class="@pointerEvents atag" href="@hreference">
+                                                 <div class="@orderNotificationStyle Order_notification_row">
+                                                     <p>@orderItem.MenuItem.ItemName</p>
+                                                 </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                }   
+                            }
+                    </div>
+                    
+                }
+            }
+        }
+        
+    </div>
+</div>
+
+<div class="Bar_Orders">
+        <p>Bar</p>
+        <div class="Bar_Orders_Body">
+            @{
+                if (ViewBag.KitchenOrders != null)
+                {
+                    foreach (Order order in ViewBag.KitchenOrders)
+                    {
+                        <div>
+                            <p>@order.Table.TableNumber</p>
+
+                            @{
+                                var KitchenItems = order.OrderItems
+                        .Where(Ki => Ki.MenuItem.Course == MenuCourse.Drink)
+                        .ToList();
+                            }
+                            @foreach (OrderItem orderItem in KitchenItems)
+                            {
+                                if (orderItem.OrderItemStatus != OrderItemStatus.Served)
+                                {
+                                    if (orderItem.OrderItemStatus == OrderItemStatus.Preparing)
+                                    {
+                                        orderNotificationStyle = "PrepairingBorder";
+                                        pointerEvents = "Order_notification_row_ATAG";
+                                    }
+                                    else if (orderItem.OrderItemStatus == OrderItemStatus.Ready)
+                                    {
+                                        orderNotificationStyle = "ReadyBorder";
+                                        hreference = $"/Tables/SetOrderItemAsServed/{orderItem.OrderItemId}";
+                                    }
+                                    <div>
+                                        <div>
+                                            <a class="@pointerEvents atag" href="@hreference">
+                                                <div class="@orderNotificationStyle Order_notification_row">
+                                                    <p>@orderItem.MenuItem.ItemName</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                    }
+                }
+            }
+</div>
+</div>
+
+
+

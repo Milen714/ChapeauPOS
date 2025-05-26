@@ -84,6 +84,64 @@ namespace ChapeauPOS.Services
         {
             context.Session.Remove($"{OrderSessionKeyPrefix}{tableId}");
         }
+
+        public void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order)
+        {
+            // Normalize note to avoid null reference issues
+            string normalizedNote = note?.Trim() ?? string.Empty;
+
+            // Check if the item already exists in the order, as well as if the notes are the same
+            var existingItem = order.OrderItems.FirstOrDefault(oi =>
+                oi.MenuItem.MenuItemID == itemId &&
+                string.Equals(oi.Notes?.Trim() ?? string.Empty, normalizedNote, StringComparison.OrdinalIgnoreCase)
+            );
+            var existingInterumItem = order.InterumOrderItems.FirstOrDefault(oi =>
+                oi.MenuItem.MenuItemID == itemId &&
+                string.Equals(oi.Notes?.Trim() ?? string.Empty, normalizedNote, StringComparison.OrdinalIgnoreCase)
+            );
+
+            // If the item exists,and it is not stored in the Database, increase the quantity
+            if (existingItem != null && order.OrderStatus == OrderStatus.Pending)
+            {
+                existingItem.Quantity++;
+            }
+            else if (existingInterumItem != null)
+            {
+                existingInterumItem.Quantity++;
+            } //If the item exists, and it IS stored in the Database, increase the quantity
+            else
+            {
+                // If the item doesn't exist, create a new order item
+                OrderItem orderItem = new OrderItem
+                {
+                    MenuItem = menuItem,
+                    Quantity = 1,
+                    Notes = normalizedNote,
+                    OrderItemStatus = OrderItemStatus.Ordered
+                };// If the order is not in the DataBase place the new orderItem in the Order
+                if (order.OrderStatus == OrderStatus.Pending)
+                {
+                    order.OrderItems.Add(orderItem);
+                }// If the order is already in the DataBase place the new orderItem
+                 // in a temporary List awaiting to be send to the DB where it will append the first
+                 // Items in the same order
+                else
+                {
+                    order.InterumOrderItems.Add(orderItem);
+                }
+            }
+            order.TemporaryItemIdSetter();
+        }
+
+        public void AddToOrder(Order order)
+        {
+            _ordersRepository.AddToOrder(order);
+        }
+
+        public void MoveOrderToAnotherTable(int tableId, Order order)
+        {
+            _ordersRepository.MoveOrderToAnotherTable(tableId, order);
+        }
     }
-    
+
 }
