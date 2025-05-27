@@ -323,22 +323,23 @@ namespace ChapeauPOS.Controllers
 
             return View(viewModel);
         }
-        public IActionResult PaymentConfirmationPopup(int tableId)
+        public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {
+            PaymentMethod paymentMethod1 = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod);
             var order = _ordersService.GetOrderByTableId(tableId);
-            var viewModel = new PaymentViewModel { Order = order };
+            var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod1 };
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
         [HttpPost]
-        public IActionResult FinalizePayment(string paymentMethod, int tableID,string feedBack,string totalPaid)
+        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID,string feedBack,string totalPaid)
         {
             var order = _ordersService.GetOrderByTableId(tableID);
-            var viewModel = new PaymentViewModel { Order = order};
+            var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod};
 
 
             var payment = new Payment
             {
-                PaymentMethod = PaymentMethod.Maestro,
+                PaymentMethod = viewModel.PaymentMethod,
                 TotalAmount = viewModel.TotalAmount,
                 FeedBack = feedBack,
                 PaidAt = DateTime.Now,

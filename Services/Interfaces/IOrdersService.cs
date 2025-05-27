@@ -24,5 +24,6 @@ namespace ChapeauPOS.Services.Interfaces
         void MoveOrderToAnotherTable(int tableId, Order order);
 
         void FinishOrderAndFreeTable(Order order, Payment payment);
+        Bill GetBillByOrderId(int orderId);
     }
 }

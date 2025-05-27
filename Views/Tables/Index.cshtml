@@ -21,6 +21,7 @@
 <div class="Table_Overview">
     @foreach (var table in Model)
     {
+        string tableBorderStatus = "";
         string tableStatusStyle = table.TableStatus switch
         {
             TableStatus.Occupied => "background-color: #FF6347;",   // Tomato
@@ -28,7 +29,33 @@
             TableStatus.Free => "background-color: #90EE90;",       // LightGreen
             _ => ""
         };
-        <div class="Restaurant_Table" onclick="location.href='/Orders/CreateOrder/@table.TableNumber'">
+        if (ViewBag.KitchenOrders != null)
+        {
+            foreach (Order order in ViewBag.KitchenOrders)
+            {
+                if (order.Table.TableNumber == table.TableNumber)
+                {
+                    @foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+                    {
+                        
+                        CourseStatus courseStatus;
+
+                        if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
+                        { 
+                            tableBorderStatus = "ReadyBorder";
+                        }
+                        else
+                        {
+                            tableBorderStatus = "NoBorder";
+                        }
+                    }
+               }
+			}
+           
+            
+        }
+
+        <div class="Restaurant_Table @tableBorderStatus" onclick="location.href='/Orders/CreateOrder/@table.TableNumber'">
             <div class="chair top" style="@tableStatusStyle"></div>
             <div class="chair left" style="@tableStatusStyle"></div>
             <div class="table_card" style="@tableStatusStyle">

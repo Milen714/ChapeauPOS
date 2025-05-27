@@ -1,4 +1,5 @@
-﻿using ChapeauPOS.Models;
+﻿using System.Collections;
+using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
 
@@ -517,6 +518,38 @@ namespace ChapeauPOS.Repositories
             {
                 throw new Exception("Error updating table to finalize in database",ex);
             }
+        }
+
+        public Bill GetBillByOrderId(int orderId)
+        {
+            Bill bill = new Bill();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT BillID, OrderID, CreatedAt, Subtotal, FinalizedBy " +
+                                   "FROM Bills WHERE OrderID = @OrderID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving bill from database", ex);
+            }
+            return bill;
         }
     }
 

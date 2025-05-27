@@ -298,6 +298,7 @@ footer li a{
     cursor: pointer;
     border-radius: 12px;
     transition: transform 0.2s;
+    border: 1px solid;
 }
 
     .Restaurant_Table:hover {
@@ -403,6 +404,9 @@ footer li a{
     border-image: conic-gradient(from var(--a), #669900, #99cc33, #ccee66, #006699, #3399cc, #990066, #cc3399, #ff6600, #ff9900, #ffcc00, #669900) 1;
     transition: 500ms;
     animation: a 6s linear infinite;
+}
+.NoBorder{
+    border: none;
 }
 .OrderedBorder {
     border-image: conic-gradient( from var(--a), #fff176, /* bright pastel yellow */

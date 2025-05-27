@@ -8,7 +8,7 @@
 	</div>
 	<form action="/Orders/FinalizePayment" method="post">
 		<input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
-		<input id="paymentMethod" type="hidden" name="paymentMethod" value="Maestro" />
+		<input id="paymentMethod" type="hidden" name="paymentMethod" value="@Model.PaymentMethod" />
 		<input id="baseTotal" type="hidden" name="baseTotal" value="@Model.TotalAmount" />
 		<article class="PaymentPopupContainer_Body_Middle">
 		
