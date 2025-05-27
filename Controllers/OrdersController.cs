@@ -9,6 +9,7 @@ using ChapeauPOS.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using ChapeauPOS.Services;
+using Newtonsoft.Json.Serialization;
 
 namespace ChapeauPOS.Controllers
 {
@@ -317,7 +318,7 @@ namespace ChapeauPOS.Controllers
                 Order = order
             };
 
-            var items = viewModel.Order.OrderItems;
+            
             ViewBag.PaymentModel = viewModel;
 
             return View(viewModel);
@@ -329,10 +330,27 @@ namespace ChapeauPOS.Controllers
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
         [HttpPost]
-        public IActionResult FinalizePayment(string total, int tableId)
+        public IActionResult FinalizePayment(string paymentMethod, int tableID,string feedBack,string totalPaid)
         {
-            var order = _ordersService.GetOrderByTableId(tableId);
-            TempData["Success"] = $"Order has been successfully Paid! {total}";
+            var order = _ordersService.GetOrderByTableId(tableID);
+            var viewModel = new PaymentViewModel { Order = order};
+
+
+            var payment = new Payment
+            {
+                PaymentMethod = PaymentMethod.Maestro,
+                TotalAmount = viewModel.TotalAmount,
+                FeedBack = feedBack,
+                PaidAt = DateTime.Now,
+                TipAmount = 1,
+                LowVAT = viewModel.LowVAT,
+                HighVAT = viewModel.HighVAT,
+
+
+            };
+
+            _ordersService.FinishOrderAndFreeTable(order, payment);
+            TempData["Success"] = $"Order has been successfully Paid! {viewModel.TotalAmount}";
             return RedirectToAction("Index", "Tables");
         }
 

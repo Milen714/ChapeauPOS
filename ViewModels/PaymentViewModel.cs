@@ -14,6 +14,7 @@ namespace ChapeauPOS.ViewModels
                 { return Order.TotalAmount; }
             }
         }
+        public decimal totalPaidAmount { get; set; }   
 
         public decimal LowVAT => Order.OrderItems.Where(i => i.MenuItem.VATPercent == 9).Sum(i => i.MenuItem.ItemPrice * i.Quantity * 0.09m);
 
