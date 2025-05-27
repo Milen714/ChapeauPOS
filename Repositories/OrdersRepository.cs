@@ -131,6 +131,15 @@ namespace ChapeauPOS.Repositories
 
                         itemCommand.ExecuteNonQuery();
                     }
+                    string BillQuery = "INSERT INTO Bills (OrderID,CreatedAt,Subtotal,FinalizedBy)" +
+                                       "VALUES(@OrderID,@CreatedAt,@Subtotal,@FinalizedBy)";
+                    SqlCommand Billcommand = new SqlCommand(BillQuery, connection);
+                    Billcommand.Parameters.AddWithValue("@OrderID", newOrderId);
+                    Billcommand.Parameters.AddWithValue("@CreatedAt",DateTime.Now);
+                    Billcommand.Parameters.AddWithValue("@Subtotal",order.TotalAmount);
+                    Billcommand.Parameters.AddWithValue("@FinalizedBy",order.Employee.EmployeeId);
+
+                    Billcommand.ExecuteNonQuery();
                 }
             }
             catch (SqlException ex)
@@ -449,6 +458,64 @@ namespace ChapeauPOS.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Error updating order item in database", ex);
+            }
+        }
+        public void SavePayment(Payment payment)
+        {
+            try
+            {
+                using(SqlConnection connection=new SqlConnection(_connectionString))
+                {
+                    string query = @"INSERT INTO Payments ( Method, Amount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT)
+                                   VALUES (@Method, @Amount, @Feedback, @PaidAt, @TipAmount, @LowVAT, @HighVAT)";
+                    SqlCommand command = new SqlCommand(query, connection);
+                   
+                    command.Parameters.AddWithValue("@Method", payment.PaymentMethod.ToString());
+                    command.Parameters.AddWithValue("@Amount", payment.TotalAmount);
+                    command.Parameters.AddWithValue("@Feedback",payment.FeedBack);
+                    command.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
+                    command.Parameters.AddWithValue("@TipAmount", payment.TipAmount);
+                    command.Parameters.AddWithValue("@LowVAT", payment.LowVAT);
+                    command.Parameters.AddWithValue("@HighVAT", payment.HighVAT);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+
+                }
+            }
+            catch(SqlException ex)
+            {
+                throw new Exception("Error connecting to database",ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error inserting payment information in database", ex);
+            }
+        }
+        public void FinalizeOrder(int orderID)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = @"UPDATE Orders SET OrderStatus=@OrderStatus " +
+                                   "WHERE OrderID = @OrderID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderStatus", "Finalized");
+                    //command.Parameters.AddWithValue("@ClosedAt", DateTime.Now.ToString());
+                    command.Parameters.AddWithValue("@OrderID", orderID);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database",ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error updating table to finalize in database",ex);
             }
         }
     }

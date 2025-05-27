@@ -59,10 +59,11 @@
 
         $(document).on('click', '#MaestroButton', function () {
             var tableId = document.getElementById('tableId').value;
+            //var paymentMethod = document.getElementById('paymentMethod').value;
                         $.ajax({
                             url: "/Orders/PaymentConfirmationPopup",
                             type: "GET",
-                            data: { tableId: tableId },
+                            data: { tableId: tableId},
                             success: function (data) {
                                 $("#PaymentPopUpContainer").html(data);
                                 var overlay = document.getElementsByClassName('popupMoveOverlay')[0];

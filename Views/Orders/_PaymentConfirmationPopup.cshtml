@@ -8,17 +8,21 @@
 	</div>
 	<form action="/Orders/FinalizePayment" method="post">
 		<input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
+		<input id="paymentMethod" type="hidden" name="paymentMethod" value="Maestro" />
 		<article class="PaymentPopupContainer_Body_Middle">
 		
 			<label for="TotalToPay">Total:</label>
 			<input id="TotalToPay" type="text" name="total" value="@Model.TotalAmount.ToString("0.##")" />
 
+			<label for="feedBack">FeedBack</label>
+			<input id="feedBack" type="text" name="feedBack" value="" />
+
 			<div class="PaymentPopupContainer_Tip">
 				<p>Tip: 0.00</p>
 			</div>
 			<div class="PaymentPopupContainer_Vats">
-				<p>High VAT: @Model.HighVAT</p>
-				<p>Low VAT: @Model.LowVAT</p>
+				<p>High VAT: @Model.HighVAT.ToString("F2")</p>
+				<p>Low VAT: @Model.LowVAT.ToString("F2")</p>
 			</div>
 
 		</article>
