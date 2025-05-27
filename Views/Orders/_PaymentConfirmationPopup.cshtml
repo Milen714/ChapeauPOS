@@ -9,16 +9,17 @@
 	<form action="/Orders/FinalizePayment" method="post">
 		<input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
 		<input id="paymentMethod" type="hidden" name="paymentMethod" value="Maestro" />
+		<input id="baseTotal" type="hidden" name="baseTotal" value="@Model.TotalAmount" />
 		<article class="PaymentPopupContainer_Body_Middle">
 		
 			<label for="TotalToPay">Total:</label>
 			<input id="TotalToPay" type="text" name="total" value="@Model.TotalAmount.ToString("0.##")" />
 
 			<label for="feedBack">FeedBack</label>
-			<input id="feedBack" type="text" name="feedBack" value="" />
+			<input id="feedBack" type="text" name="feedBack" value="WriteFeedBack" />
 
 			<div class="PaymentPopupContainer_Tip">
-				<p>Tip: 0.00</p>
+				<p>Tip: <span id="tipDisplay "></span></p>
 			</div>
 			<div class="PaymentPopupContainer_Vats">
 				<p>High VAT: @Model.HighVAT.ToString("F2")</p>
@@ -29,3 +30,26 @@
 		<button type="submit">Finalize</button>
 	</form>
 </div>
+
+@section Scripts{
+	<script>
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const totalInput = document.getElementById("TotalToPay");
+			const tipDisplay = document.getElementById("tipDisplay");
+
+			const baseTotal = parseFloat(document.getElementById("baseTotal").value);
+
+			totalInput.addEventListener("input", function () {
+				const enteredValue = parseFloat(totalInput.value);
+				if (!isNaN(enteredValue)) {
+					const tip = enteredValue - baseTotal;
+					tipDisplay.textContent = tip.toFixed(2);
+				}
+				else {
+					tipDisplay.textContent = "0.00";
+				}
+			});
+		});
+	</script>
+}

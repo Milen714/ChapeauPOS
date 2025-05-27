@@ -1,6 +1,6 @@
 ﻿@model ChapeauPOS.ViewModels.PaymentViewModel
 @{
-    <input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
+                <input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
 }
 <h2>Payment Summary - Table @Model.Order.Table.TableNumber</h2>
 <div>
@@ -37,13 +37,14 @@
         <p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>
     </div>
     <div class="PaymentButtons_Container">
-     <button id="CashPaymentButton" class="PaymentButtons">Cash</button>
-        <button id="MaestroButton" class="PaymentButtons">Maestro</button>
-        <button class="PaymentButtons">Split</button>
-        <button class="PaymentButtons">Voucher</button>
-        <button class="PaymentButtons">Voucher</button>
-        <button class="PaymentButtons">Discount</button>
-        <button class="PaymentButtons">Feedback</button>
+        <div class="PaymentButtons_Container">
+            <button class="PaymentButtons" data-payment-method="Cash">Cash</button>
+            <button class="PaymentButtons" data-payment-method="Maestro">Maestro</button>
+            <button class="PaymentButtons" data-payment-method="Split">Split</button>
+            <button class="PaymentButtons" data-payment-method="Voucher">Voucher</button>
+            <button class="PaymentButtons" data-payment-method="Discount">Discount</button>
+            <button class="PaymentButtons" data-payment-method="Feedback">Feedback</button>
+        </div>
     </div>
 
     <div class="popupMoveOverlay">
@@ -57,29 +58,33 @@
 @section Scripts{
     <script>
 
-        $(document).on('click', '#MaestroButton', function () {
-            var tableId = document.getElementById('tableId').value;
-            //var paymentMethod = document.getElementById('paymentMethod').value;
-                        $.ajax({
-                            url: "/Orders/PaymentConfirmationPopup",
-                            type: "GET",
-                            data: { tableId: tableId},
-                            success: function (data) {
-                                $("#PaymentPopUpContainer").html(data);
-                                var overlay = document.getElementsByClassName('popupMoveOverlay')[0];
-                                if (overlay) {
-                                    overlay.style.display = 'block';
-                                    $(overlay).off('click').on('click', function (e) {
-                                        if (e.target === overlay) {
-                                            overlay.style.display = 'none';
-                                        }
-                                    });
-                                }
-                            },
-                            error: function (error) {
-                                console.error("Error fetching this View:", error);
+        $(document).on('click', '.PaymentButtons', function () {
+            var paymentMethod = $(this).data('payment-method');
+            var tableId = $('#tableId').val();
+
+            $.ajax({
+                url: "/Orders/PaymentConfirmationPopup",
+                type: "GET",
+                data: { tableId: tableId, paymentMethod: paymentMethod },
+                success: function (data) {
+                    $("#PaymentPopUpContainer").html(data);
+                    var overlay = document.getElementsByClassName('popupMoveOverlay')[0];
+                    if (overlay) {
+                        overlay.style.display = 'block';
+                        $(overlay).off('click').on('click', function (e) {
+                            if (e.target === overlay) {
+                                overlay.style.display = 'none';
                             }
                         });
-                    });
+                    }
+                },
+                error: function (error) {
+                    console.error("Error fetching this View:", error);
+                }
+            });
+        });
+
+
+        
     </script>
 }
