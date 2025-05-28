@@ -331,7 +331,7 @@ namespace ChapeauPOS.Controllers
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
         [HttpPost]
-        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID,string feedBack,string totalPaid)
+        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID,string feedBack,string total)
         {
             var order = _ordersService.GetOrderByTableId(tableID);
             var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod};

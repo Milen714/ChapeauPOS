@@ -35,18 +35,18 @@
             {
                 if (order.Table.TableNumber == table.TableNumber)
                 {
-                    @foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+                    @foreach (var course in order.OrderItems.Where(oi => oi.MenuItem.Course != MenuCourse.Drink).OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
                     {
                         
-                        CourseStatus courseStatus;
 
                         if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
                         { 
                             tableBorderStatus = "ReadyBorder";
+                            <p>tHIS IS READY</p>
                         }
-                        else
+                        else if (course.All(oi => oi.CourseStatus == CourseStatus.Ordered))
                         {
-                            tableBorderStatus = "NoBorder";
+                            <p>THIS IS ORDERED</p>
                         }
                     }
                }
