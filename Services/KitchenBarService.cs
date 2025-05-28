@@ -73,5 +73,10 @@ namespace ChapeauPOS.Services
             _kitchenBarRepository.UpdateItemStatusBasedOnCourse(orderId, course, orderItemStatus);
         }
 
+        public void SetCourseToServed(int orderId, MenuCourse course, OrderItemStatus orderItemStatus)
+        {
+
+            _kitchenBarRepository.SetCourseToServed(orderId, course, orderItemStatus);
+        }
     }
 }

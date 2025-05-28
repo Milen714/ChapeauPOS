@@ -1,6 +1,6 @@
 ﻿@using ChapeauPOS.Commons;
 <!DOCTYPE html>
-<html lang="en">
+<html style="background-color:#3A3E4B" lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,7 +15,11 @@
     <link rel="stylesheet" href="~/css/@(Context.Request.Cookies["PreferedTheme"] == "Dark" ? "DarkTheme.css" : "LightTheme.css")" />
 
 </head>
-<body>
+@{
+    Employee loggedInEmployee = ViewBag.LoggedInEmployee;
+
+}
+<body style="background-color:#3A3E4B">
     <header>
         <nav class="nav_bar">
             <div class="nav_ul_container">
@@ -23,39 +27,25 @@
                     <li class="nav_item">
                         <a class="Logout_Button" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
                     </li>
+                    <li class="nav_item">
+                        <p>@loggedInEmployee.FirstName @loggedInEmployee.LastName: @loggedInEmployee.Role.ToString()</p>
+                    </li>
 
                 </ul>
             </div>
             <div class="Logo_container">
                 <div class="Logo"></div>
-                <a class="LogoText" asp-area="" asp-controller="Home" asp-action="Index"></a>
+                <a class="LogoText" asp-area="" asp-controller="Home" asp-action="Index">ChapeauPOS</a>
             </div>
-            @{
-                if (Context.Request.Cookies["PreferedTheme"] == "Dark")
-                {
-                    <div class="nav_status_Right">
-                        <div class="nav_status_Right">
-                            <a class="Buttons_IntableActions" href="/Orders/SendOrder/@ViewBag.TableNumber"><img src="/assets/Smallicons/Send24White.svg" alt="Alternate Text" />Send</a>
-                            <a class="Buttons_IntableActions"><img src="/assets/Smallicons/Check24White.svg" alt="Alternate Text" />Check</a>
-                            <a class="Buttons_IntableActions" href="/Orders/Payment/@ViewBag.TableNumber"><img src="/assets/Smallicons/Settlepayment24White.svg" alt="Alternate Text" />Settle Payment</a>
-
-                        </div>
-                    </div>
-                }
-                else if (Context.Request.Cookies["PreferedTheme"] == "Light")
-                {
-                    <div class="nav_status_Right">
-                        <div class="nav_status_Right">
-                            <a style="color: black;" class="Buttons_IntableActions" href="/Orders/SendOrder/@ViewBag.TableNumber"><img src="/assets/Smallicons/Send24Black.svg" alt="Alternate Text" />Send</a>
-                            <a style="color: black;" class="Buttons_IntableActions"><img src="/assets/Smallicons/Check24Black.svg" alt="Alternate Text" />Check</a>
-                            <a style="color: black;" class="Buttons_IntableActions" href="/Orders/Payment/@ViewBag.TableNumber"><img src="/assets/Smallicons/Settlepayment24Black.svg" alt="Alternate Text" />Settle Payment</a>
-
-                        </div>
-                    </div>
-                }
-            }
-            
-            
+            <div class="nav_status_Right">
+                <div>
+                    <h3>@ViewData["Title"]</h3>
+                </div>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </nav>
     </header>
     <div class="container">
@@ -70,7 +60,6 @@
                 <ul class="nav_ul">
 
                     @{
-                        Employee loggedInEmployee = ViewBag.LoggedInEmployee;
                         if (ViewBag.LoggedInEmployee != null)
                         {
                             switch (loggedInEmployee.Role)
@@ -85,8 +74,9 @@
                                     <li class="nav_item">
                                         <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
                                     </li>
+
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index">Menu</a>
+                                        <a asp-area="" asp-controller="Menu" asp-action="Index">Menu</a>
                                     </li>
                                     <li class="nav_item">
                                         <a asp-area="" asp-controller="Employees" asp-action="Index">Employees</a>
@@ -109,11 +99,9 @@
                                     <li class="nav_item">
                                         <a asp-area="" asp-controller="Home" asp-action="Index">Orders</a>
                                     </li>
+
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index">Clients</a>
-                                    </li>
-                                    <li class="nav_item">
-                                        <a asp-area="" asp-controller="Home" asp-action="Index">Menu</a>
+                                        <a asp-area="" asp-controller="Menu" asp-action="Index">Menu</a>
                                     </li>
                                     <li class="nav_item">
                                         <a asp-area="" asp-controller="Home" asp-action="Index">@ViewBag.LoggedInEmployee.FirstName @ViewBag.LoggedInEmployee.LastName</a>
@@ -125,15 +113,21 @@
                                         <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
                                     </li>
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">BarView</a>
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
                                     </li>
                                     break;
                                 case Roles.Cook:
-                                    <li class="nav_itemm">
+                                    <li class="nav_item">
                                         <a asp-area="" asp-controller="Tables" asp-action="Index">Tables</a>
                                     </li>
                                     <li class="nav_item">
-                                        <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen View</a>
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="KitchenRunningOrders">Kitchen</a>
+                                    </li>
+                                    <li class="nav_item">
+                                        <a asp-area="" asp-controller="KitchenBar" asp-action="BarRunningOrders">Bar</a>
                                     </li>
                                     break;
                             }

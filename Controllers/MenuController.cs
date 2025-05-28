@@ -22,7 +22,7 @@ namespace ChapeauPOS.Controllers
         //    return View(items);
         //}
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Index(string course, string category)
         {
             //  Using _service instead of _menuService
@@ -41,7 +41,7 @@ namespace ChapeauPOS.Controllers
             return View(viewModel);
         }
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Create()
         {
             ViewBag.Categories = _service.GetMenuCategories();
@@ -86,7 +86,7 @@ namespace ChapeauPOS.Controllers
         }
 
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
             var item = _service.GetMenuItemById(id);
@@ -163,7 +163,7 @@ namespace ChapeauPOS.Controllers
 
 
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id, bool isActive)
         {
             _service.ToggleMenuItemStatus(id, isActive);

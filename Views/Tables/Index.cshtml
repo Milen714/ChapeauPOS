@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<ChapeauPOS.Models.Table>
 @{
     ViewData["Title"] = "Tables";
+	Layout = "~/Views/Shared/_TableLayout.cshtml";
 }
 
 @{
@@ -21,6 +22,7 @@
 <div class="Table_Overview">
     @foreach (var table in Model)
     {
+        string pointerEventYesNo = "";
         string tableBorderStatus = "";
         string tableStatusStyle = table.TableStatus switch
         {
@@ -29,32 +31,132 @@
             TableStatus.Free => "background-color: #90EE90;",       // LightGreen
             _ => ""
         };
-        if (ViewBag.KitchenOrders != null)
-        {
+        
+    <div class="Table_Wrap">
+        <div class="TableOrderIcons_Container">
+            @if (ViewBag.KitchenOrders != null)
+            {
             foreach (Order order in ViewBag.KitchenOrders)
             {
-                if (order.Table.TableNumber == table.TableNumber)
+
+            if (order.Table.TableNumber == table.TableNumber)
+            {
+            @foreach (var course in order.OrderItems.Where(OrderItem => OrderItem.OrderItemStatus != OrderItemStatus.Served).OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+            {
+                                tableBorderStatus = "PrepairingBorder Border1pxSolid";
+                if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
                 {
-                    @foreach (var course in order.OrderItems.Where(oi => oi.MenuItem.Course != MenuCourse.Drink).OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+                    pointerEventYesNo = "";
+                    switch (course.Key)
                     {
-                        
-
-                        if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
-                        { 
-                            tableBorderStatus = "ReadyBorder";
-                            <p>tHIS IS READY</p>
-                        }
-                        else if (course.All(oi => oi.CourseStatus == CourseStatus.Ordered))
-                        {
-                            <p>THIS IS ORDERED</p>
-                        }
+                        case MenuCourse.Starter:
+                            <div class="course-starter">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Starter" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=AppetizerReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                        case MenuCourse.Main:
+                            <div class="course-main">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Main" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=MainReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                        case MenuCourse.Dessert:
+                            <div class="course-dessert">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Dessert" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=DesertReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                        case MenuCourse.Drink:
+                            <div class="course-dessert">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Drink" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=GlassReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
                     }
-               }
-			}
-           
-            
-        }
 
+                }
+                else if (course.All(oi => oi.CourseStatus == CourseStatus.Ordered))
+                {
+                    pointerEventYesNo = "Order_notification_row_ATAG";
+                    switch (course.Key)
+                    {
+                        case MenuCourse.Starter:
+                            <div class="course-starter">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=AppetizerOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Main:
+                            <div class="course-main">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=MainOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Dessert:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=DesertOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Drink:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=GlassOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                    }
+                }
+                else if (course.All(oi => oi.CourseStatus == CourseStatus.Preparing))
+                {
+                    pointerEventYesNo = "Order_notification_row_ATAG";
+                    switch (course.Key)
+                    {
+                        case MenuCourse.Starter:
+                            <div class="course-starter">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=AppetizerPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Main:
+                            <div class="course-main">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=MainPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Dessert:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=DesertPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Drink:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=GlassPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                    }
+                }
+            }
+            }
+            }
+
+
+            }
+        </div>
         <div class="Restaurant_Table @tableBorderStatus" onclick="location.href='/Orders/CreateOrder/@table.TableNumber'">
             <div class="chair top" style="@tableStatusStyle"></div>
             <div class="chair left" style="@tableStatusStyle"></div>
@@ -67,9 +169,10 @@
             <div class="chair right" style="@tableStatusStyle"></div>
             <div class="chair bottom" style="@tableStatusStyle"></div>
         </div>
+    </div>
     }
 </div>
-<div class="TableView_OrderNotifications">
+@* <div class="TableView_OrderNotifications">
     @{
         string orderNotificationStyle = "";
         string hreference = "";
@@ -175,7 +278,7 @@
                 }
             }
 </div>
-</div>
+</div> *@
 
 
 

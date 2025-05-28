@@ -382,6 +382,30 @@ namespace ChapeauPOS.Repositories
                 }
             }
         }
+        public void SetCourseToServed(int orderId, MenuCourse course, OrderItemStatus orderItemStatus)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = "UPDATE oi SET OrderItemStatus = @OrderItemStatus " +
+                               "FROM OrderItems oi " +
+                               "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                               "WHERE OrderID = @OrderID AND mi.Course = @Course AND oi.OrderItemStatus = 'Ready' ";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderItemStatus", orderItemStatus.ToString());
+                cmd.Parameters.AddWithValue("@OrderID", orderId);
+                cmd.Parameters.AddWithValue("@Course", course.ToString());
+
+                try
+                {
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Something went wrong while updating order status.", ex);
+                }
+            }
+        }
 
 
         public List<Order> GetFinishedBarOrders()

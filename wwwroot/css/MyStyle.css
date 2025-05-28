@@ -162,6 +162,9 @@ a{
 .Buttons_IntableActions:hover{
     color: white;
 }
+header .nav_bar{
+    padding-bottom:5px;
+}
 .nav_bar {
     display: flex;
     flex-direction: row;
@@ -174,10 +177,11 @@ footer .nav_ul_container {
     left: 0;
     right: 0;
 }
+
 .nav_ul {
     display: flex;
     flex-direction: row;
-    width:100%;
+    width: 100%;
     align-items: center;
 }
 .nav_item {
@@ -298,7 +302,6 @@ footer li a{
     cursor: pointer;
     border-radius: 12px;
     transition: transform 0.2s;
-    border: 1px solid;
 }
 
     .Restaurant_Table:hover {
@@ -400,10 +403,14 @@ footer li a{
 .Order_notification_row p{
     margin:0;
 }
+.Border1pxSolid{
+    border: 1px solid;
+}
 .PrepairingBorder {
     border-image: conic-gradient(from var(--a), #669900, #99cc33, #ccee66, #006699, #3399cc, #990066, #cc3399, #ff6600, #ff9900, #ffcc00, #669900) 1;
     transition: 500ms;
     animation: a 6s linear infinite;
+    border-radius: 10px;
 }
 .NoBorder{
     border: none;
@@ -437,7 +444,15 @@ footer li a{
 }
 .atag{
     text-decoration:none;
+    border: none;
+    background: none;
     color:white;
+}
+.TableOrderIcons_Container{
+    display: flex;
+    gap:5px;
+    justify-content: space-around;
+
 }
 /*
     ORDER PAGE STYLES
@@ -540,10 +555,15 @@ footer li a{
     border-block-end: 1px #ffffff41 solid;
     padding: 5px 10px 5px 10px;
 }
+.OrderItem_Row_wrapper{
+    display: flex;
+
+}
+
 .OrderItem_RowBody {
     display: flex;
     flex-wrap: wrap;
-    width:100%;
+    width: 100%;
     gap: 5px;
 }
 .OrderItem_RowBody div{
@@ -632,7 +652,6 @@ footer li a{
     display: flex;
     justify-content: space-between;
     align-items:center;
-    width: 90.5%;
     padding: 10px;
     background-color: var(--Collection1-Greys-BarsLightGrey);
     border-radius: 5px;
