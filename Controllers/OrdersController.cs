@@ -43,7 +43,6 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    _ordersService.RemoveOrderFromSession(HttpContext, id);
                     order = new Order();
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
@@ -141,7 +140,7 @@ namespace ChapeauPOS.Controllers
                 _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
                 _ordersService.SaveOrderToSession(HttpContext, tableId, order);
 
-                if (table.TableStatus != TableStatus.Occupied)
+                if (table.TableStatus == TableStatus.Free)
                 {
                     table.TableStatus = TableStatus.Occupied;
                     _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
