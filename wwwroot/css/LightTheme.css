@@ -45,3 +45,12 @@
 .Kitcthen_Orders_Body, .Bar_Orders_Body{
     color: black;
 }
+#MoveTableButton{
+    color: white;
+}
+.nav_bar{
+    background-color: white;
+}
+.nav_ul_container {
+    background-color: white;
+}

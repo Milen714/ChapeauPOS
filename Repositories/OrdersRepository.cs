@@ -1,6 +1,8 @@
-﻿using ChapeauPOS.Models;
+﻿using System.Collections;
+using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
+using static Azure.Core.HttpHeader;
 
 namespace ChapeauPOS.Repositories
 {
@@ -56,6 +58,24 @@ namespace ChapeauPOS.Repositories
                                                ItemPrice = itemPrice, VAT = VAT, 
                                                Stock = stock, Course = menuCourse };
             return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
+        }
+        private Bill ReadBill(SqlDataReader reader)
+        {
+            int billId = (int)reader["BillID"];
+            int orderId = (int)reader["OrderID"];
+            DateTime createdAt = (DateTime)reader["CreatedAt"];
+            DateTime? closedAt = reader["ClosedAt"] == DBNull.Value ? null : (DateTime?)reader["ClosedAt"];
+            decimal subtotal = (decimal)reader["Subtotal"];
+            int finalizedBy = (int)reader["FinalizedBy"];
+            Employee employee = new Employee { EmployeeId = finalizedBy };
+            return new Bill
+            {
+                BillID = billId,
+                CreatedAt = createdAt,
+                ClosedAt = closedAt,
+                Subtotal = subtotal,
+                FinalizedBy = employee
+            };
         }
         public List<Order> GetAllOrders()
         {
@@ -424,7 +444,9 @@ namespace ChapeauPOS.Repositories
             }
             catch (SqlException ex)
             {
+                Console.WriteLine(ex.Message);
                 throw new Exception("Error connecting to database", ex);
+                
             }
             catch (Exception ex)
             {
@@ -466,13 +488,14 @@ namespace ChapeauPOS.Repositories
             {
                 using(SqlConnection connection=new SqlConnection(_connectionString))
                 {
-                    string query = @"INSERT INTO Payments ( Method, Amount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT)
-                                   VALUES (@Method, @Amount, @Feedback, @PaidAt, @TipAmount, @LowVAT, @HighVAT)";
+                    string query = @"INSERT INTO Payments ( BillID, Method, Amount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT)
+                                   VALUES (@BillID, @Method, @Amount, @Feedback, @PaidAt, @TipAmount, @LowVAT, @HighVAT)";
                     SqlCommand command = new SqlCommand(query, connection);
                    
+                    command.Parameters.AddWithValue("@BillID", payment.Bill.BillID);
                     command.Parameters.AddWithValue("@Method", payment.PaymentMethod.ToString());
                     command.Parameters.AddWithValue("@Amount", payment.TotalAmount);
-                    command.Parameters.AddWithValue("@Feedback",payment.FeedBack);
+                    command.Parameters.AddWithValue("@Feedback",(object)payment.FeedBack ?? DBNull.Value);
                     command.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
                     command.Parameters.AddWithValue("@TipAmount", payment.TipAmount);
                     command.Parameters.AddWithValue("@LowVAT", payment.LowVAT);
@@ -517,6 +540,62 @@ namespace ChapeauPOS.Repositories
             {
                 throw new Exception("Error updating table to finalize in database",ex);
             }
+        }
+
+        public Bill GetBillByOrderId(int orderId)
+        {
+            Bill bill = new Bill();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT B.BillID, B.OrderID, B.CreatedAt, B.ClosedAt, B.Subtotal, B.FinalizedBy, " +
+                                   "O.OrderID, t.TableNumber, O.EmployeeID, O.OrderStatus, O.CreatedAt, O.ClosedAt, " +
+                                   "oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT, oi.OrderItemStatus, " +
+                                   "Notes, ItemName, ItemDescription, mi.ItemPrice, mi.Stock " +
+                                   "FROM Bills B " +
+                                   "JOIN Orders O ON B.OrderID = O.OrderID " +
+                                   "JOIN Tables t ON O.TableID = t.TableID " +
+                                   "JOIN Employees e ON O.EmployeeID = e.EmployeeID " +
+                                   "JOIN OrderItems oi ON O.OrderID = oi.OrderID " +
+                                   "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                                   "WHERE B.OrderID = @OrderID";
+
+
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        Order order = new Order();
+                        bool firstRow = true;
+                        while (reader.Read())
+                        {
+                            if (firstRow)
+                            {
+                                bill = ReadBill(reader);
+                                order = ReadOrder(reader);
+                                firstRow = false;
+                            }
+
+                            OrderItem orderItem = ReadOrderItem(reader);
+                            order.OrderItems.Add(orderItem);
+                        }
+                        bill.Order = order; // Associate the order with the bill
+
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving bill from database", ex);
+            }
+            return bill;
         }
     }
 

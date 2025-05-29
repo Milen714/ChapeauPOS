@@ -6,6 +6,7 @@ namespace ChapeauPOS.ViewModels
     public class PaymentViewModel
     {
         public Order Order { get; set; }
+        public PaymentMethod PaymentMethod {get; set; }
 
         public decimal TotalAmount
         {

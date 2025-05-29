@@ -20,5 +20,6 @@ namespace ChapeauPOS.Repositories.Interfaces
         void MoveOrderToAnotherTable(int tableId, Order order);
         void SavePayment (Payment payment); 
         void FinalizeOrder (int orderId);
+        Bill GetBillByOrderId(int orderId);
     }
 }

@@ -151,6 +151,11 @@ namespace ChapeauPOS.Services
             _ordersRepository.FinalizeOrder(order.OrderID);
             _tableRepository.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
         }
+
+        public Bill GetBillByOrderId(int orderId)
+        {
+            return _ordersRepository.GetBillByOrderId(orderId);
+        }
     }
 
 }

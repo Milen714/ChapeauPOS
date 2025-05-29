@@ -43,8 +43,7 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    _ordersService.RemoveOrderFromSession(HttpContext, id);
-                    order = new Order();
+                    
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
                 {
@@ -56,7 +55,8 @@ namespace ChapeauPOS.Controllers
                     }
                     else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
                     {
-                        order = dbOrder;
+                        order.OrderItems = dbOrder.OrderItems;
+                        order.OrderID = dbOrder.OrderID;
                         _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
                     }
                 }
@@ -141,7 +141,7 @@ namespace ChapeauPOS.Controllers
                 _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
                 _ordersService.SaveOrderToSession(HttpContext, tableId, order);
 
-                if (table.TableStatus != TableStatus.Occupied)
+                if (table.TableStatus == TableStatus.Free)
                 {
                     table.TableStatus = TableStatus.Occupied;
                     _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
@@ -171,8 +171,10 @@ namespace ChapeauPOS.Controllers
                 {
                     _ordersService.AddToOrder(order);
                     _menuService.DeductStock(order);
+                    order.InterumOrderItems.Clear();
+                    _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
-                else
+                else if(order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
                     _ordersService.AddOrder(order);
@@ -323,34 +325,40 @@ namespace ChapeauPOS.Controllers
 
             return View(viewModel);
         }
-        public IActionResult PaymentConfirmationPopup(int tableId)
+        public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {
+            PaymentMethod paymentMethod1 = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod);
             var order = _ordersService.GetOrderByTableId(tableId);
-            var viewModel = new PaymentViewModel { Order = order };
+            var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod1 };
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
         [HttpPost]
-        public IActionResult FinalizePayment(string paymentMethod, int tableID,string feedBack,string totalPaid)
+        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID,string feedBack,string total)
         {
+            decimal totalPlusTipMaybe = decimal.Parse(total);
             var order = _ordersService.GetOrderByTableId(tableID);
-            var viewModel = new PaymentViewModel { Order = order};
+            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
+            var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod};
 
 
             var payment = new Payment
             {
-                PaymentMethod = PaymentMethod.Maestro,
+                Bill = bill,
+                PaymentMethod = viewModel.PaymentMethod,
+                GrandTotal = totalPlusTipMaybe,
                 TotalAmount = viewModel.TotalAmount,
                 FeedBack = feedBack,
                 PaidAt = DateTime.Now,
-                TipAmount = 1,
                 LowVAT = viewModel.LowVAT,
-                HighVAT = viewModel.HighVAT,
+                HighVAT = viewModel.HighVAT
 
 
             };
 
             _ordersService.FinishOrderAndFreeTable(order, payment);
-            TempData["Success"] = $"Order has been successfully Paid! {viewModel.TotalAmount}";
+            _ordersService.RemoveOrderFromSession(HttpContext, tableID);
+            TempData["Success"] = $"Order has been successfully Paid! {totalPlusTipMaybe} - Tip: {payment.TipAmount}";
             return RedirectToAction("Index", "Tables");
         }
 
