@@ -332,25 +332,29 @@ namespace ChapeauPOS.Controllers
         [HttpPost]
         public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID,string feedBack,string total)
         {
+            decimal totalPlusTipMaybe = decimal.Parse(total);
             var order = _ordersService.GetOrderByTableId(tableID);
+            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
             var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod};
 
 
             var payment = new Payment
             {
+                Bill = bill,
                 PaymentMethod = viewModel.PaymentMethod,
+                GrandTotal = totalPlusTipMaybe,
                 TotalAmount = viewModel.TotalAmount,
                 FeedBack = feedBack,
                 PaidAt = DateTime.Now,
-                TipAmount = 1,
                 LowVAT = viewModel.LowVAT,
-                HighVAT = viewModel.HighVAT,
+                HighVAT = viewModel.HighVAT
 
 
             };
 
             _ordersService.FinishOrderAndFreeTable(order, payment);
-            TempData["Success"] = $"Order has been successfully Paid! {viewModel.TotalAmount}";
+            TempData["Success"] = $"Order has been successfully Paid! {totalPlusTipMaybe} - Tip: {payment.TipAmount}";
             return RedirectToAction("Index", "Tables");
         }
 

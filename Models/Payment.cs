@@ -8,8 +8,9 @@
 
         public PaymentMethod PaymentMethod { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal GrandTotal { get; set; }
         public DateTime PaidAt { get; set; }
-        public decimal TipAmount { get; set; }
+        public decimal TipAmount { get { return GrandTotal - TotalAmount; } }
         public decimal LowVAT { get; set; }
         public decimal HighVAT { get; set; }    
         public string FeedBack { get; set; }
@@ -19,13 +20,12 @@
             
         }
 
-        public Payment(int paytmentID, PaymentMethod paymentMethod, decimal totalAmount, DateTime paidAt, decimal tipAmount, decimal lowVAT, decimal highVAT, string feedBack)
+        public Payment(int paytmentID, PaymentMethod paymentMethod, decimal totalAmount, DateTime paidAt, decimal lowVAT, decimal highVAT, string feedBack)
         {
             PaytmentID = paytmentID;
             PaymentMethod = paymentMethod;
             TotalAmount = totalAmount;
             PaidAt = paidAt;
-            TipAmount = tipAmount;
             LowVAT = lowVAT;
             HighVAT = highVAT;
             FeedBack = feedBack;
