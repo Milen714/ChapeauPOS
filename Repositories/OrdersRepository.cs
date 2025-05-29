@@ -444,7 +444,9 @@ namespace ChapeauPOS.Repositories
             }
             catch (SqlException ex)
             {
+                Console.WriteLine(ex.Message);
                 throw new Exception("Error connecting to database", ex);
+                
             }
             catch (Exception ex)
             {

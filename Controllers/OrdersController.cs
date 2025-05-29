@@ -43,7 +43,7 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    order = new Order();
+                    
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
                 {
@@ -55,7 +55,8 @@ namespace ChapeauPOS.Controllers
                     }
                     else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
                     {
-                        order = dbOrder;
+                        order.OrderItems = dbOrder.OrderItems;
+                        order.OrderID = dbOrder.OrderID;
                         _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
                     }
                 }
@@ -170,8 +171,10 @@ namespace ChapeauPOS.Controllers
                 {
                     _ordersService.AddToOrder(order);
                     _menuService.DeductStock(order);
+                    order.InterumOrderItems.Clear();
+                    _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
-                else
+                else if(order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
                     _ordersService.AddOrder(order);
@@ -354,6 +357,7 @@ namespace ChapeauPOS.Controllers
             };
 
             _ordersService.FinishOrderAndFreeTable(order, payment);
+            _ordersService.RemoveOrderFromSession(HttpContext, tableID);
             TempData["Success"] = $"Order has been successfully Paid! {totalPlusTipMaybe} - Tip: {payment.TipAmount}";
             return RedirectToAction("Index", "Tables");
         }
