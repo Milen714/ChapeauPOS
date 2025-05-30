@@ -488,18 +488,19 @@ namespace ChapeauPOS.Repositories
             {
                 using(SqlConnection connection=new SqlConnection(_connectionString))
                 {
-                    string query = @"INSERT INTO Payments ( BillID, Method, Amount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT)
-                                   VALUES (@BillID, @Method, @Amount, @Feedback, @PaidAt, @TipAmount, @LowVAT, @HighVAT)";
+                    string query = @"INSERT INTO Payments ( BillID, Method, TotalAmount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT, GrandTotal)
+                                   VALUES (@BillID, @Method, @TotalAmount, @Feedback, @PaidAt, @TipAmount, @LowVAT, @HighVAT, @GrandTotal)";
                     SqlCommand command = new SqlCommand(query, connection);
                    
                     command.Parameters.AddWithValue("@BillID", payment.Bill.BillID);
                     command.Parameters.AddWithValue("@Method", payment.PaymentMethod.ToString());
-                    command.Parameters.AddWithValue("@Amount", payment.TotalAmount);
+                    command.Parameters.AddWithValue("@TotalAmount", payment.TotalAmount);
                     command.Parameters.AddWithValue("@Feedback",(object)payment.FeedBack ?? DBNull.Value);
                     command.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
                     command.Parameters.AddWithValue("@TipAmount", payment.TipAmount);
                     command.Parameters.AddWithValue("@LowVAT", payment.LowVAT);
                     command.Parameters.AddWithValue("@HighVAT", payment.HighVAT);
+                    command.Parameters.AddWithValue("@GrandTotal", payment.GrandTotal);
 
                     connection.Open();
                     command.ExecuteNonQuery();

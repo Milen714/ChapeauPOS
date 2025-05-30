@@ -332,35 +332,44 @@ namespace ChapeauPOS.Controllers
             var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod1 };
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
+        
         [HttpPost]
-        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID,string feedBack,string total)
-        {
-            decimal totalPlusTipMaybe = decimal.Parse(total);
+        public IActionResult FinalizePayment( PaymentMethod paymentMethod,int tableID,string feedBack,string total, string amountPaid)
+        {           
+            decimal baseTotal = decimal.Parse(total);              
+            decimal totalPlusTipMaybe = decimal.Parse(amountPaid); 
+           
             var order = _ordersService.GetOrderByTableId(tableID);
             Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
-
-            var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod};
-
-
+           
+            var viewModel = new PaymentViewModel
+            {
+                Order = order,
+                PaymentMethod = paymentMethod
+            };
+          
             var payment = new Payment
             {
                 Bill = bill,
-                PaymentMethod = viewModel.PaymentMethod,
-                GrandTotal = totalPlusTipMaybe,
-                TotalAmount = viewModel.TotalAmount,
+                PaymentMethod = paymentMethod,
+                TotalAmount = baseTotal,               
+                GrandTotal = totalPlusTipMaybe,       
                 FeedBack = feedBack,
                 PaidAt = DateTime.Now,
                 LowVAT = viewModel.LowVAT,
                 HighVAT = viewModel.HighVAT
-
-
+                
             };
-
+           
             _ordersService.FinishOrderAndFreeTable(order, payment);
             _ordersService.RemoveOrderFromSession(HttpContext, tableID);
-            TempData["Success"] = $"Order has been successfully Paid! {totalPlusTipMaybe} - Tip: {payment.TipAmount}";
+
+            
+            TempData["Success"] = $"Order has been successfully paid! Total: €{payment.TotalAmount}, Paid: €{payment.GrandTotal}, Tip: €{payment.TipAmount}";
+
             return RedirectToAction("Index", "Tables");
         }
+
 
     }
 }
