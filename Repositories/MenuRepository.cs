@@ -225,7 +225,7 @@ namespace ChapeauPOS.Repositories
                     if (!string.IsNullOrEmpty(category))
                         command.Parameters.AddWithValue("@Category", category.Trim());
 
-                    Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
+                    //Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
 
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
