@@ -5,11 +5,26 @@
 }
 
 <div style="margin:0;display:flex;justify-content:center;">
-	<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light" style="border-radius: 10px 10px 0 0;width:120px;">Finished</a>
-	<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary" style="border-radius: 10px 10px 0 0;width:120px;">Running</a>
+	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary btn-style">Running</a>
+	}
+	else
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-secondary btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-light btn-style">Running</a>
+	}
 </div>
 <form method="get" action="/KitchenBar/BarRunningOrders">
-	<button type="submit" class="btn btn-dark">Refresh to get new orders</button>
+	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
+	{
+		<button type="submit" class="btn btn-dark">Refresh to get new orders</button>
+	}
+	else
+	{
+		<button type="submit" class="btn btn-light">Refresh to get new orders</button>
+	}
 </form>
 @if (Model != null && Model.Any())
 {
@@ -28,8 +43,8 @@
 				@foreach (var course in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
 				{
 					<div class="mb-3">
-						<div style="background-color:#d5d5d5;display:flex;justify-content:space-between;align-items:center;padding:6px 15px;">
-							<h6 class="border-bottom">@course.Key</h6>
+						<div class="course">
+							<h6>@course.Key</h6>
 						</div>
 						@foreach (OrderItem item in course)
 						{
@@ -106,7 +121,7 @@
 }
 else
 {
-	<div class="alert alert-info">There are no running orders at the moment.</div>
+	<div class="alert alert-info mt-2">There are no running orders at the moment.</div>
 }
 
 
