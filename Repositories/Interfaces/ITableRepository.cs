@@ -7,5 +7,6 @@ namespace ChapeauPOS.Repositories.Interfaces
         List<Table> GetAllTables();
         Table GetTableByID(int id);
         void UpdateTableStatus(int tableNumber, TableStatus tableStatus);
+        List<Table> GetAllUnoccupiedTables();
     }
 }

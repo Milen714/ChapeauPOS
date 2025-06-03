@@ -25,10 +25,11 @@ namespace ChapeauPOS.Controllers
             ViewBag.KitchenOrders = orders;
             return View(tables);
         }
-        public IActionResult SetOrderItemAsServed(int id)
+        [HttpPost]
+        public IActionResult SetOrderItemsAsServed(int orderId, MenuCourse menuCourse, OrderItemStatus orderItemsStatus, int tableNumber)
         {
-            Console.WriteLine(id);
-            _kitchenBarService.UpdateKitchenOrderItemStatus(id, OrderItemStatus.Served);
+            _kitchenBarService.SetCourseToServed(orderId, menuCourse, orderItemsStatus);
+            TempData["Success"] = $"Table: {tableNumber} - {menuCourse.ToString()} Course Has Been Served!!!";
             var tables = _tablesService.GetAllTables();
             return RedirectToAction("Index", tables);
         }

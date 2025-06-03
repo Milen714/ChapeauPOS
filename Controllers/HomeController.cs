@@ -52,16 +52,12 @@ namespace ChapeauPOS.Controllers
             switch(employee.Role)
                 {
                 case Roles.Manager:
-                    Console.WriteLine("Manager logged in");
-                    return RedirectToAction("Index", "Employees");
+                    return RedirectToAction("Index", "Tables");
                 case Roles.Waiter:
-                    Console.WriteLine("Waiter logged in");
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Tables");
                 case Roles.Cook:
-                    Console.WriteLine("Cook logged in");
                     return RedirectToAction("KitchenRunningOrders", "KitchenBar");
                 case Roles.Bartender:
-                    Console.WriteLine("Bartender logged in");
                     return RedirectToAction("BarRunningOrders", "KitchenBar");
                 }
                 return View(loginModel);
@@ -81,13 +77,13 @@ namespace ChapeauPOS.Controllers
                 {
                     Expires = DateTime.Now.AddDays(5),
                     Path = "/",
-                    Secure = true,
+                    Secure = false,
                     HttpOnly = true,
                     IsEssential = true
                 };
                 Response.Cookies.Append("PreferedTheme", theme, options);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login");
         }
         public IActionResult Privacy()
 		{
