@@ -56,7 +56,11 @@ namespace ChapeauPOS.Controllers
                     else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
                     {
                         order.OrderItems = dbOrder.OrderItems;
+                        order.Employee = dbOrder.Employee;
+                        order.Table = dbOrder.Table;
+                        order.CreatedAt = dbOrder.CreatedAt;
                         order.OrderID = dbOrder.OrderID;
+                        //order = dbOrder;
                         _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
                     }
                 }
