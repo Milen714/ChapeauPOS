@@ -50,7 +50,14 @@
 
 				<!-- Order Status -->
 				<div class="mb-2" style="text-align:center;background-color:grey;margin-top:30px;padding:10px;">
-					<strong>Ready</strong>
+					@if (order.OrderItems.All(oi => oi.OrderItemStatus == OrderItemStatus.Ready))
+					{
+						<strong>Ready</strong>
+					}
+					else
+					{
+						<strong>Served</strong>
+					}
 				</div>
 			</div>
 		}
