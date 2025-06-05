@@ -36,23 +36,24 @@ namespace ChapeauPOS.Services
 
                 if (orders.Count == 0)
                 {
-                    // No order history – assume free
+                    // No order history – assume free THIS IS BECAUSE GetOrdersByTableId RETURNS ONLY ORDERS THAT ARE
+                    // 'Ordered', 'Served', 'Ready', 'Preparing' SO NO "HISTORIC DATA" WITHIN THE LOGIC OF THIS DB
                     if (table.TableStatus != TableStatus.Free)
                     {
                         table.TableStatus = TableStatus.Free;
                         _tableRepository.UpdateTableStatus(table.TableNumber, TableStatus.Free);
                     }
                 }
-                else
-                {
-                    // Check if all orders are finalized
-                    bool allFinalized = orders.All(o => o.OrderStatus == OrderStatus.Finalized);
-                    if (allFinalized && table.TableStatus != TableStatus.Free)
-                    {
-                        table.TableStatus = TableStatus.Free;
-                        _tableRepository.UpdateTableStatus(table.TableNumber, TableStatus.Free);
-                    }
-                }
+                //else
+                //{
+                //    // Check if all orders are finalized
+                //    bool allFinalized = orders.All(o => o.OrderStatus == OrderStatus.Finalized);
+                //    if (allFinalized && table.TableStatus != TableStatus.Free)
+                //    {
+                //        table.TableStatus = TableStatus.Free;
+                //        _tableRepository.UpdateTableStatus(table.TableNumber, TableStatus.Free);
+                //    }
+                //}
             }
         }
 
