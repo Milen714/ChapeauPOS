@@ -40,6 +40,7 @@
 				</div>
 
 				<!-- Order Items -->
+				<div style="height:"></div>
 				@foreach (var course in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
 				{
 					<div class="mb-3">
@@ -89,31 +90,6 @@
 						<input type="hidden" name="orderId" value="@order.OrderID" />
 						<button style="width:100%;" type="submit" class="btn btn-success">Mark Order as Ready</button>
 					</form>
-					@* <form method="post" action="/KitchenBar/UpdateBarOrderStatus">
-					<input type="hidden" name="orderId" value="@order.OrderID" />
-					<select name="orderStatus" class="form-select form-select-sm"
-							onchange="this.form.submit()">
-						@if (order.OrderStatus == OrderStatus.Ordered)
-						{
-							<option value="@OrderStatus.Ordered" selected>Ordered</option>
-							<option value="@OrderStatus.Preparing">Preparing</option>
-						}
-						else if (order.OrderStatus == OrderStatus.Preparing)
-						{
-							<option value="@OrderStatus.Preparing" selected>Preparing</option>
-							<option value="@OrderStatus.Ready">Ready</option>
-						}
-						else if (order.OrderStatus == OrderStatus.Ready)
-						{
-							<option value="@OrderStatus.Ready" selected>Ready</option>
-							<option value="@OrderStatus.Served">Served</option>
-						}
-						else
-						{
-							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
-						}
-					</select>
-				</form> *@
 				</div>
 			</div>
 		}

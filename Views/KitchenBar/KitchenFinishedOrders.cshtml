@@ -24,38 +24,38 @@
 				<!-- Header -->
 				<div class="order-header d-flex justify-content-between align-items-center mb-2">
 					<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
-
-					@* <div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div> *@
 					<b>#@order.OrderID</b>
 					<small>@order.ClosedAt?.ToLocalTime().ToString("HH:mm")</small>
 
 				</div>
 
 				<!-- Order Items -->
-				@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
-				{
-					<div class="mb-3">
-						<h6>@course.Key</h6>
-						@foreach (OrderItem item in course)
-						{
-							<div class="d-flex justify-content-between align-items-start mb-2">
-								<div>
-									<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
-									@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
-									{
-										<small class="text-muted">@item.MenuItem.ItemDescription</small>
-										<br />
-									}
-									@if (!string.IsNullOrEmpty(item.Notes))
-									{
-										<em class="text-muted small">@item.Notes</em>
-									}
-								</div>
+				<div style="height:300px;overflow-y:auto;">
+					@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+					{
+						<div class="mb-3">
+							<h6>@course.Key</h6>
+							@foreach (OrderItem item in course)
+							{
+								<div class="d-flex justify-content-between align-items-start mb-2">
+									<div>
+										<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+										@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+										{
+											<small class="text-muted">@item.MenuItem.ItemDescription</small>
+											<br />
+										}
+										@if (!string.IsNullOrEmpty(item.Notes))
+										{
+											<em class="text-muted small">@item.Notes</em>
+										}
+									</div>
 
-							</div>
-						}
-					</div>
-				}
+								</div>
+							}
+						</div>
+					}
+				</div>
 
 				<!-- Order Status -->
 				<div class="mb-2 order-status">
@@ -74,5 +74,5 @@
 }
 else
 {
-	<div class="alert alert-info mt-2">There are no finished orders for the day yet.</div>
+	<div class="alert alert-info mt-2">There are no finished orders for today yet.</div>
 }

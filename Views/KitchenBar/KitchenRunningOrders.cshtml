@@ -39,160 +39,90 @@
 				</div>
 
 				<!-- Order Items -->
-				@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
-				{
-					// Get the most advanced status in this course group
-					//string? courseStatus = course.Max(oi => oi.CourseStatus);
-					CourseStatus courseStatus;
+				<div style="height:300px;overflow-y:auto;">
+					@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+					{
+						CourseStatus courseStatus;
 
-					if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
-					{
-						courseStatus = CourseStatus.Ready;
-					}
-					else if (course.Any(oi => oi.CourseStatus == CourseStatus.Preparing))
-					{
-						courseStatus = CourseStatus.Preparing;
-					}
-					else
-					{
-						courseStatus = CourseStatus.Ordered;
-					}
-
-					<div class="mb-3">
-						<div class="course">
-							<h6>@course.Key</h6>
-							<div>
-								<form action="/KitchenBar/UpdateItemStatusBasedOnCourse" method="post">
-									<input type="hidden" name="orderId" value="@order.OrderID" />
-									<input type="hidden" name="course" value="@course.Key" />
-									@if (courseStatus == CourseStatus.Ordered)
-									{
-										<button type="submit" name="courseStatus" value="Preparing" class="btn btn-warning">Mark as Preparing</button>
-									}
-									else if (courseStatus == CourseStatus.Preparing)
-									{
-										<button type="submit" name="courseStatus" value="Ready" class="btn btn-success">Mark as Ready</button>
-									}
-									else
-									{
-										<button type="submit" name="courseStatus" class="btn btn-secondary" disabled>Ready</button>
-									}
-								</form>
-								@* <form method="post" action="/KitchenBar/UpdateKitchenCourseStatus">
-								<input type="hidden" name="orderId" value="@order.OrderID" />
-								<input type="hidden" name="menuCourse" value="@course.Key" />
-								@if (courseStatus == CourseStatus.Ordered)
-								{
-									<button type="submit" name="courseStatus" value="Preparing" class="btn btn-warning">Mark as Preparing</button>
-								}
-								else if (courseStatus == CourseStatus.Preparing)
-								{
-									<button type="submit" name="courseStatus" value="Ready" class="btn btn-success">Mark as Ready</button>
-								}
-								else if (courseStatus == CourseStatus.Ready)
-								{
-									<button type="submit" name="courseStatus" value="Served" class="btn btn-primary">Mark as Served</button>
-								}
-								else
-								{
-									<button type="submit" name="courseStatus" class="btn btn-secondary" disabled>Served</button>
-								}
-							</form> *@
-							</div>
-						</div>
-						@foreach (OrderItem item in course)
+						if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
 						{
-							<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
-								<div style="width:200px;">
-									<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
-									@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
-									{
-										<small class="text-muted">@item.MenuItem.ItemDescription</small>
-										<br />
-									}
-									@if (!string.IsNullOrEmpty(item.Notes))
-									{
-										<em class="text-muted small">@item.Notes</em>
-									}
-								</div>
+							courseStatus = CourseStatus.Ready;
+						}
+						else if (course.Any(oi => oi.CourseStatus == CourseStatus.Preparing))
+						{
+							courseStatus = CourseStatus.Preparing;
+						}
+						else
+						{
+							courseStatus = CourseStatus.Ordered;
+						}
+
+						<div>
+							<div class="course">
+								<h6>@course.Key</h6>
 								<div>
-									<form method="post" action="/KitchenBar/UpdateKitchenItemStatus">
-										<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+									<form action="/KitchenBar/UpdateItemStatusBasedOnCourse" method="post">
+										<input type="hidden" name="orderId" value="@order.OrderID" />
+										<input type="hidden" name="course" value="@course.Key" />
+										@if (courseStatus == CourseStatus.Ordered)
 										{
-											<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
+											<button type="submit" name="courseStatus" value="Preparing" class="btn btn-warning">Mark as Preparing</button>
 										}
-										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+										else if (courseStatus == CourseStatus.Preparing)
 										{
-											<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
+											<button type="submit" name="courseStatus" value="Ready" class="btn btn-success">Mark as Ready</button>
 										}
 										else
 										{
-											<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
-											@* <button type="submit" name="orderItemStatus" value="@OrderItemStatus.Served" class="btn btn-primary">Mark as Served</button> *@
+											<button type="submit" name="courseStatus" class="btn btn-secondary" disabled>Ready</button>
 										}
 									</form>
-
-									@* <select name="orderItemStatus" class="form-select form-select-sm"
-											onchange="this.form.submit()">
-										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
-										{
-											<option value="@OrderItemStatus.Ordered" selected>Ordered</option>
-											<option value="@OrderItemStatus.Preparing">Preparing</option>
-										}
-										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
-										{
-											<option value="@OrderItemStatus.Preparing" selected>Preparing</option>
-											<option value="@OrderItemStatus.Ready" style="background-color:#00B27F;">Ready</option>
-										}
-										else if (item.OrderItemStatus == OrderItemStatus.Ready)
-										{
-											<option value="@OrderItemStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
-											<option value="@OrderItemStatus.Served">Served</option>
-										}
-										else
-										{
-											<option value="@item.OrderItemStatus" selected>@item.OrderItemStatus</option>
-										}
-									</select> *@
-
 								</div>
 							</div>
-						}
-					</div>
-				}
+							@foreach (OrderItem item in course)
+							{
+								<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 12px;">
+									<div style="width:200px;">
+										<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+										@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+										{
+											<small class="text-muted">@item.MenuItem.ItemDescription</small>
+											<br />
+										}
+										@if (!string.IsNullOrEmpty(item.Notes))
+										{
+											<em class="text-muted small">@item.Notes</em>
+										}
+									</div>
+									<div>
+										<form method="post" action="/KitchenBar/UpdateKitchenItemStatus">
+											<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+											@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+											{
+												<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
+											}
+											else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+											{
+												<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
+											}
+											else
+											{
+												<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
+											}
+										</form>
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
 
 				<!-- Order Status -->
-				<div class="mt-5 mb-2" style="padding:0 15px;">
+				<div class="mt-4 mb-2" style="padding:0 15px;">
 					<form action="/KitchenBar/CloseFoodOrder" method="post">
 						<input type="hidden" name="orderId" value="@order.OrderID" />
 						<button style="width:100%;" type="submit" class="btn btn-success">Mark Order as Ready</button>
 					</form>
-					@*  <form method="post" action="/KitchenBar/UpdateKitchenOrderStatus">
-					<input type="hidden" name="orderId" value="@order.OrderID" />
-					<select name="orderStatus" class="form-select"
-							onchange="this.form.submit()">
-						@if (order.OrderStatus == OrderStatus.Ordered)
-						{
-							<option value="@OrderStatus.Ordered" selected>Ordered</option>
-							<option value="@OrderStatus.Preparing">Preparing</option>
-						}
-						else if (order.OrderStatus == OrderStatus.Preparing)
-						{
-							<option value="@OrderStatus.Preparing" selected>Preparing</option>
-							<option value="@OrderStatus.Ready" style="background-color:#00B27F;">Ready</option>
-						}
-						else if (order.OrderStatus == OrderStatus.Ready)
-						{
-							<option value="@OrderStatus.Ready" selected style="background-color:#00B27F;">Ready</option>
-							<option value="@OrderStatus.Served">Served</option>
-						}
-						else
-						{
-							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
-						}
-					</select>
-				</form>  *@
 				</div>
 			</div>
 		}
