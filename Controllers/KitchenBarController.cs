@@ -15,21 +15,14 @@ namespace ChapeauPOS.Controllers
             _kitchenBarService = kitchenBarService;
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         public IActionResult KitchenRunningOrders()
         {
-            //Employee? loggedInEmployee = null;
-            //loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-
-            //if (loggedInEmployee == null || loggedInEmployee.Role != Roles.Manager || loggedInEmployee.Role != Roles.Cook)
-            //{
-            //    TempData["ErrorMessage"] = "You do not have permission to access this page.";
-            //    HttpContext.Session.Remove("LoggedInUser");
-            //    return RedirectToAction("Login", "Home");
-            //}
             List<Order> orders = _kitchenBarService.GetRunningKitchenOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         [HttpPost]
         public IActionResult UpdateKitchenItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
@@ -37,50 +30,21 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("KitchenRunningOrders");
         }
 
-        //[HttpPost]
-        //public IActionResult UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
-        //{
-        //    _kitchenBarService.UpdateKitchenOrderStatus(orderId, orderStatus);
-        //    return RedirectToAction("KitchenRunningOrders");
-        //}
-
-        //[HttpPost]
-        //public IActionResult UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
-        //{
-        //    _kitchenBarService.UpdateKitchenCourseStatus(orderId, menuCourse, courseStatus);
-        //    return RedirectToAction("KitchenRunningOrders");
-        //}
-
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         public IActionResult KitchenFinishedOrders()
         {
-            //Employee? loggedInEmployee = null;
-            //loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-
-            //if (loggedInEmployee == null || loggedInEmployee.Role != Roles.Manager || loggedInEmployee.Role != Roles.Cook)
-            //{
-            //    TempData["ErrorMessage"] = "You do not have permission to access this page.";
-            //    HttpContext.Session.Remove("LoggedInUser");
-            //    return RedirectToAction("Login", "Home");
-            //}
             List<Order> orders = _kitchenBarService.GetFinishedKitchenOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         public IActionResult BarRunningOrders()
         {
-            //Employee? loggedInEmployee = null;
-            //loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-
-            //if (loggedInEmployee == null || loggedInEmployee.Role != Roles.Manager || loggedInEmployee.Role != Roles.Bartender)
-            //{
-            //    TempData["ErrorMessage"] = "You do not have permission to access this page.";
-            //    HttpContext.Session.Remove("LoggedInUser");
-            //    return RedirectToAction("Login", "Home");
-            //}
             List<Order> orders = _kitchenBarService.GetRunningBarOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         [HttpPost]
         public IActionResult UpdateBarItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
@@ -88,28 +52,14 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("BarRunningOrders");
         }
 
-        //[HttpPost]
-        //public IActionResult UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
-        //{
-        //    _kitchenBarService.UpdateBarOrderStatus(orderId, orderStatus);
-        //    return RedirectToAction("BarRunningOrders");
-        //}
-
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         public IActionResult BarFinishedOrders()
         {
-            //Employee? loggedInEmployee = null;
-            //loggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-
-            //if (loggedInEmployee == null || loggedInEmployee.Role != Roles.Manager || loggedInEmployee.Role != Roles.Bartender)
-            //{
-            //    TempData["ErrorMessage"] = "You do not have permission to access this page.";
-            //    HttpContext.Session.Remove("LoggedInUser");
-            //    return RedirectToAction("Login", "Home");
-            //}
             List<Order> orders = _kitchenBarService.GetFinishedBarOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         [HttpPost]
         public IActionResult CloseFoodOrder(int orderId)
         {
@@ -117,6 +67,7 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("KitchenRunningOrders");
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         [HttpPost]
         public IActionResult CloseDrinkOrder(int orderId)
         {
@@ -124,6 +75,7 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("BarRunningOrders");
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         [HttpPost]
         public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, CourseStatus courseStatus)
         {

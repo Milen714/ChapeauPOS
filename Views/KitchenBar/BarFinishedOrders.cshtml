@@ -24,8 +24,6 @@
 				<!-- Header -->
 				<div class="order-header d-flex justify-content-between align-items-center mb-2">
 					<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
-
-					@* <div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div> *@
 					<b>#@order.OrderID</b>
 					<small>@order.ClosedAt?.ToLocalTime().ToString("HH:mm")</small>
 
@@ -74,5 +72,5 @@
 }
 else
 {
-	<div class="alert alert-info mt-2">There are no finished orders for the day yet.</div>
+	<div class="alert alert-info mt-2">There are no finished orders for today yet.</div>
 }
