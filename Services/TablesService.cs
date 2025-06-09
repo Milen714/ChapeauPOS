@@ -44,16 +44,16 @@ namespace ChapeauPOS.Services
                         _tableRepository.UpdateTableStatus(table.TableNumber, TableStatus.Free);
                     }
                 }
-                //else
-                //{
-                //    // Check if all orders are finalized
-                //    bool allFinalized = orders.All(o => o.OrderStatus == OrderStatus.Finalized);
-                //    if (allFinalized && table.TableStatus != TableStatus.Free)
-                //    {
-                //        table.TableStatus = TableStatus.Free;
-                //        _tableRepository.UpdateTableStatus(table.TableNumber, TableStatus.Free);
-                //    }
-                //}
+                else
+                {
+                    // Check if all orders are finalized
+                    bool allFinalized = orders.All(o => o.OrderStatus == OrderStatus.Finalized);
+                    if (allFinalized && table.TableStatus != TableStatus.Free)
+                    {
+                        table.TableStatus = TableStatus.Free;
+                        _tableRepository.UpdateTableStatus(table.TableNumber, TableStatus.Free);
+                    }
+                }
             }
         }
 

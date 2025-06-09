@@ -173,16 +173,16 @@ namespace ChapeauPOS.Controllers
 
                 if (order.OrderStatus != OrderStatus.Pending)
                 {
-                    _ordersService.AddToOrder(order);
                     _menuService.DeductStock(order);
+                    _ordersService.AddToOrder(order);
                     order.InterumOrderItems.Clear();
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
                 else if(order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
-                    _ordersService.AddOrder(order);
                     _menuService.DeductStock(order);
+                    _ordersService.AddOrder(order);
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
 
