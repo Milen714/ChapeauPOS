@@ -32,5 +32,15 @@ namespace ChapeauPOS.Services
         {
             return _employeeRepository.GetEmployeeById(id);
         }
+        public void ActivateEmployee(int id)
+        {
+            _employeeRepository.ActivateEmployee(id);
+        }
+
+        public void DeactivateEmployee(int id)
+        {
+            _employeeRepository.DeactivateEmployee(id);
+        }
+
     }
 }

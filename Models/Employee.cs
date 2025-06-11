@@ -9,8 +9,9 @@
         public string Email { get; set; }
         public Roles Role { get; set; }
         public EmployeeGender Gender { get; set; }
+        public bool IsActive { get; set; }
 
-        public Employee(int employeeId, string firstName, string lastName, string password, string email, Roles role, EmployeeGender gender)
+        public Employee(int employeeId, string firstName, string lastName, string password, string email, Roles role, EmployeeGender gender,bool isActive)
         {
             EmployeeId = employeeId;
             FirstName = firstName;
@@ -19,11 +20,12 @@
             Email = email;
             Role = role;
             Gender = gender;
-
+            IsActive = isActive;
         }
 
         public Employee()
         {
+            
         }
     }
 }
