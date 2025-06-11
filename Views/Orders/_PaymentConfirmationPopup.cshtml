@@ -57,7 +57,7 @@
 					tipHidden.value = "0.00";
 					amountPaidInput.setCustomValidity("Cannot be less than total.");
 				} else {
-					tipDisplay.value = tip.toFixed(2);
+					tipDisplay.innerHTML = tip.toFixed(2);
 					tipHidden.value = tip.toFixed(2);
 					amountPaidInput.setCustomValidity("");
 				}

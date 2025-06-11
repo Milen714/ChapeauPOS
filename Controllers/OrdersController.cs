@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using ChapeauPOS.Services;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+
 
 namespace ChapeauPOS.Controllers
 {
@@ -337,7 +339,7 @@ namespace ChapeauPOS.Controllers
         public IActionResult FinalizePayment( PaymentMethod paymentMethod,int tableID,string feedBack,string total, string amountPaid)
         {           
             decimal baseTotal = decimal.Parse(total);              
-            decimal totalPlusTipMaybe = decimal.Parse(amountPaid); 
+            decimal grandTotalPaid = decimal.Parse(amountPaid); 
            
             var order = _ordersService.GetOrderByTableId(tableID);
             Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
@@ -353,7 +355,7 @@ namespace ChapeauPOS.Controllers
                 Bill = bill,
                 PaymentMethod = paymentMethod,
                 TotalAmount = baseTotal,               
-                GrandTotal = totalPlusTipMaybe,       
+                GrandTotal = grandTotalPaid,       
                 FeedBack = feedBack,
                 PaidAt = DateTime.Now,
                 LowVAT = viewModel.LowVAT,
@@ -369,6 +371,70 @@ namespace ChapeauPOS.Controllers
 
             return RedirectToAction("Index", "Tables");
         }
+        [HttpGet]
+        public IActionResult EqualSplitPayment(int tableId, int numberOfPeople = 0)
+        {
+            var order = _ordersService.GetOrderByTableId(tableId);
+            var paymentViewModel = new PaymentViewModel { Order = order };
+
+            var viewModel = new EqualSplitPaymentViewModel
+            {
+                TableId = tableId,
+                TotalAmount = paymentViewModel.TotalAmount,
+                LowVAT = paymentViewModel.LowVAT,
+                HighVAT = paymentViewModel.HighVAT,
+                NumberOfPeople = numberOfPeople,
+                Payments = Enumerable.Repeat(new EqualIndividualPayment(), numberOfPeople).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        public IActionResult FinalizeEqualSplitPayment(EqualSplitPaymentViewModel model)
+        {
+            var order = _ordersService.GetOrderByTableId(model.TableId);
+            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
+            // Use PaymentViewModel to get VAT breakdown
+            var viewModel = new PaymentViewModel
+            {
+                Order = order
+            };
+
+            decimal totalBaseAmount = viewModel.TotalAmount;
+            decimal expectedPerPerson = totalBaseAmount / model.NumberOfPeople;
+
+            decimal totalPaid = model.Payments.Sum(p => p.AmountPaid);
+            if (totalPaid < totalBaseAmount)
+            {
+                TempData["Error"] = "Total paid is less than the total bill.";
+                return RedirectToAction("SplitPayment", new { tableId = model.TableId, numberOfPeople = model.NumberOfPeople });
+            }
+
+            foreach (var perPerson in model.Payments)
+            {
+                var payment = new Payment
+                {
+                    Bill = bill,
+                    PaymentMethod = perPerson.PaymentMethod,
+                    TotalAmount = expectedPerPerson, 
+                    GrandTotal = perPerson.AmountPaid,       
+                    FeedBack = perPerson.Feedback,
+                    PaidAt = DateTime.Now,
+                    LowVAT = viewModel.LowVAT / model.NumberOfPeople,
+                    HighVAT = viewModel.HighVAT / model.NumberOfPeople
+                };
+                _ordersService.FinishOrderAndFreeTable(order, payment);
+                
+            }
+
+            _ordersService.RemoveOrderFromSession(HttpContext, model.TableId);
+
+            TempData["Success"] = $"Split payment completed. Total paid: €{totalPaid:F2}";
+            return RedirectToAction("Index", "Tables");
+        }       
 
 
     }
