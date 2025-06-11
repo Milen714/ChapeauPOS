@@ -32,6 +32,7 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpGet]
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         // This method is responsible for creating a new order for the specific table specific table.
         // Theargument 'id' is the table number for which the order is being created.
         public IActionResult CreateOrder(int id)
@@ -328,6 +329,7 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("Index", "Tables");
         }
         //Nishchal
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult Payment(int id)
         {
             Order order = _ordersService.GetOrderByTableId(id);
@@ -390,6 +392,7 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("Index", "Tables");
         }
         [HttpGet]
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult EqualSplitPayment(int tableId, int numberOfPeople = 0)
         {
             var order = _ordersService.GetOrderByTableId(tableId);

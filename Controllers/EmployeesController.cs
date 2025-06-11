@@ -16,6 +16,8 @@ namespace ChapeauPOS.Controllers
             _employeesService = employeesService;
             _passwordHasher = new PasswordHasher<string>();
         }
+        [SessionAuthorize(Roles.Manager)]
+
         public IActionResult Index()
         {
             // Retrieve all employees from the repository
@@ -33,6 +35,8 @@ namespace ChapeauPOS.Controllers
             ViewBag.LoggedInEmployee = loggedInEmployee;
             return View(employees);
         }
+
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee()
         {
             Employee employee = new Employee();
