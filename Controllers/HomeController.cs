@@ -1,35 +1,34 @@
+using System.Diagnostics;
 using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
-using ChapeauPOS.Repositories.Interfaces;
+using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ChapeauPOS.Controllers
 {
-	public class HomeController : BaseController
-	{
-		private readonly ILogger<HomeController> _logger;
-        private readonly IEmployeeRepository _employeeRepository;
+    public class HomeController : BaseController
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IEmployeesService _employeesService;
         private readonly PasswordHasher<string> _passwordHasher;
 
-        public HomeController(ILogger<HomeController> logger, IEmployeeRepository employeeRepository)
-		{
-			_logger = logger;
-            _employeeRepository = employeeRepository;
+        public HomeController(ILogger<HomeController> logger, IEmployeesService employeesService)
+        {
+            _logger = logger;
+            _employeesService = employeesService;
             _passwordHasher = new PasswordHasher<string>();
         }
 
-		public IActionResult Index()
-		{
-			return View();
-		}
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-		[HttpGet]
+        [HttpGet]
         public IActionResult Login(string errorMessage)
         {
-            List<Employee> employees = _employeeRepository.GetAllEmployees();
+            List<Employee> employees = _employeesService.GetAllEmployees();
             ViewBag.Employees = employees;
             ViewBag.ErrorMessage = errorMessage;
             return View();
@@ -37,34 +36,30 @@ namespace ChapeauPOS.Controllers
         [HttpPost]
         public IActionResult Login(LoginModel loginModel)
         {
-            
-            Employee employee = _employeeRepository.GetEmployeeByIdAndPassword(loginModel);
-            if(employee.EmployeeId == 0)
-			{
-				string errorMessage = "Invalid Password entered Please try again";
-				return RedirectToAction("Login", new { errorMessage });
-			}
+
+            Employee employee = _employeesService.GetEmployeeByIdAndPassword(loginModel);
+            if (employee.EmployeeId == 0)
+            {
+                string errorMessage = "Invalid Password entered Please try again";
+                return RedirectToAction("Login", new { errorMessage });
+            }
             else
             {
                 HttpContext.Session.SetObject("LoggedInUser", employee);
             }
-            
-            switch(employee.Role)
-                {
+
+            switch (employee.Role)
+            {
                 case Roles.Manager:
-                    Console.WriteLine("Manager logged in");
-                    return RedirectToAction("Index", "Employees");
+                    return RedirectToAction("Index", "Tables");
                 case Roles.Waiter:
-                    Console.WriteLine("Waiter logged in");
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Tables");
                 case Roles.Cook:
-                    Console.WriteLine("Cook logged in");
                     return RedirectToAction("KitchenRunningOrders", "KitchenBar");
                 case Roles.Bartender:
-                    Console.WriteLine("Bartender logged in");
-                    return RedirectToAction("Index", "Home");
-                }
-                return View(loginModel);
+                    return RedirectToAction("BarRunningOrders", "KitchenBar");
+            }
+            return View(loginModel);
         }
 
         public IActionResult Logout()
@@ -81,23 +76,23 @@ namespace ChapeauPOS.Controllers
                 {
                     Expires = DateTime.Now.AddDays(5),
                     Path = "/",
-                    Secure = true,
+                    Secure = false,
                     HttpOnly = true,
                     IsEssential = true
                 };
                 Response.Cookies.Append("PreferedTheme", theme, options);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login");
         }
         public IActionResult Privacy()
-		{
-			return View();
-		}
+        {
+            return View();
+        }
 
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
-		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-	}
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
 }

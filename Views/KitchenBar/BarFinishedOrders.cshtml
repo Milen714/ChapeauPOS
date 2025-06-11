@@ -4,53 +4,73 @@
 }
 
 <div style="margin:0;display:flex;justify-content:center;">
-	<a href="/KitchenBar/BarFinishedOrders" class="btn btn-primary">Finished</a>
-	<a href="/KitchenBar/BarRunningOrders" class="btn btn-primary">Running</a>
-</div>
-
-<div class="orders-container d-flex flex-row flex-wrap">
-	@foreach (Order order in Model)
+	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
 	{
-		<div class="order-card m-2 p-3" style="width: 400px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
-			<!-- Header -->
-			<div class="order-header d-flex justify-content-between align-items-center mb-2">
-				<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
-				<div class="text-end">
-					@* <div class="fw-bold">@order.CreatedAt.ToString("hh:mm")</div> *@
-					<small class="text-muted">@order.ClosedAt?.ToLocalTime().ToString("HH:mm")</small>
-				</div>
-			</div>
-
-			<!-- Order Items -->
-			@foreach (var courseGroup in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
-			{
-				<div class="mb-3">
-					<h6 class="border-bottom">@courseGroup.Key</h6>
-					@foreach (OrderItem item in courseGroup)
-					{
-						<div class="d-flex justify-content-between align-items-start mb-2">
-							<div>
-								<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
-								@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
-								{
-									<small class="text-muted">@item.MenuItem.ItemDescription</small>
-									<br />
-								}
-								@if (!string.IsNullOrEmpty(item.Notes))
-								{
-									<em class="text-muted small">@item.Notes</em>
-								}
-							</div>
-
-						</div>
-					}
-				</div>
-			}
-
-			<!-- Order Status -->
-			<div class="mb-2" style="text-align:center;background-color:grey;margin-top:30px;padding:10px;">
-				<strong>Served</strong>
-			</div>
-		</div>
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-secondary" style="border-radius: 10px 10px 0 0;width:120px;">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-light" style="border-radius: 10px 10px 0 0;width:120px;">Running</a>
+	}
+	else
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light" style="border-radius: 10px 10px 0 0;width:120px;">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary" style="border-radius: 10px 10px 0 0;width:120px;">Running</a>
 	}
 </div>
+@if (Model != null && Model.Any())
+{
+	<div class="orders-container d-flex flex-row flex-wrap">
+		@foreach (Order order in Model)
+		{
+			<div class="order-card m-2 p-3">
+				<!-- Header -->
+				<div class="order-header d-flex justify-content-between align-items-center mb-2">
+					<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
+					<b>#@order.OrderID</b>
+					<small>@order.ClosedAt?.ToLocalTime().ToString("HH:mm")</small>
+
+				</div>
+
+				<!-- Order Items -->
+				@foreach (var course in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
+				{
+					<div class="mb-3">
+						<h6>@course.Key</h6>
+						@foreach (OrderItem item in course)
+						{
+							<div class="d-flex justify-content-between align-items-start mb-2">
+								<div>
+									<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+									@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+									{
+										<small class="text-muted">@item.MenuItem.ItemDescription</small>
+										<br />
+									}
+									@if (!string.IsNullOrEmpty(item.Notes))
+									{
+										<em class="text-muted small">@item.Notes</em>
+									}
+								</div>
+
+							</div>
+						}
+					</div>
+				}
+
+				<!-- Order Status -->
+				<div class="mb-2 order-status">
+					@if (order.OrderItems.All(oi => oi.OrderItemStatus == OrderItemStatus.Served))
+					{
+						<strong>Served</strong>
+					}
+					else
+					{
+						<strong>Ready</strong>
+					}
+				</div>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="alert alert-info mt-2">There are no finished orders for today yet.</div>
+}

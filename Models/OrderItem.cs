@@ -12,23 +12,22 @@
         }
 
         public OrderItemStatus OrderItemStatus { get; set; }
-        // public CourseStatus CourseStatus { get; set; }
 
-        public string CourseStatus
+        public CourseStatus CourseStatus
         {
             get
             {
                 if (OrderItemStatus == OrderItemStatus.Ordered)
                 {
-                    return "Ordered";
+                    return CourseStatus.Ordered;
                 }
                 else if (OrderItemStatus == OrderItemStatus.Preparing)
                 {
-                    return "Preparing";
+                    return CourseStatus.Preparing;
                 }
                 else
                 {
-                    return "Ready";
+                    return CourseStatus.Ready;
                 }
             }
         }

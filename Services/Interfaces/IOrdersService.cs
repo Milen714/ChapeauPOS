@@ -19,5 +19,13 @@ namespace ChapeauPOS.Services.Interfaces
         Order GetOrderFromSession(HttpContext context, int tableId);
         void SaveOrderToSession(HttpContext context, int tableId, Order order);
         void RemoveOrderFromSession(HttpContext context, int tableId);
+        void AddMenuItemToExistingOrder(int itemId, string? note, MenuItem menuItem, Order order);
+        void AddToOrder(Order order);
+        void MoveOrderToAnotherTable(int tableId, Order order);
+
+        void FinishOrderAndFreeTable(Order order, Payment payment);
+        Bill GetBillByOrderId(int orderId);
+      
+
     }
 }

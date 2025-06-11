@@ -33,9 +33,11 @@ namespace ChapeauPOS.Repositories
             string CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"));
             MenuCourse Course = Enum.Parse<MenuCourse>(reader.GetString(reader.GetOrdinal("Course")));
             bool IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"));
+            int Stock = reader.IsDBNull(reader.GetOrdinal("Stock")) ? 0 : reader.GetInt32(reader.GetOrdinal("Stock"));
 
             MenuCategory category = new MenuCategory(CategoryID, CategoryName);
             var item = new MenuItem(MenuItemID, ItemName, ItemDescription, ItemPrice, VAT, category, Course);
+            item.Stock = Stock;
             item.IsActive = IsActive;
             return item;
         }
@@ -47,7 +49,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course, MI.Stock " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID";
 
@@ -84,7 +86,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course, MI.Stock " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
                                    "WHERE MI.MenuItemID = @MenuItemID";
@@ -206,7 +208,7 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course " +
+                    string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course, MI.Stock " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
                                    "WHERE MI.IsActive = 1";
@@ -223,7 +225,7 @@ namespace ChapeauPOS.Repositories
                     if (!string.IsNullOrEmpty(category))
                         command.Parameters.AddWithValue("@Category", category.Trim());
 
-                    Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
+                    //Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
 
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -289,6 +291,47 @@ namespace ChapeauPOS.Repositories
                 Console.WriteLine(ex.Message);
             }
             return menuCategories;
+        }
+
+        public void DeductStock(Order order)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    if (order.InterumOrderItems.Count() == 0)
+                    {
+                        foreach (var orderItem in order.OrderItems)
+                        {
+                            string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
+                            SqlCommand command = new SqlCommand(query, connection);
+                            command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                            command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    else if (order.InterumOrderItems.Count() != 0)
+                    {
+                        foreach (var orderItem in order.InterumOrderItems)
+                        {
+                            string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
+                            SqlCommand command = new SqlCommand(query, connection);
+                            command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                            command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

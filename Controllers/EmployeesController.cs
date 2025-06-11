@@ -27,6 +27,7 @@ namespace ChapeauPOS.Controllers
             if (loggedInEmployee == null || loggedInEmployee.Role != Roles.Manager)
             {
                 TempData["ErrorMessage"] = "You do not have permission to access this page.";
+                HttpContext.Session.Remove("LoggedInUser");
                 return RedirectToAction("Login", "Home");
             }
             ViewBag.LoggedInEmployee = loggedInEmployee;

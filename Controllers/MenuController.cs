@@ -22,7 +22,7 @@ namespace ChapeauPOS.Controllers
         //    return View(items);
         //}
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Index(string course, string category)
         {
             //  Using _service instead of _menuService
@@ -41,7 +41,7 @@ namespace ChapeauPOS.Controllers
             return View(viewModel);
         }
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Create()
         {
             ViewBag.Categories = _service.GetMenuCategories();
@@ -67,7 +67,6 @@ namespace ChapeauPOS.Controllers
             // Validate the model
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("[DEBUG - CREATE] ModelState is invalid");
                 ViewBag.Categories = _service.GetMenuCategories();
                 return View(item);
             }
@@ -81,14 +80,13 @@ namespace ChapeauPOS.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Something went wrong: " + ex.Message);
-       
                 ViewBag.Categories = _service.GetMenuCategories();
                 return View(item);
             }
         }
 
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
             var item = _service.GetMenuItemById(id);
@@ -146,9 +144,6 @@ namespace ChapeauPOS.Controllers
                     else
                         throw new Exception("Category ID was not selected.");
 
-                    // DEBUG LINE GOES RIGHT HERE
-                    Console.WriteLine($"[DEBUG] ID: {item.MenuItemID}, Name: {item.ItemName}, CategoryID: {item.Category?.CategoryID}, Price: {item.ItemPrice}");
-
 
                     _service.UpdateMenuItem(item); // Update in DB
                     return RedirectToAction("Index");
@@ -168,7 +163,7 @@ namespace ChapeauPOS.Controllers
 
 
 
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id, bool isActive)
         {
             _service.ToggleMenuItemStatus(id, isActive);

@@ -6,15 +6,13 @@ namespace ChapeauPOS.Services.Interfaces
     {
         List<Order> GetRunningKitchenOrders();
         void UpdateKitchenOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus);
-        //void UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus);
-        //void UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus);
         List<Order> GetFinishedKitchenOrders();
         List<Order> GetRunningBarOrders();
         void UpdateBarOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus);
-        //void UpdateBarOrderStatus(int orderId, OrderStatus orderStatus);
         List<Order> GetFinishedBarOrders();
         void CloseFoodOrder(int orderId);
         void CloseDrinkOrder(int orderId);
         void UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, OrderItemStatus orderItemStatus);
+        public void SetCourseToServed(int orderId, MenuCourse course, OrderItemStatus orderItemStatus);
     }
 }
