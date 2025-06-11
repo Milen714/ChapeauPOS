@@ -172,12 +172,21 @@ namespace ChapeauPOS.Controllers
 
                 bool newStatus = !item.IsActive;
                 _service.ToggleMenuItemStatus(id, newStatus);
+                TempData["SuccessMessage"] = $"Menu item {(newStatus ? "activated" : "deactivated")} successfully!";
+                return RedirectToAction("Index"); // ✅ ADDED missing return
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id, bool isActive)
         {
-            _service.ToggleMenuItemStatus(id, true);
-            TempData["SuccessMessage"] = "Menu item activated successfully!";
+            _service.ToggleMenuItemStatus(id, isActive);
+            TempData["SuccessMessage"] = "Menu item updated successfully!";
             return RedirectToAction("Index");
         }
 
