@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using ChapeauPOS.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
+using ChapeauPOS.Services;
+using Newtonsoft.Json.Serialization;
 
 namespace ChapeauPOS.Controllers
 {
@@ -41,8 +43,7 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    _ordersService.RemoveOrderFromSession(HttpContext, id);
-                    order = new Order();
+                    
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
                 {
@@ -54,7 +55,8 @@ namespace ChapeauPOS.Controllers
                     }
                     else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
                     {
-                        order = dbOrder;
+                        order.OrderItems = dbOrder.OrderItems;
+                        order.OrderID = dbOrder.OrderID;
                         _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
                     }
                 }
@@ -96,7 +98,7 @@ namespace ChapeauPOS.Controllers
             return NotFound();
         }
         [HttpPost]
-        public IActionResult GetMenuItemsBySearch(string searchParams , int tableNumber)
+        public IActionResult GetMenuItemsBySearch(string searchParams, int tableNumber)
         {
             List<MenuItem> menuItems = _menuService.GetAllMenuItems();
             if (!string.IsNullOrEmpty(searchParams))
@@ -139,7 +141,7 @@ namespace ChapeauPOS.Controllers
                 _ordersService.AddMenuItemToExistingOrder(itemId, note, menuItem, order);
                 _ordersService.SaveOrderToSession(HttpContext, tableId, order);
 
-                if (table.TableStatus != TableStatus.Occupied)
+                if (table.TableStatus == TableStatus.Free)
                 {
                     table.TableStatus = TableStatus.Occupied;
                     _tablesService.UpdateTableStatus(table.TableNumber, table.TableStatus);
@@ -169,8 +171,10 @@ namespace ChapeauPOS.Controllers
                 {
                     _ordersService.AddToOrder(order);
                     _menuService.DeductStock(order);
+                    order.InterumOrderItems.Clear();
+                    _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
-                else
+                else if(order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
                     _ordersService.AddOrder(order);
@@ -292,12 +296,12 @@ namespace ChapeauPOS.Controllers
         }
         public IActionResult MoveTable(int id)
         {
-            List<Table>tables = _tablesService.GetAllUnoccupiedTables();
+            List<Table> tables = _tablesService.GetAllUnoccupiedTables();
             ViewBag.Order = _ordersService.GetOrderByTableId(id);
             return PartialView("_MoveTable", tables);
         }
         [HttpPost]
-        public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber,int MovetableNumber)
+        public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber, int MovetableNumber)
         {
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
@@ -306,20 +310,66 @@ namespace ChapeauPOS.Controllers
         //Nishchal
         public IActionResult Payment(int id)
         {
-            Order order = _ordersService.GetOrderByTableId(id); 
+            Order order = _ordersService.GetOrderByTableId(id);
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
                 return NotFound("No order found for this table.");
             }
-            PaymentViewModel viewModel = new PaymentViewModel 
+            PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
             };
 
-            var items = viewModel.Order.OrderItems;
+            
+            ViewBag.PaymentModel = viewModel;
 
             return View(viewModel);
         }
+        public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
+        {
+            PaymentMethod paymentMethod1 = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod);
+            var order = _ordersService.GetOrderByTableId(tableId);
+            var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod1 };
+            return PartialView("_PaymentConfirmationPopup", viewModel);
+        }
+        
+        [HttpPost]
+        public IActionResult FinalizePayment( PaymentMethod paymentMethod,int tableID,string feedBack,string total, string amountPaid)
+        {           
+            decimal baseTotal = decimal.Parse(total);              
+            decimal totalPlusTipMaybe = decimal.Parse(amountPaid); 
+           
+            var order = _ordersService.GetOrderByTableId(tableID);
+            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+           
+            var viewModel = new PaymentViewModel
+            {
+                Order = order,
+                PaymentMethod = paymentMethod
+            };
+          
+            var payment = new Payment
+            {
+                Bill = bill,
+                PaymentMethod = paymentMethod,
+                TotalAmount = baseTotal,               
+                GrandTotal = totalPlusTipMaybe,       
+                FeedBack = feedBack,
+                PaidAt = DateTime.Now,
+                LowVAT = viewModel.LowVAT,
+                HighVAT = viewModel.HighVAT
+                
+            };
+           
+            _ordersService.FinishOrderAndFreeTable(order, payment);
+            _ordersService.RemoveOrderFromSession(HttpContext, tableID);
+
+            
+            TempData["Success"] = $"Order has been successfully paid! Total: €{payment.TotalAmount}, Paid: €{payment.GrandTotal}, Tip: €{payment.TipAmount}";
+
+            return RedirectToAction("Index", "Tables");
+        }
+
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
+using ChapeauPOS.Repositories;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 
@@ -8,9 +9,11 @@ namespace ChapeauPOS.Services
     public class OrdersService : IOrdersService
     {
         private readonly IOrdersRepository _ordersRepository;
-        public OrdersService(IOrdersRepository ordersRepository)
+        private readonly ITableRepository _tableRepository;
+        public OrdersService(IOrdersRepository ordersRepository, ITableRepository tableRepository)
         {
             _ordersRepository = ordersRepository;
+            _tableRepository = tableRepository;
         }
         // Implement the methods from IOrdersService here
         public List<Order> GetAllOrders()
@@ -141,6 +144,17 @@ namespace ChapeauPOS.Services
         public void MoveOrderToAnotherTable(int tableId, Order order)
         {
             _ordersRepository.MoveOrderToAnotherTable(tableId, order);
+        }
+        public void FinishOrderAndFreeTable(Order order, Payment payment)
+        {
+            _ordersRepository.SavePayment(payment);
+            _ordersRepository.FinalizeOrder(order.OrderID);
+            _tableRepository.UpdateTableStatus(order.Table.TableNumber, TableStatus.Free);
+        }
+
+        public Bill GetBillByOrderId(int orderId)
+        {
+            return _ordersRepository.GetBillByOrderId(orderId);
         }
     }
 

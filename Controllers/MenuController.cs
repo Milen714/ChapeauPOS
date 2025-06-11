@@ -22,6 +22,7 @@ namespace ChapeauPOS.Controllers
         //    return View(items);
         //}
 
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Index(string course, string category)
         {
             //Explicitly include inactive items so that deactivated ones still show
@@ -38,6 +39,7 @@ namespace ChapeauPOS.Controllers
             return View(viewModel);
         }
 
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Create()
         {
             ViewBag.Categories = _service.GetMenuCategories();
@@ -76,6 +78,7 @@ namespace ChapeauPOS.Controllers
             }
         }
 
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
             var item = _service.GetMenuItemById(id);
@@ -170,17 +173,8 @@ namespace ChapeauPOS.Controllers
                 bool newStatus = !item.IsActive;
                 _service.ToggleMenuItemStatus(id, newStatus);
 
-                TempData["SuccessMessage"] = $"Menu item {(newStatus ? "activated" : "deactivated")} successfully!";
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "Error: " + ex.Message;
-                return RedirectToAction("Index");
-            }
-        }
-
-        public IActionResult Activate(int id)
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult Toggle(int id, bool isActive)
         {
             _service.ToggleMenuItemStatus(id, true);
             TempData["SuccessMessage"] = "Menu item activated successfully!";
@@ -201,8 +195,6 @@ namespace ChapeauPOS.Controllers
             TempData["SuccessMessage"] = "Stock updated successfully!";
             return RedirectToAction("Index", new { course = Request.Query["course"], category = Request.Query["category"] });
         }
-
-
 
         //[HttpPost]
         //public IActionResult Toggle(int id, bool isActive)

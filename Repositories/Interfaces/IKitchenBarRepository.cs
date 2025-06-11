@@ -16,5 +16,6 @@ namespace ChapeauPOS.Repositories.Interfaces
         void CloseFoodOrder(int orderId);
         void CloseDrinkOrder(int orderId);
         void UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, OrderItemStatus orderItemStatus);
+        public void SetCourseToServed(int orderId, MenuCourse course, OrderItemStatus orderItemStatus);
     }
 }

@@ -1,6 +1,8 @@
-﻿using ChapeauPOS.Models;
+﻿using System.Collections;
+using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
+using static Azure.Core.HttpHeader;
 
 namespace ChapeauPOS.Repositories
 {
@@ -56,6 +58,24 @@ namespace ChapeauPOS.Repositories
                                                ItemPrice = itemPrice, VAT = VAT, 
                                                Stock = stock, Course = menuCourse };
             return new OrderItem(orderItemID, menuItem, quantity, orderItemStatus, notes);
+        }
+        private Bill ReadBill(SqlDataReader reader)
+        {
+            int billId = (int)reader["BillID"];
+            int orderId = (int)reader["OrderID"];
+            DateTime createdAt = (DateTime)reader["CreatedAt"];
+            DateTime? closedAt = reader["ClosedAt"] == DBNull.Value ? null : (DateTime?)reader["ClosedAt"];
+            decimal subtotal = (decimal)reader["Subtotal"];
+            int finalizedBy = (int)reader["FinalizedBy"];
+            Employee employee = new Employee { EmployeeId = finalizedBy };
+            return new Bill
+            {
+                BillID = billId,
+                CreatedAt = createdAt,
+                ClosedAt = closedAt,
+                Subtotal = subtotal,
+                FinalizedBy = employee
+            };
         }
         public List<Order> GetAllOrders()
         {
@@ -131,6 +151,15 @@ namespace ChapeauPOS.Repositories
 
                         itemCommand.ExecuteNonQuery();
                     }
+                    string BillQuery = "INSERT INTO Bills (OrderID,CreatedAt,Subtotal,FinalizedBy)" +
+                                       "VALUES(@OrderID,@CreatedAt,@Subtotal,@FinalizedBy)";
+                    SqlCommand Billcommand = new SqlCommand(BillQuery, connection);
+                    Billcommand.Parameters.AddWithValue("@OrderID", newOrderId);
+                    Billcommand.Parameters.AddWithValue("@CreatedAt",DateTime.Now);
+                    Billcommand.Parameters.AddWithValue("@Subtotal",order.TotalAmount);
+                    Billcommand.Parameters.AddWithValue("@FinalizedBy",order.Employee.EmployeeId);
+
+                    Billcommand.ExecuteNonQuery();
                 }
             }
             catch (SqlException ex)
@@ -283,7 +312,7 @@ namespace ChapeauPOS.Repositories
             return orders;
         }
 
-        public Order GetOrderByTableId(int tableId)
+        public Order GetOrderByTableId(int tableId)//TABLE NUMBER
         {
             Order order = new Order();
             try
@@ -415,7 +444,9 @@ namespace ChapeauPOS.Repositories
             }
             catch (SqlException ex)
             {
+                Console.WriteLine(ex.Message);
                 throw new Exception("Error connecting to database", ex);
+                
             }
             catch (Exception ex)
             {
@@ -450,6 +481,122 @@ namespace ChapeauPOS.Repositories
             {
                 throw new Exception("Error updating order item in database", ex);
             }
+        }
+        public void SavePayment(Payment payment)
+        {
+            try
+            {
+                using(SqlConnection connection=new SqlConnection(_connectionString))
+                {
+                    string query = @"INSERT INTO Payments ( BillID, Method, TotalAmount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT, GrandTotal)
+                                   VALUES (@BillID, @Method, @TotalAmount, @Feedback, @PaidAt, @TipAmount, @LowVAT, @HighVAT, @GrandTotal)";
+                    SqlCommand command = new SqlCommand(query, connection);
+                   
+                    command.Parameters.AddWithValue("@BillID", payment.Bill.BillID);
+                    command.Parameters.AddWithValue("@Method", payment.PaymentMethod.ToString());
+                    command.Parameters.AddWithValue("@TotalAmount", payment.TotalAmount);
+                    command.Parameters.AddWithValue("@Feedback",(object)payment.FeedBack ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
+                    command.Parameters.AddWithValue("@TipAmount", payment.TipAmount);
+                    command.Parameters.AddWithValue("@LowVAT", payment.LowVAT);
+                    command.Parameters.AddWithValue("@HighVAT", payment.HighVAT);
+                    command.Parameters.AddWithValue("@GrandTotal", payment.GrandTotal);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+
+                }
+            }
+            catch(SqlException ex)
+            {
+                throw new Exception("Error connecting to database",ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error inserting payment information in database", ex);
+            }
+        }
+        public void FinalizeOrder(int orderID)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = @"UPDATE Orders SET OrderStatus=@OrderStatus " +
+                                   "WHERE OrderID = @OrderID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderStatus", "Finalized");
+                    //command.Parameters.AddWithValue("@ClosedAt", DateTime.Now.ToString());
+                    command.Parameters.AddWithValue("@OrderID", orderID);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database",ex);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error updating table to finalize in database",ex);
+            }
+        }
+
+        public Bill GetBillByOrderId(int orderId)
+        {
+            Bill bill = new Bill();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "SELECT B.BillID, B.OrderID, B.CreatedAt, B.ClosedAt, B.Subtotal, B.FinalizedBy, " +
+                                   "O.OrderID, t.TableNumber, O.EmployeeID, O.OrderStatus, O.CreatedAt, O.ClosedAt, " +
+                                   "oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT, oi.OrderItemStatus, " +
+                                   "Notes, ItemName, ItemDescription, mi.ItemPrice, mi.Stock " +
+                                   "FROM Bills B " +
+                                   "JOIN Orders O ON B.OrderID = O.OrderID " +
+                                   "JOIN Tables t ON O.TableID = t.TableID " +
+                                   "JOIN Employees e ON O.EmployeeID = e.EmployeeID " +
+                                   "JOIN OrderItems oi ON O.OrderID = oi.OrderID " +
+                                   "JOIN MenuItems mi ON oi.MenuItemID = mi.MenuItemID " +
+                                   "WHERE B.OrderID = @OrderID";
+
+
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@OrderID", orderId);
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        Order order = new Order();
+                        bool firstRow = true;
+                        while (reader.Read())
+                        {
+                            if (firstRow)
+                            {
+                                bill = ReadBill(reader);
+                                order = ReadOrder(reader);
+                                firstRow = false;
+                            }
+
+                            OrderItem orderItem = ReadOrderItem(reader);
+                            order.OrderItems.Add(orderItem);
+                        }
+                        bill.Order = order; // Associate the order with the bill
+
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error connecting to database", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving bill from database", ex);
+            }
+            return bill;
         }
     }
 
