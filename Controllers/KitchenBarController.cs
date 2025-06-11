@@ -1,4 +1,5 @@
-﻿using ChapeauPOS.Models;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,12 +15,14 @@ namespace ChapeauPOS.Controllers
             _kitchenBarService = kitchenBarService;
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         public IActionResult KitchenRunningOrders()
         {
             List<Order> orders = _kitchenBarService.GetRunningKitchenOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         [HttpPost]
         public IActionResult UpdateKitchenItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
@@ -27,32 +30,21 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("KitchenRunningOrders");
         }
 
-        //[HttpPost]
-        //public IActionResult UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
-        //{
-        //    _kitchenBarService.UpdateKitchenOrderStatus(orderId, orderStatus);
-        //    return RedirectToAction("KitchenRunningOrders");
-        //}
-
-        //[HttpPost]
-        //public IActionResult UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
-        //{
-        //    _kitchenBarService.UpdateKitchenCourseStatus(orderId, menuCourse, courseStatus);
-        //    return RedirectToAction("KitchenRunningOrders");
-        //}
-
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
         public IActionResult KitchenFinishedOrders()
         {
             List<Order> orders = _kitchenBarService.GetFinishedKitchenOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         public IActionResult BarRunningOrders()
         {
             List<Order> orders = _kitchenBarService.GetRunningBarOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         [HttpPost]
         public IActionResult UpdateBarItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
@@ -60,31 +52,31 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("BarRunningOrders");
         }
 
-        //[HttpPost]
-        //public IActionResult UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
-        //{
-        //    _kitchenBarService.UpdateBarOrderStatus(orderId, orderStatus);
-        //    return RedirectToAction("BarRunningOrders");
-        //}
-
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
         public IActionResult BarFinishedOrders()
         {
             List<Order> orders = _kitchenBarService.GetFinishedBarOrders();
             return View(orders);
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        [HttpPost]
         public IActionResult CloseFoodOrder(int orderId)
         {
             _kitchenBarService.CloseFoodOrder(orderId);
             return RedirectToAction("KitchenRunningOrders");
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
+        [HttpPost]
         public IActionResult CloseDrinkOrder(int orderId)
         {
             _kitchenBarService.CloseDrinkOrder(orderId);
             return RedirectToAction("BarRunningOrders");
         }
 
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        [HttpPost]
         public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, CourseStatus courseStatus)
         {
             OrderItemStatus orderItemStatus;

@@ -120,15 +120,6 @@ namespace ChapeauPOS.Services
 
             return filtered;
         }
-
-
-
-
-
-
-
-
-
         //public void GetWholeMenu()
         //{
         //    List<MenuCategory> menuCategories = _menuRepository.GetMenuCategories();
@@ -172,6 +163,23 @@ namespace ChapeauPOS.Services
 
         public void DeductStock(Order order)
         {
+            foreach(OrderItem orderItem in order.OrderItems)
+            {
+                if(orderItem.MenuItem.Stock < orderItem.Quantity)
+                {
+                    throw new Exception("Not enough stock to fullfil your order");
+                }
+            }
+            if (order.InterumOrderItems != null)
+            {
+                foreach (OrderItem orderItem in order.InterumOrderItems) 
+                {
+                    if (orderItem.MenuItem.Stock < orderItem.Quantity)
+                    {
+                        throw new Exception("Not enough stock to fullfil your order");
+                    }
+                }
+            }
             _menuRepository.DeductStock(order);
         }
     }
