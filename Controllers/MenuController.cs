@@ -24,8 +24,8 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult Index(string course, string category)
         {
-            //  Using _service instead of _menuService
-            var filteredItems = _service.FilterMenuItems(course, category);
+            //Explicitly include inactive items so that deactivated ones still show
+            var filteredItems = _service.FilterMenuItems(course, category, includeInactive: true);
 
             var drinks = filteredItems.Where(i => i.Course == MenuCourse.Drink).ToList();
 
@@ -116,7 +116,7 @@ namespace ChapeauPOS.Controllers
         //}
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public IActionResult Edit(MenuItem item)
         {
             if (ModelState.IsValid)
@@ -148,14 +148,67 @@ namespace ChapeauPOS.Controllers
             return View(item);
         }
 
+        //public IActionResult Toggle(int id, bool isActive)
+        //{
+        //    _service.ToggleMenuItemStatus(id, isActive);
+        //    return RedirectToAction("Index");
+        //}
 
-
-
-
-        public IActionResult Toggle(int id, bool isActive)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Toggle(int id)
         {
-            _service.ToggleMenuItemStatus(id, isActive);
+            try
+            {
+                var item = _service.GetMenuItemById(id);
+                if (item == null)
+                {
+                    TempData["ErrorMessage"] = "Menu item not found.";
+                    return RedirectToAction("Index");
+                }
+
+                bool newStatus = !item.IsActive;
+                _service.ToggleMenuItemStatus(id, newStatus);
+
+                TempData["SuccessMessage"] = $"Menu item {(newStatus ? "activated" : "deactivated")} successfully!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
+        public IActionResult Activate(int id)
+        {
+            _service.ToggleMenuItemStatus(id, true);
+            TempData["SuccessMessage"] = "Menu item activated successfully!";
             return RedirectToAction("Index");
         }
+
+        public IActionResult Deactivate(int id)
+        {
+            _service.ToggleMenuItemStatus(id, false);
+            TempData["SuccessMessage"] = "Menu item deactivated successfully!";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult UpdateStock(int id, int stock)
+        {
+            _service.UpdateStock(id, stock);
+            TempData["SuccessMessage"] = "Stock updated successfully!";
+            return RedirectToAction("Index", new { course = Request.Query["course"], category = Request.Query["category"] });
+        }
+
+
+
+        //[HttpPost]
+        //public IActionResult Toggle(int id, bool isActive)
+        //{
+        //    _service.ToggleMenuItemStatus(id, isActive);
+        //    return Ok(); // important for JS .then() to succeed
+        //}
     }
 }

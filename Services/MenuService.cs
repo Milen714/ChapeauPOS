@@ -1,4 +1,4 @@
-using ChapeauPOS.Models;
+﻿using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 
@@ -22,7 +22,7 @@ namespace ChapeauPOS.Services
 
         public void DeleteMenuItem(int id)
         {
-            _menuRepository.DeleteMenuItem(id);
+            _menuRepository.DeleteMenuItem(id); // Optional: consider soft delete
         }
 
         public List<MenuItem> GetAllMenuItems()
@@ -32,44 +32,17 @@ namespace ChapeauPOS.Services
 
         public List<MenuItem> GetDinner()
         {
-            List<MenuItem> dinnerItems = new List<MenuItem>();
-            foreach (MenuCategory menuCategory in _menuCategories)
-            {
-                if (menuCategory.CategoryName == "Dinner")
-                {
-                    dinnerItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
-                }
-            }
-
-            return dinnerItems;
+            return _menuRepository.GetMenuItemsByCategory(new MenuCategory { CategoryName = "Dinner" });
         }
 
         public List<MenuItem> GetDrinks()
         {
-            List<MenuItem> drinkItems = new List<MenuItem>();
-            foreach (MenuCategory menuCategory in _menuCategories)
-            {
-                if (menuCategory.CategoryName == "Drinks")
-                {
-                    drinkItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
-                }
-            }
-
-            return drinkItems;
+            return _menuRepository.GetMenuItemsByCategory(new MenuCategory { CategoryName = "Drinks" });
         }
 
         public List<MenuItem> GetLunch()
         {
-            List<MenuItem> lunchItems = new List<MenuItem>();
-            foreach (MenuCategory menuCategory in _menuCategories)
-            {
-                if (menuCategory.CategoryName == "Lunch")
-                {
-                    lunchItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
-                }
-            }
-
-            return lunchItems;
+            return _menuRepository.GetMenuItemsByCategory(new MenuCategory { CategoryName = "Lunch" });
         }
 
         public List<MenuCategory> GetMenuCategories()
@@ -99,25 +72,22 @@ namespace ChapeauPOS.Services
 
         public void ToggleMenuItemStatus(int id, bool isActive)
         {
-            _menuRepository.ToggleMenuItemStatus(id, isActive);
+            _menuRepository.ToggleMenuItemStatus(id, isActive); //  Toggle between Active/Inactive
         }
-        public List<MenuItem> FilterMenuItems(string course, string category)
+
+        public void ActivateMenuItem(int id)
         {
-            var allItems = _menuRepository.GetAllMenuItems();
+            _menuRepository.ActivateMenuItem(id); //  Activate directly
+        }
 
-            var filtered = allItems.Where(i =>
-                (string.IsNullOrEmpty(course) ||
-                 i.Course.ToString().Equals(course, StringComparison.OrdinalIgnoreCase)) &&
+        public void DeactivateMenuItem(int id)
+        {
+            _menuRepository.DeactivateMenuItem(id); //  Deactivate directly
+        }
 
-                (string.IsNullOrEmpty(category) ||
-                 (i.Category != null &&
-                  !string.IsNullOrEmpty(i.Category.CategoryName) &&
-                  i.Category.CategoryName.Equals(category, StringComparison.OrdinalIgnoreCase)))
-            ).ToList();
-
-       
-
-            return filtered;
+        public List<MenuItem> FilterMenuItems(string course, string category, bool includeInactive)
+        {
+            return _menuRepository.FilterMenuItems(course, category, includeInactive); //  Proper use of parameter
         }
 
         public void UpdateMenuItem(MenuItem menuItem)
@@ -127,7 +97,15 @@ namespace ChapeauPOS.Services
 
         public void DeductStock(Order order)
         {
-            _menuRepository.DeductStock(order);
+            _menuRepository.DeductStock(order); // Used in order processing
         }
+
+        public void UpdateStock(int menuItemId, int newStock)
+        {
+            _menuRepository.UpdateStock(menuItemId, newStock);
+        }
+
+
+
     }
 }

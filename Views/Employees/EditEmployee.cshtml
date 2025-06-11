@@ -1,0 +1,36 @@
+﻿@model ChapeauPOS.Models.Employee
+
+@{
+	ViewData["Title"] = "Edit Employee";
+}
+
+<div class="container mt-4">
+	<h2>@ViewData["Title"]</h2>
+	<form asp-action="EditEmployee" method="post">
+		<input type="hidden" asp-for="EmployeeId" />
+		<div class="mb-3">
+			<label asp-for="FirstName" class="form-label"></label>
+			<input asp-for="FirstName" class="form-control" />
+		</div>
+		<div class="mb-3">
+			<label asp-for="LastName" class="form-label"></label>
+			<input asp-for="LastName" class="form-control" />
+		</div>
+		<div class="mb-3">
+			<label asp-for="Email" class="form-label"></label>
+			<input asp-for="Email" class="form-control" />
+		</div>
+		<div class="mb-3">
+			<label asp-for="Role" class="form-label"></label>
+			@* Old: asp-items="Html.GetEnumSelectList<ChapeauPOS.Enums.Roles>()" *@
+			<select asp-for="Role" asp-items="Html.GetEnumSelectList<ChapeauPOS.Models.Roles>()" class="form-select"></select>
+		</div>
+		<div class="mb-3">
+			<label asp-for="Gender" class="form-label"></label>
+			@* Old: asp-items="Html.GetEnumSelectList<ChapeauPOS.Enums.EmployeeGender>()" *@
+			<select asp-for="Gender" asp-items="Html.GetEnumSelectList<ChapeauPOS.Models.EmployeeGender>()" class="form-select"></select>
+		</div>
+
+		<button type="submit" class="btn btn-primary">Update Employee</button>
+	</form>
+</div>

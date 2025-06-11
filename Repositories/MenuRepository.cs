@@ -7,6 +7,7 @@ namespace ChapeauPOS.Repositories
     public class MenuRepository : IMenuRepository
     {
         private readonly string? _connectionString;
+
         public MenuRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("ChapeauDB");
@@ -52,7 +53,7 @@ namespace ChapeauPOS.Repositories
                     {
                         while (reader.Read())
                         {
-                            MenuItem menuItem = ReadMenuItem(reader);// helpeing function to read the data
+                            MenuItem menuItem = ReadMenuItem(reader);
                             menuItems.Add(menuItem);
                         }
                     }
@@ -60,7 +61,7 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in GetAllMenuItems: " + ex.Message);
             }
             return menuItems;
         }
@@ -78,7 +79,7 @@ namespace ChapeauPOS.Repositories
                                    "WHERE MI.MenuItemID = @MenuItemID";
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@MenuItemID", id);//parameterized SQL,to prevent SQL injection attacks (security risk).
+                    command.Parameters.AddWithValue("@MenuItemID", id);
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -91,7 +92,7 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in GetMenuItemById: " + ex.Message);
             }
             return menuItem;
         }
@@ -103,7 +104,7 @@ namespace ChapeauPOS.Repositories
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     string query = "INSERT INTO MenuItems (ItemName, ItemDescription, ItemPrice, VAT, CategoryID, Course, IsActive) " +
-                                   "VALUES (@Name, @Desc, @Price, @VAT, @CategoryID, @Course, 1)";
+                                   "VALUES (@Name, @Desc, @Price, @VAT, @CategoryID, @Course, 1)"; // Always active on insert
 
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@Name", menuItem.ItemName);
@@ -119,7 +120,7 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in AddMenuItem: " + ex.Message);
             }
         }
 
@@ -138,7 +139,7 @@ namespace ChapeauPOS.Repositories
                     command.Parameters.AddWithValue("@VAT", menuItem.VAT);
                     command.Parameters.AddWithValue("@CategoryID", menuItem.Category.CategoryID);
                     command.Parameters.AddWithValue("@Course", menuItem.Course.ToString());
-                    command.Parameters.AddWithValue("@IsActive", menuItem.IsActive); 
+                    command.Parameters.AddWithValue("@IsActive", menuItem.IsActive);
                     command.Parameters.AddWithValue("@ID", menuItem.MenuItemID);
 
                     connection.Open();
@@ -147,7 +148,7 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Database update failed: " + ex.Message); 
+                throw new Exception("Database update failed: " + ex.Message);
             }
         }
 
@@ -167,11 +168,31 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in ToggleMenuItemStatus: " + ex.Message);
             }
         }
 
-        public List<MenuItem> FilterMenuItems(string course, string category)
+        public void ActivateMenuItem(int id)
+        {
+            // Set the menu item status to active (true)
+            ToggleMenuItemStatus(id, true);
+        }
+
+        public void DeactivateMenuItem(int id)
+        {
+            // Set the menu item status to inactive (false)
+            ToggleMenuItemStatus(id, false);
+        }
+
+
+        //public void DeleteMenuItem(int id) => ToggleMenuItemStatus(id, false); // Soft delete
+
+        public void DeleteMenuItem(int id)
+        {
+
+        }
+
+        public List<MenuItem> FilterMenuItems(string course, string category, bool includeInactive)
         {
             List<MenuItem> menuItems = new List<MenuItem>();
             try
@@ -181,7 +202,10 @@ namespace ChapeauPOS.Repositories
                     string query = "SELECT MI.MenuItemID, MI.ItemName, MI.ItemDescription, MI.ItemPrice, MI.VAT, MI.IsActive, MC.CategoryID, MC.CategoryName, MI.Course, MI.Stock " +
                                    "FROM MenuItems AS MI " +
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID " +
-                                   "WHERE MI.IsActive = 1";
+                                   "WHERE 1=1";
+
+                    if (!includeInactive)
+                        query += " AND MI.IsActive = 1";
 
                     if (!string.IsNullOrEmpty(course))
                         query += " AND LOWER(MI.Course) = LOWER(@Course)";
@@ -207,24 +231,24 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in FilterMenuItems: " + ex.Message);
             }
             return menuItems;
         }
 
         public List<MenuItem> GetMenuItemsByCategory(MenuCategory category)
         {
-            return FilterMenuItems(null, category.CategoryName);
+            return FilterMenuItems(null, category.CategoryName, true);
         }
 
         public List<MenuItem> GetMenuItemsByCourse(MenuCourse course)
         {
-            return FilterMenuItems(course.ToString(), null);
+            return FilterMenuItems(course.ToString(), null, true);
         }
 
         public List<MenuItem> GetMenuItemsByName(string name)
         {
-            return GetAllMenuItems().Where(item => item.ItemName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+            return GetAllMenuItems(true).Where(item => item.ItemName.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         public List<MenuCategory> GetMenuCategories()
@@ -250,9 +274,29 @@ namespace ChapeauPOS.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in GetMenuCategories: " + ex.Message);
             }
             return menuCategories;
+        }
+        public void UpdateStock(int menuItemId, int newStock)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    string query = "UPDATE MenuItems SET Stock = @Stock WHERE MenuItemID = @MenuItemID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@Stock", newStock);
+                    command.Parameters.AddWithValue("@MenuItemID", menuItemId);
+
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in UpdateStock: " + ex.Message);
+            }
         }
 
         public void DeductStock(Order order)
@@ -262,33 +306,21 @@ namespace ChapeauPOS.Repositories
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    if (order.InterumOrderItems.Count() == 0)
+                    var items = order.InterumOrderItems.Count() == 0 ? order.OrderItems : order.InterumOrderItems;
+
+                    foreach (var orderItem in items)
                     {
-                        foreach (var orderItem in order.OrderItems)
-                        {
-                            string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
-                            SqlCommand command = new SqlCommand(query, connection);
-                            command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
-                            command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
-                            command.ExecuteNonQuery();
-                        }
-                    }
-                    else if (order.InterumOrderItems.Count() != 0)
-                    {
-                        foreach (var orderItem in order.InterumOrderItems)
-                        {
-                            string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
-                            SqlCommand command = new SqlCommand(query, connection);
-                            command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
-                            command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
-                            command.ExecuteNonQuery();
-                        }
+                        string query = "UPDATE MenuItems SET Stock = Stock - @Quantity WHERE MenuItemID = @MenuItemID";
+                        SqlCommand command = new SqlCommand(query, connection);
+                        command.Parameters.AddWithValue("@Quantity", orderItem.Quantity);
+                        command.Parameters.AddWithValue("@MenuItemID", orderItem.MenuItem.MenuItemID);
+                        command.ExecuteNonQuery();
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Error in DeductStock: " + ex.Message);
             }
         }
     }
