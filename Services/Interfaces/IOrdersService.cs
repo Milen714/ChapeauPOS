@@ -25,5 +25,7 @@ namespace ChapeauPOS.Services.Interfaces
 
         void FinishOrderAndFreeTable(Order order, Payment payment);
         Bill GetBillByOrderId(int orderId);
+      
+
     }
 }

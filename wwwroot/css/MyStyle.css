@@ -767,6 +767,12 @@ footer li a{
     font-weight: 500;
     font-size: 18px;
 }
+.payment-box {
+    margin-bottom: 25px;
+    padding: 10px;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
 
 
 
