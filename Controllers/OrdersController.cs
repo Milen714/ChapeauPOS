@@ -354,108 +354,185 @@ namespace ChapeauPOS.Controllers
             var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod1 };
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
-        
         [HttpPost]
-        public IActionResult FinalizePayment( PaymentMethod paymentMethod,int tableID,string feedBack,string total, string amountPaid)
-        {           
-            decimal baseTotal = decimal.Parse(total);              
-            decimal grandTotalPaid = decimal.Parse(amountPaid); 
-           
-            var order = _ordersService.GetOrderByTableId(tableID);
-            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
-           
-            var viewModel = new PaymentViewModel
+        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID, string feedBack, string total, string amountPaid)
+        {
+            try
             {
-                Order = order,
-                PaymentMethod = paymentMethod
-            };
-          
-            var payment = new Payment
+                decimal baseTotal = decimal.Parse(total);
+                decimal grandTotalPaid = decimal.Parse(amountPaid);
+
+                var order = _ordersService.GetOrderByTableId(tableID);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
+                var viewModel = new PaymentViewModel
+                {
+                    Order = order,
+                    PaymentMethod = paymentMethod
+                };
+
+                var payment = new Payment
+                {
+                    Bill = bill,
+                    PaymentMethod = paymentMethod,
+                    TotalAmount = baseTotal,
+                    GrandTotal = grandTotalPaid,
+                    FeedBack = feedBack,
+                    PaidAt = DateTime.Now,
+                    LowVAT = viewModel.LowVAT,
+                    HighVAT = viewModel.HighVAT
+                };
+
+                _ordersService.FinishOrderAndFreeTable(order, payment);
+                _ordersService.RemoveOrderFromSession(HttpContext, tableID);
+
+                TempData["Success"] = $"Order has been successfully paid! Total: €{payment.TotalAmount}, Paid: €{payment.GrandTotal}, Tip: €{payment.TipAmount}";
+                return RedirectToAction("Index", "Tables");
+            }
+            catch (Exception ex)
             {
-                Bill = bill,
-                PaymentMethod = paymentMethod,
-                TotalAmount = baseTotal,               
-                GrandTotal = grandTotalPaid,       
-                FeedBack = feedBack,
-                PaidAt = DateTime.Now,
-                LowVAT = viewModel.LowVAT,
-                HighVAT = viewModel.HighVAT
-                
-            };
-           
-            _ordersService.FinishOrderAndFreeTable(order, payment);
-            _ordersService.RemoveOrderFromSession(HttpContext, tableID);
-
-            
-            TempData["Success"] = $"Order has been successfully paid! Total: €{payment.TotalAmount}, Paid: €{payment.GrandTotal}, Tip: €{payment.TipAmount}";
-
-            return RedirectToAction("Index", "Tables");
+                TempData["Error"] = "Error finalizing payment: " + ex.Message;
+                return RedirectToAction("Payment", new { id = tableID });
+            }
         }
         [HttpGet]
         [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult EqualSplitPayment(int tableId, int numberOfPeople = 0)
         {
-            var order = _ordersService.GetOrderByTableId(tableId);
-            var paymentViewModel = new PaymentViewModel { Order = order };
-
-            var viewModel = new EqualSplitPaymentViewModel
+            try
             {
-                TableId = tableId,
-                TotalAmount = paymentViewModel.TotalAmount,
-                LowVAT = paymentViewModel.LowVAT,
-                HighVAT = paymentViewModel.HighVAT,
-                NumberOfPeople = numberOfPeople,
-                Payments = Enumerable.Repeat(new EqualIndividualPayment(), numberOfPeople).ToList()
-            };
+                var order = _ordersService.GetOrderByTableId(tableId);
+                var paymentViewModel = new PaymentViewModel { Order = order };
 
-            return View(viewModel);
+                var viewModel = new EqualSplitPaymentViewModel
+                {
+                    TableId = tableId,
+                    TotalAmount = paymentViewModel.TotalAmount,
+                    LowVAT = paymentViewModel.LowVAT,
+                    HighVAT = paymentViewModel.HighVAT,
+                    NumberOfPeople = numberOfPeople,
+                    Payments = Enumerable.Repeat(new EqualIndividualPayment(), numberOfPeople).ToList()
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Unable to load equal split payment screen: " + ex.Message;
+                return RedirectToAction("Payment", new { id = tableId }); 
+            }
         }
 
 
         [HttpPost]
         public IActionResult FinalizeEqualSplitPayment(EqualSplitPaymentViewModel model)
         {
-            var order = _ordersService.GetOrderByTableId(model.TableId);
-            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
-
-            // Use PaymentViewModel to get VAT breakdown
-            var viewModel = new PaymentViewModel
+            try
             {
-                Order = order
+                var order = _ordersService.GetOrderByTableId(model.TableId);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
+                var viewModel = new PaymentViewModel
+                {
+                    Order = order
+                };
+
+                decimal totalBaseAmount = viewModel.TotalAmount;
+                decimal expectedPerPerson = totalBaseAmount / model.NumberOfPeople;
+
+                foreach (var perPerson in model.Payments)
+                {
+                    var payment = new Payment
+                    {
+                        Bill = bill,
+                        PaymentMethod = perPerson.PaymentMethod,
+                        TotalAmount = expectedPerPerson,
+                        GrandTotal = perPerson.AmountPaid,
+                        FeedBack = perPerson.Feedback,
+                        PaidAt = DateTime.Now,
+                        LowVAT = viewModel.LowVAT / model.NumberOfPeople,
+                        HighVAT = viewModel.HighVAT / model.NumberOfPeople
+                    };
+
+                    _ordersService.FinishOrderAndFreeTable(order, payment);
+                }
+
+                _ordersService.RemoveOrderFromSession(HttpContext, model.TableId);
+
+                TempData["Success"] = "Split payment completed.";
+                return RedirectToAction("Index", "Tables");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error processing equal split payment: " + ex.Message;
+                return RedirectToAction("EqualSplitPayment", new { tableId = model.TableId, numberOfPeople = model.NumberOfPeople });
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult MultiPartialPayment(int tableId)
+        {
+            var order = _ordersService.GetOrderByTableId(tableId);
+            var viewModel = new PartialPaymentViewModel
+            {
+                TableId = tableId,
+                TotalAmount = order.TotalAmount
             };
 
-            decimal totalBaseAmount = viewModel.TotalAmount;
-            decimal expectedPerPerson = totalBaseAmount / model.NumberOfPeople;
-
-            decimal totalPaid = model.Payments.Sum(p => p.AmountPaid);
-            if (totalPaid < totalBaseAmount)
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult FinalizeMultiPartialPayment(int TableId, decimal TotalAmount, string PaymentsJson)
+        {
+            try
             {
-                TempData["Error"] = "Total paid is less than the total bill.";
-                return RedirectToAction("SplitPayment", new { tableId = model.TableId, numberOfPeople = model.NumberOfPeople });
-            }
+                var order = _ordersService.GetOrderByTableId(TableId);
+                var bill = _ordersService.GetBillByOrderId(order.OrderID);
 
-            foreach (var perPerson in model.Payments)
-            {
-                var payment = new Payment
+                var viewModel = new PaymentViewModel
                 {
-                    Bill = bill,
-                    PaymentMethod = perPerson.PaymentMethod,
-                    TotalAmount = expectedPerPerson, 
-                    GrandTotal = perPerson.AmountPaid,       
-                    FeedBack = perPerson.Feedback,
-                    PaidAt = DateTime.Now,
-                    LowVAT = viewModel.LowVAT / model.NumberOfPeople,
-                    HighVAT = viewModel.HighVAT / model.NumberOfPeople
+                    Order = order
                 };
-                _ordersService.FinishOrderAndFreeTable(order, payment);
-                
+
+                var payments = JsonConvert.DeserializeObject<List<EqualIndividualPayment>>(PaymentsJson);
+
+                decimal runningTotal = 0;
+
+                foreach (var p in payments)
+                {
+                    runningTotal += p.AmountPaid;
+
+                    var remainingBeforeThis = order.TotalAmount - (runningTotal - p.AmountPaid);
+                    var tip = p.AmountPaid > remainingBeforeThis ? p.AmountPaid - remainingBeforeThis : 0;
+
+                    var payment = new Payment
+                    {
+                        Bill = bill,
+                        TotalAmount = order.TotalAmount,
+                        GrandTotal = p.AmountPaid,
+                        TipAmount = tip,
+                        FeedBack = p.Feedback,
+                        PaidAt = DateTime.Now,
+                        PaymentMethod = p.PaymentMethod,
+                        LowVAT = viewModel.LowVAT,
+                        HighVAT = viewModel.HighVAT
+                    };
+
+                    _ordersService.FinishOrderAndFreeTable(order, payment);
+                }
+
+                _ordersService.RemoveOrderFromSession(HttpContext, TableId);
+
+                TempData["Success"] = "All payments completed.";
+                return RedirectToAction("Index", "Tables");
             }
-
-            _ordersService.RemoveOrderFromSession(HttpContext, model.TableId);
-
-            TempData["Success"] = $"Split payment completed. Total paid: €{totalPaid:F2}";
-            return RedirectToAction("Index", "Tables");
-        }       
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error finalizing multi partial payment: " + ex.Message;
+                return RedirectToAction("MultiPartialPayment", new { tableId = TableId });
+            }
+        }
 
 
     }
