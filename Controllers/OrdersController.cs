@@ -2,7 +2,6 @@
 using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
 using ChapeauPOS.ViewModels;
-using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using ChapeauPOS.Hubs;
@@ -31,6 +30,8 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpGet]
+        // This method is responsible for creating a new order for the specific table specific table.
+        // Theargument 'id' is the table number for which the order is being created.
         public IActionResult CreateOrder(int id)
         {
             try
@@ -74,7 +75,8 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Index", "Tables");
             }
         }
-
+        // This method retrieves menu items based on the category provided and returns a partial view with the menu items.
+        // The 'category' parameter can be "Lunch", "Dinner", or "Drinks" and it comes from the AJAX request made by the client-side code.
         public IActionResult GetMenuItems(string category)
         {
             while (category != null)
@@ -102,6 +104,10 @@ namespace ChapeauPOS.Controllers
             return NotFound();
         }
         [HttpPost]
+        // This methiod retrieves menu items based on the search parameters provided by the user.
+        // The 'searchParams' parameter is a string that contains the search query,
+        // and 'tableNumber' is the table number for which the order is being created.
+        // It is used to redirect the user back to the order creation view if no items are found.
         public IActionResult GetMenuItemsBySearch(string searchParams, int tableNumber)
         {
             List<MenuItem> menuItems = _menuService.GetAllMenuItems();
@@ -117,6 +123,8 @@ namespace ChapeauPOS.Controllers
             MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
             return PartialView("_MenuPartial", searchMenu);
         }
+        // This method is responsible for displaying the order view for a specific table.
+        // It returns a partial view with the order details for the specified table.
         public IActionResult DisplayOrderView(string tableId)
         {
             int tableNumber = int.Parse(tableId);
@@ -124,7 +132,13 @@ namespace ChapeauPOS.Controllers
             return PartialView("_OrderListPartial", order);
         }
         [HttpPost]
-
+        // This method is responsible for adding a menu item to an order for a specific table.
+        // It does several things depending on the current state of the table and the order:
+        // 1. It checks if the order already exists in the session for the specified table.
+        // 2. If the order does not exist, it creates a new order and associates it with the table and employee.
+        // 3. It adds the selected menu item to the order.
+        // 4. It updates the table status to "Occupied" if it was previously "Free".
+        //
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
             try
