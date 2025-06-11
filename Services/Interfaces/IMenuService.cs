@@ -8,8 +8,6 @@ namespace ChapeauPOS.Services.Interfaces
         MenuItem GetMenuItemById(int id);
         void AddMenuItem(MenuItem menuItem);
         void UpdateMenuItem(MenuItem menuItem);
-        void DeleteMenuItem(int id);
-        void ToggleMenuItemStatus(int id, bool isActive);
 
         List<MenuCategory> GetMenuCategories();
         List<MenuItem> GetMenuItemsByCategory(MenuCategory category);

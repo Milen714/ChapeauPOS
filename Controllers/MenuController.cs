@@ -22,16 +22,13 @@ namespace ChapeauPOS.Controllers
         //    return View(items);
         //}
 
-
         public IActionResult Index(string course, string category)
         {
             //  Using _service instead of _menuService
             var filteredItems = _service.FilterMenuItems(course, category);
 
-            // Filter drinks separately
             var drinks = filteredItems.Where(i => i.Course == MenuCourse.Drink).ToList();
 
-            //  constructor for MenuViewModel
             var viewModel = new MenuViewModel(
                 categoryName: category ?? "All Categories",
                 category: filteredItems,
@@ -41,14 +38,11 @@ namespace ChapeauPOS.Controllers
             return View(viewModel);
         }
 
-
         public IActionResult Create()
         {
             ViewBag.Categories = _service.GetMenuCategories();
             return View(); //  load Views/Menu/Create.cshtml
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -62,8 +56,6 @@ namespace ChapeauPOS.Controllers
             if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
                 item.Category.CategoryID = catId;
 
-      
-
             // Validate the model
             if (!ModelState.IsValid)
             {
@@ -74,7 +66,6 @@ namespace ChapeauPOS.Controllers
             try
             {
                 _service.AddMenuItem(item); // Save to DB
-            
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -84,8 +75,6 @@ namespace ChapeauPOS.Controllers
                 return View(item);
             }
         }
-
-
 
         public IActionResult Edit(int id)
         {
@@ -143,7 +132,6 @@ namespace ChapeauPOS.Controllers
                         item.Category.CategoryID = catId;
                     else
                         throw new Exception("Category ID was not selected.");
-
 
                     _service.UpdateMenuItem(item); // Update in DB
                     return RedirectToAction("Index");

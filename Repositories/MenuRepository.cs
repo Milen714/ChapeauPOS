@@ -12,18 +12,8 @@ namespace ChapeauPOS.Repositories
             _connectionString = configuration.GetConnectionString("ChapeauDB");
         }
 
-        //data mapping method for reading a row of data from the SQL database 
         private MenuItem ReadMenuItem(SqlDataReader reader)
         {
-            //int MenuItemID = reader.GetInt32(0);
-            //string ItemName = reader.GetString(1);
-            //string ItemDescription = reader.GetString(2);
-            //decimal ItemPrice = reader.GetDecimal(3);
-            //bool VAT = !reader.IsDBNull(4) && reader.GetBoolean(4);
-            //int CategoryID = reader.GetInt32(5);
-            //string CategoryName = reader.GetString(6);
-            //MenuCourse Course = (MenuCourse)Enum.Parse(typeof(MenuCourse), reader.GetString(7));
-
             int MenuItemID = reader.GetInt32(reader.GetOrdinal("MenuItemID"));
             string ItemName = reader.GetString(reader.GetOrdinal("ItemName"));
             string ItemDescription = reader["ItemDescription"] == DBNull.Value ? "No Description" : (string)reader["ItemDescription"];
@@ -68,10 +58,6 @@ namespace ChapeauPOS.Repositories
                     }
                 }
             }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
@@ -102,10 +88,6 @@ namespace ChapeauPOS.Repositories
                         }
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {
@@ -163,22 +145,10 @@ namespace ChapeauPOS.Repositories
                     command.ExecuteNonQuery();
                 }
             }
-
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex.Message);
-            //}
-
             catch (Exception ex)
             {
                 throw new Exception("Database update failed: " + ex.Message); 
             }
-        }
-
-
-        public void DeleteMenuItem(int id)
-        {
-            ToggleMenuItemStatus(id, false);
         }
 
         public void ToggleMenuItemStatus(int id, bool isActive)
@@ -219,13 +189,10 @@ namespace ChapeauPOS.Repositories
                         query += " AND LOWER(MC.CategoryName) = LOWER(@Category)";
 
                     SqlCommand command = new SqlCommand(query, connection);
-
                     if (!string.IsNullOrEmpty(course))
                         command.Parameters.AddWithValue("@Course", course.Trim());
                     if (!string.IsNullOrEmpty(category))
                         command.Parameters.AddWithValue("@Category", category.Trim());
-
-                    Console.WriteLine($"[DEBUG] Filtering by: Course = '{course}', Category = '{category}'");
 
                     connection.Open();
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -233,7 +200,6 @@ namespace ChapeauPOS.Repositories
                         while (reader.Read())
                         {
                             MenuItem menuItem = ReadMenuItem(reader);
-                         
                             menuItems.Add(menuItem);
                         }
                     }
@@ -282,10 +248,6 @@ namespace ChapeauPOS.Repositories
                     }
                 }
             }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
@@ -323,10 +285,6 @@ namespace ChapeauPOS.Repositories
                         }
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(ex.Message);
             }
             catch (Exception ex)
             {

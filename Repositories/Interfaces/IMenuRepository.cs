@@ -15,8 +15,6 @@ namespace ChapeauPOS.Repositories.Interfaces
         List<MenuItem> GetMenuItemsByCategory(MenuCategory category);
         List<MenuItem> GetMenuItemsByCourse(MenuCourse course);
         List<MenuItem> GetMenuItemsByName(string name);
-        void DeductStock(Order order);
-
 
     }
 }

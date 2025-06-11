@@ -131,9 +131,7 @@ namespace ChapeauPOS.Repositories
                     {
                         employee = ReadEmployee(reader);
                     }
-
                 }
-
             }
             catch (SqlException ex)
             {

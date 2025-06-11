@@ -11,6 +11,7 @@ namespace ChapeauPOS.Controllers
     {
         private readonly IEmployeesService _employeesService;
         private readonly PasswordHasher<string> _passwordHasher;
+
         public EmployeesController(IEmployeesService employeesService)
         {
             _employeesService = employeesService;

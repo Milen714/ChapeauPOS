@@ -1,4 +1,3 @@
-﻿using System.ComponentModel.Design;
 using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
@@ -120,50 +119,6 @@ namespace ChapeauPOS.Services
 
             return filtered;
         }
-
-
-
-
-
-
-
-
-
-        //public void GetWholeMenu()
-        //{
-        //    List<MenuCategory> menuCategories = _menuRepository.GetMenuCategories();
-        //    foreach (MenuCategory menuCategory in menuCategories)
-        //    {
-        //        if (menuCategory.CategoryName == "Lunch")
-        //        {
-        //            List<MenuItem> lunchItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
-        //            foreach (MenuItem menuItem in lunchItems)
-        //            {
-        //                Console.WriteLine($"Lunch Menu Item: {menuItem.ItemName}");
-        //            }
-        //        }
-        //        else if (menuCategory.CategoryName == "Dinner")
-        //        {
-        //            List<MenuItem> dinnerItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
-        //            foreach (MenuItem menuItem in dinnerItems)
-        //            {
-        //                Console.WriteLine($"Dinner Menu Item: {menuItem.ItemName}");
-        //            }
-        //        }
-        //        else if (menuCategory.CategoryName == "Drinks")
-        //        {
-        //            List<MenuItem> drinkItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
-        //            foreach (MenuItem menuItem in drinkItems)
-        //            {
-        //                Console.WriteLine($"Drink Menu Item: {menuItem.ItemName}");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine($"Unknown category: {menuCategory.CategoryName}");
-        //        }
-        //    }
-        //}
 
         public void UpdateMenuItem(MenuItem menuItem)
         {

@@ -33,5 +33,4 @@ namespace ChapeauPOS.Models
         public bool IsActive { get; set; } // Indicates if the item is active or inactive
         public int Stock { get; set; }  
     }
-
 }

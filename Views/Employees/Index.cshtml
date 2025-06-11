@@ -2,7 +2,6 @@
 
 @{
 	ViewData["Title"] = "Employees";
-
 	int loggedInEmployeeId = -1;
 	if (ViewBag.LoggedInEmployee != null)
 	{
@@ -11,24 +10,10 @@
 }
 
 
+<div class="container mt-4">
+	<h2>@ViewData["Title"]</h2>
+	<a class="btn btn-primary mb-3" href="@Url.Action("AddNewEmployee", "Employees")">Add New Employee</a>
 
-<h1>@ViewData["Title"]</h1>
-<a href="/Employees/AddNewEmployee">Add Employees</a>
-<table class="table">
-	<thead>
-		<tr>
-			<th>
-				FirstName
-			</th>
-			<th>
-				LastName
-			</th>
-			<th>
-				Role
-			</th>
-			<th></th>
-		</tr>
-	</thead>
 
 	<tbody>	
 		@foreach (Employee employee in Model)
@@ -36,7 +21,34 @@
 		string loggedInStyle = "";
 		if(employee.EmployeeId == loggedInEmployeeId)
 			{
-				loggedInStyle = "background-color: #87CEEB;";
+				string loggedInStyle = emp.EmployeeId == loggedInEmployeeId ? "background-color: #87CEEB;" : string.Empty;
+				<tr style="@loggedInStyle">
+					<td>@emp.FirstName</td>
+					<td>@emp.LastName</td>
+					<td>@emp.Email</td>
+					<td>@emp.Role</td>
+					<td>
+						@if (emp.IsActive)
+						{
+							<span class="badge bg-success">Active</span>
+						}
+						else
+						{
+							<span class="badge bg-secondary">Inactive</span>
+						}
+					</td>
+					<td>
+						<a class="btn btn-sm btn-outline-info me-1" asp-action="Edit" asp-route-id="@emp.EmployeeId">Edit</a>
+						@if (emp.IsActive)
+						{
+							<a class="btn btn-sm btn-outline-danger" asp-action="Deactivate" asp-route-id="@emp.EmployeeId">Deactivate</a>
+						}
+						else
+						{
+							<a class="btn btn-sm btn-outline-success" asp-action="Activate" asp-route-id="@emp.EmployeeId">Activate</a>
+						}
+					</td>
+				</tr>
 			}
 			<tr style="@loggedInStyle">
 			<td>
