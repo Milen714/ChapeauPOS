@@ -18,8 +18,14 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
+        [SessionAuthorize(Roles.Manager)]
+
+        public IActionResult Index()
+
+
         // ✅ Helper method to check if the logged-in user is a manager
         private bool IsManagerLoggedIn()
+
         {
             var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             return user != null && user.Role == Roles.Manager;
@@ -31,6 +37,7 @@ namespace ChapeauPOS.Controllers
             if (!IsManagerLoggedIn())
             {
                 TempData["ErrorMessage"] = "You do not have permission to access this page.";
+                HttpContext.Session.Remove("LoggedInUser");
                 return RedirectToAction("Login", "Home");
             }
 
@@ -42,6 +49,10 @@ namespace ChapeauPOS.Controllers
 
             return View(employees);
         }
+
+
+        [SessionAuthorize(Roles.Manager)]
+
 
         public IActionResult AddNewEmployee()
         {

@@ -1,105 +1,104 @@
 ﻿@model List<ChapeauPOS.Models.Order>
 @{
 	ViewData["Title"] = "Bar - Running Orders";
+	string? noRunningOrders = (string?)ViewData["NoRunningOrders"];
 }
 
 <div style="margin:0;display:flex;justify-content:center;">
-	<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light" style="border-radius: 10px 10px 0 0;width:120px;">Finished</a>
-	<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary" style="border-radius: 10px 10px 0 0;width:120px;">Running</a>
-</div>
-<form method="get" action="/KitchenBar/BarRunningOrders">
-	<button type="submit" class="btn btn-dark">Refresh to get new orders</button>
-</form>
-<div class="orders-container d-flex flex-row flex-wrap">
-	@foreach (Order order in Model)
+	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
 	{
-		<div class="order-card m-2">
-			<!-- Header -->
-			<div class="order-header d-flex justify-content-between align-items-center" style="background-color:#0A60DA;padding:0 15px 15px 15px;border-radius:8px 8px 0 0;color:white">
-				<div style="color:black;background-color:#FF9F40;padding:5px;border-radius:3px 3px 0 0;">Table @order.Table.TableNumber</div>
-					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm tt")</div>
-					<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</div>
-			</div>
-
-			<!-- Order Items -->
-			@foreach (var course in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
-			{
-				<div class="mb-3">
-					<div style="background-color:#d5d5d5;display:flex;justify-content:space-between;align-items:center;padding:6px 15px;">
-					<h6 class="border-bottom">@course.Key</h6>
-					</div>
-					@foreach (OrderItem item in course)
-					{
-						<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
-							<div style="width:200px;">
-								<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
-								@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
-								{
-									<small class="text-muted">@item.MenuItem.ItemDescription</small>
-									<br />
-								}
-								@if (!string.IsNullOrEmpty(item.Notes))
-								{
-									<em class="text-muted small">@item.Notes</em>
-								}
-							</div>
-							<div>
-								<form method="post" action="/KitchenBar/UpdateBarItemStatus">
-									<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-									@if (item.OrderItemStatus == OrderItemStatus.Ordered)
-									{
-										<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
-									}
-									else if (item.OrderItemStatus == OrderItemStatus.Preparing)
-									{
-										<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
-									}
-									else
-									{
-										<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
-									}
-								</form>
-							</div>
-						</div>
-					}
-				</div>
-			}
-
-			<!-- Order Status -->
-			<div class="mt-5 mb-2" style="padding:0 15px;">
-				<form action="/KitchenBar/CloseDrinkOrder" method="post">
-					<input type="hidden" name="orderId" value="@order.OrderID" />
-					<button style="width:100%;" type="submit" class="btn btn-success">Mark Order as Ready</button>
-				</form>
-				@* <form method="post" action="/KitchenBar/UpdateBarOrderStatus">
-					<input type="hidden" name="orderId" value="@order.OrderID" />
-					<select name="orderStatus" class="form-select form-select-sm"
-							onchange="this.form.submit()">
-						@if (order.OrderStatus == OrderStatus.Ordered)
-						{
-							<option value="@OrderStatus.Ordered" selected>Ordered</option>
-							<option value="@OrderStatus.Preparing">Preparing</option>
-						}
-						else if (order.OrderStatus == OrderStatus.Preparing)
-						{
-							<option value="@OrderStatus.Preparing" selected>Preparing</option>
-							<option value="@OrderStatus.Ready">Ready</option>
-						}
-						else if (order.OrderStatus == OrderStatus.Ready)
-						{
-							<option value="@OrderStatus.Ready" selected>Ready</option>
-							<option value="@OrderStatus.Served">Served</option>
-						}
-						else
-						{
-							<option value="@order.OrderStatus" selected>@order.OrderStatus</option>
-						}
-					</select>
-				</form> *@
-			</div>
-		</div>
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary btn-style">Running</a>
+	}
+	else
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-secondary btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-light btn-style">Running</a>
 	}
 </div>
+<form method="get" action="/KitchenBar/BarRunningOrders">
+	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
+	{
+		<button type="submit" class="btn btn-dark">Refresh to get new orders</button>
+	}
+	else
+	{
+		<button type="submit" class="btn btn-light">Refresh to get new orders</button>
+	}
+</form>
+@if (Model != null && Model.Any())
+{
+	<div class="orders-container d-flex flex-row flex-wrap">
+		@foreach (Order order in Model)
+		{
+			<div class="order-card m-2">
+				<!-- Header -->
+				<div class="order-header d-flex justify-content-between align-items-center" style="background-color:#0A60DA;padding:0 15px 15px 15px;border-radius:8px 8px 0 0;color:white">
+					<div style="color:black;background-color:#FF9F40;padding:5px;border-radius:3px 3px 0 0;">Table @order.Table.TableNumber</div>
+					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm tt")</div>
+					<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</div>
+				</div>
+
+				<!-- Order Items -->
+				<div style="height:"></div>
+				@foreach (var course in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
+				{
+					<div class="mb-3">
+						<div class="course">
+							<h6>@course.Key</h6>
+						</div>
+						@foreach (OrderItem item in course)
+						{
+							<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
+								<div style="width:200px;">
+									<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+									@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+									{
+										<small class="text-muted">@item.MenuItem.ItemDescription</small>
+										<br />
+									}
+									@if (!string.IsNullOrEmpty(item.Notes))
+									{
+										<em class="text-muted small">@item.Notes</em>
+									}
+								</div>
+								<div>
+									<form method="post" action="/KitchenBar/UpdateBarItemStatus">
+										<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+										{
+											<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
+										}
+										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+										{
+											<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
+										}
+										else
+										{
+											<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
+										}
+									</form>
+								</div>
+							</div>
+						}
+					</div>
+				}
+
+				<!-- Order Status -->
+				<div class="mt-5 mb-2" style="padding:0 15px;">
+					<form action="/KitchenBar/CloseDrinkOrder" method="post">
+						<input type="hidden" name="orderId" value="@order.OrderID" />
+						<button style="width:100%;" type="submit" class="btn btn-success">Mark Order as Ready</button>
+					</form>
+				</div>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="alert alert-info mt-2">There are no running orders at the moment.</div>
+}
 
 
 @section Scripts {
@@ -117,7 +116,7 @@
 		connection.start().catch(err => console.error(err.toString()));
 
 			connection.on("NewOrder", function () {
-			location.reload(); 
+			location.reload();
 		});
 
 

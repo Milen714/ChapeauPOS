@@ -12,7 +12,6 @@
         }
 
         public OrderItemStatus OrderItemStatus { get; set; }
-        // public CourseStatus CourseStatus { get; set; }
 
         public CourseStatus CourseStatus
         {

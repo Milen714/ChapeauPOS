@@ -78,7 +78,7 @@ a{
 /* 
     *Button Styles
  */
-.add_entity, .conf_button, .confirmation_cancelation {
+.add_entity, .conf_button, .confirmation_cancelation, .warning_Button {
     padding: 10px 20px;
     border-radius: 10px;
     color: black;
@@ -86,9 +86,13 @@ a{
     font-family: var(--nav-font);
     font-weight: 600;
     background-color: var(--Collection1-Greens-PastelGreen);
+    border: none;
 }
 .confirmation_cancelation {
     background-color: var(--Collection1-Reds-PastelRed);
+}
+.warning_Button {
+    background-color: var(--Collection1-PastelOrange);
 }
 
 .add_entity_main {
@@ -592,6 +596,15 @@ footer li a{
     padding: 10px;
     align-items: flex-end
 }
+.crudWindow_OrderIteRow{
+
+    
+}
+.update_item{
+}
+.remove_Item{
+    margin-top: 5px
+}
 
 #courseSidebar button {
     width: 125px;
@@ -766,6 +779,12 @@ footer li a{
     color: white;
     font-weight: 500;
     font-size: 18px;
+}
+.payment-box {
+    margin-bottom: 25px;
+    padding: 10px;
+    border: 1px solid gray;
+    border-radius: 5px;
 }
 
 
