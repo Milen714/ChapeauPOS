@@ -333,20 +333,21 @@ namespace ChapeauPOS.Controllers
         public IActionResult Payment(int id)
         {
             Order order = _ordersService.GetOrderByTableId(id);
+
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
-                return NotFound("No order found for this table.");
+                TempData["Error"] = "No active order found for this table. Please create an order first.";
+                return RedirectToAction("CreateOrder", "Orders", new { tableId = id });
             }
+
             PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
-            };
-
-            
-            ViewBag.PaymentModel = viewModel;
+            };           
 
             return View(viewModel);
         }
+
         public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {
             PaymentMethod paymentMethod1 = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod);
