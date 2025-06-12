@@ -394,7 +394,7 @@ namespace ChapeauPOS.Controllers
                     LowVAT = paymentViewModel.LowVAT,
                     HighVAT = paymentViewModel.HighVAT,
                     NumberOfPeople = numberOfPeople,
-                    Payments = Enumerable.Repeat(new EqualIndividualPayment(), numberOfPeople).ToList()
+                    Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
                 };
 
                 return View(viewModel);
@@ -471,33 +471,33 @@ namespace ChapeauPOS.Controllers
             try
             {
                 var order = _ordersService.GetOrderByTableId(TableId);
-                var bill = _ordersService.GetBillByOrderId(order.OrderID);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
 
                 var viewModel = new PaymentViewModel
                 {
                     Order = order
                 };
 
-                var payments = JsonConvert.DeserializeObject<List<EqualIndividualPayment>>(PaymentsJson);
+                var payments = JsonConvert.DeserializeObject<List<IndividualPayment>>(PaymentsJson);
 
-                decimal runningTotal = 0;
+                decimal totalPaidSoFar = 0;
 
-                foreach (var person in payments)
+                foreach (var individualPayment in payments)
                 {
-                    runningTotal += person.AmountPaid;
+                    totalPaidSoFar += individualPayment.AmountPaid;
 
-                    var remainingBeforeThis = order.TotalAmount - (runningTotal - person.AmountPaid);
-                    var tip = person.AmountPaid > remainingBeforeThis ? person.AmountPaid - remainingBeforeThis : 0;
+                    var remainingBeforeCurrentPayment = order.TotalAmount - (totalPaidSoFar - individualPayment.AmountPaid);
+                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment: 0;
 
                     var payment = new Payment
                     {
                         Bill = bill,
                         TotalAmount = order.TotalAmount,
-                        GrandTotal = person.AmountPaid,
-                        TipAmount = tip,
-                        FeedBack = person.Feedback,
+                        GrandTotal = individualPayment.AmountPaid,
+                        TipAmount = calculatedTipAmount,
+                        FeedBack = individualPayment.Feedback,
                         PaidAt = DateTime.Now,
-                        PaymentMethod = person.PaymentMethod,
+                        PaymentMethod = individualPayment.PaymentMethod,
                         LowVAT = viewModel.LowVAT,
                         HighVAT = viewModel.HighVAT
                     };
