@@ -58,10 +58,13 @@ else
                 </select>
 
                 <label>Amount (€):</label>
-                <input type="number"step="0.01" name="Payments[@i].AmountPaid" value="@share.ToString("F2")"placeholder="@share.ToString("F2")"required />
+                <input type="number"step="0.01" name="Payments[@i].AmountPaid" value="@share.ToString("F2")"placeholder="@share.ToString("F2")" min="@share.ToString("F2")"required />
 
                 <label>Feedback:</label>
                 <input type="text" name="Payments[@i].Feedback" />
+
+                <p id="tipDisplay-@i" style="margin: 4px 0; color: lightgreen;">Tip: €0.00</p>
+
 
                 <p>9% VAT Share: €@((Model.LowVAT / Model.NumberOfPeople).ToString("F2"))</p>
                 <p>21% VAT Share: €@((Model.HighVAT / Model.NumberOfPeople).ToString("F2"))</p>
@@ -73,31 +76,49 @@ else
     </form>
 
     @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const inputs = document.querySelectorAll("input[name$='AmountPaid']");
-            const total = parseFloat("@Model.TotalAmount");
-            const submitBtn = document.getElementById("submitBtn");
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const inputs = document.querySelectorAll("input[name$='AmountPaid']");
+                const total = parseFloat("@Model.TotalAmount");
+                const numberOfPeople = @Model.NumberOfPeople;
+                const expectedShare = total / numberOfPeople;
+                const submitBtn = document.getElementById("submitBtn");
 
-            function validateTotal() {
-                let sum = 0;
-                inputs.forEach(input => {
-                    const val = parseFloat(input.value) || 0;
-                    sum += val;
+                function validateTotal() {
+                    let sum = 0;
+                    inputs.forEach(input => {
+                        const val = parseFloat(input.value) || 0;
+                        sum += val;
+                    });
+
+                    if (sum < total) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerText = `Underpaid: €${(total - sum).toFixed(2)}`;
+                    } else {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Submit Split Payment";
+                    }
+                }
+
+                inputs.forEach((input, i) => {
+                    const tipElement = document.getElementById(`tipDisplay-${i}`);
+
+                    input.addEventListener("input", function () {
+                        validateTotal();
+
+                        const val = parseFloat(input.value) || 0;
+                        const tip = val > expectedShare ? val - expectedShare : 0;
+                        tipElement.innerText = `Tip: €${tip.toFixed(2)}`;
+                    });
+
+                    // Initial trigger on load
+                    input.dispatchEvent(new Event('input'));
                 });
 
-                if (sum < total) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerText = `Underpaid: €${(total - sum).toFixed(2)}`;
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Submit Split Payment";
-                }
-            }
-
-            inputs.forEach(input => input.addEventListener("input", validateTotal));
-            validateTotal();
-        });
-    </script>
+                validateTotal(); // run once initially
+            });
+        </script>
     }
+
+
 }
