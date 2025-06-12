@@ -78,8 +78,8 @@ else
     @section Scripts {
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const inputs = document.querySelectorAll("input[name$='AmountPaid']");
-                const total = parseFloat("@Model.TotalAmount");
+                const inputs = document.querySelectorAll("input[name$='AmountPaid']"); // Here it looks through the page and finds every input whose name ends in 
+                const total = parseFloat("@Model.TotalAmount");                        //  amountPaid and store them in a (list like array).
                 const numberOfPeople = @Model.NumberOfPeople;
                 const expectedShare = total / numberOfPeople;
                 const submitBtn = document.getElementById("submitBtn");
@@ -100,8 +100,8 @@ else
                     }
                 }
 
-                inputs.forEach((input, i) => {
-                    const tipElement = document.getElementById(`tipDisplay-${i}`);
+                inputs.forEach((input, i) => {                                       // After that For each person's amount field,
+                    const tipElement = document.getElementById(`tipDisplay-${i}`);   // finds the HTML element that displays this person’s tip.
 
                     input.addEventListener("input", function () {
                         validateTotal();
@@ -111,11 +111,11 @@ else
                         tipElement.innerText = `Tip: €${tip.toFixed(2)}`;
                     });
 
-                    // Initial trigger on load
-                    input.dispatchEvent(new Event('input'));
+
+                    input.dispatchEvent(new Event('input')); // here this simulates the user typing, so the tip and validation are done immediately when the page loads.
                 });
 
-                validateTotal(); // run once initially
+                validateTotal(); 
             });
         </script>
     }

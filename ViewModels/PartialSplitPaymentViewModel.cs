@@ -7,7 +7,7 @@ namespace ChapeauPOS.ViewModels
     {
         public int TableId { get; set; }
         public decimal TotalAmount { get; set; }
-        public List<EqualIndividualPayment> Payments { get; set; }= new List<EqualIndividualPayment>();
+        public List<IndividualPayment> Payments { get; set; }= new List<IndividualPayment>();
         public PartialPaymentViewModel()
         {
             

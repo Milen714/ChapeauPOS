@@ -10,8 +10,13 @@ namespace ChapeauPOS.ViewModels
         public decimal LowVAT { get; set; }
         public decimal HighVAT { get; set; }
         public int NumberOfPeople { get; set; }
-        public List<EqualIndividualPayment> Payments { get; set; }
+        public List<IndividualPayment> Payments { get; set; }
+        public EqualSplitPaymentViewModel()
+        {
+            
+        }
     }
+    
 
     
 }

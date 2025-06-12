@@ -2,7 +2,7 @@
 
 namespace ChapeauPOS.Models
 {
-    public class   EqualIndividualPayment
+    public class   IndividualPayment
     {
         public decimal AmountPaid { get; set; }
         public string? Feedback { get; set; }
