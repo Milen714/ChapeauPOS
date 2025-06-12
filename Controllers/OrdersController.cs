@@ -482,22 +482,22 @@ namespace ChapeauPOS.Controllers
 
                 decimal runningTotal = 0;
 
-                foreach (var p in payments)
+                foreach (var person in payments)
                 {
-                    runningTotal += p.AmountPaid;
+                    runningTotal += person.AmountPaid;
 
-                    var remainingBeforeThis = order.TotalAmount - (runningTotal - p.AmountPaid);
-                    var tip = p.AmountPaid > remainingBeforeThis ? p.AmountPaid - remainingBeforeThis : 0;
+                    var remainingBeforeThis = order.TotalAmount - (runningTotal - person.AmountPaid);
+                    var tip = person.AmountPaid > remainingBeforeThis ? person.AmountPaid - remainingBeforeThis : 0;
 
                     var payment = new Payment
                     {
                         Bill = bill,
                         TotalAmount = order.TotalAmount,
-                        GrandTotal = p.AmountPaid,
+                        GrandTotal = person.AmountPaid,
                         TipAmount = tip,
-                        FeedBack = p.Feedback,
+                        FeedBack = person.Feedback,
                         PaidAt = DateTime.Now,
-                        PaymentMethod = p.PaymentMethod,
+                        PaymentMethod = person.PaymentMethod,
                         LowVAT = viewModel.LowVAT,
                         HighVAT = viewModel.HighVAT
                     };
