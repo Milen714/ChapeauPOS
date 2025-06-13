@@ -412,7 +412,7 @@ namespace ChapeauPOS.Controllers
                     LowVAT = paymentViewModel.LowVAT,
                     HighVAT = paymentViewModel.HighVAT,
                     NumberOfPeople = numberOfPeople,
-                    Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
+                    Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList() // Payments = paymentList
                 };
 
                 return View(viewModel);
@@ -423,6 +423,13 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Payment", new { id = tableId }); 
             }
         }
+        // Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
+        // This is basically :
+        // var paymentList = new List<IndividualPayment>();
+        // for (int i = 0; i < numberOfPeople; i++)
+        // {
+        // paymentList.Add(new IndividualPayment());
+        // }
 
 
         [HttpPost]
