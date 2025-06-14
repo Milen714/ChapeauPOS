@@ -25,13 +25,11 @@ namespace ChapeauPOS.Controllers
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Index(string course, string category)
         {
-            //  Using _service instead of _menuService
-            var filteredItems = _service.FilterMenuItems(course, category);
+            //Explicitly include inactive items so that deactivated ones still show
+            var filteredItems = _service.FilterMenuItems(course, category, includeInactive: true);
 
-            // Filter drinks separately
             var drinks = filteredItems.Where(i => i.Course == MenuCourse.Drink).ToList();
 
-            //  constructor for MenuViewModel
             var viewModel = new MenuViewModel(
                 categoryName: category ?? "All Categories",
                 category: filteredItems,
@@ -48,8 +46,6 @@ namespace ChapeauPOS.Controllers
             return View(); //  load Views/Menu/Create.cshtml
         }
 
-
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(MenuItem item)
@@ -62,8 +58,6 @@ namespace ChapeauPOS.Controllers
             if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
                 item.Category.CategoryID = catId;
 
-      
-
             // Validate the model
             if (!ModelState.IsValid)
             {
@@ -74,7 +68,6 @@ namespace ChapeauPOS.Controllers
             try
             {
                 _service.AddMenuItem(item); // Save to DB
-            
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -84,7 +77,6 @@ namespace ChapeauPOS.Controllers
                 return View(item);
             }
         }
-
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
@@ -127,7 +119,7 @@ namespace ChapeauPOS.Controllers
         //}
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public IActionResult Edit(MenuItem item)
         {
             if (ModelState.IsValid)
@@ -144,7 +136,6 @@ namespace ChapeauPOS.Controllers
                     else
                         throw new Exception("Category ID was not selected.");
 
-
                     _service.UpdateMenuItem(item); // Update in DB
                     return RedirectToAction("Index");
                 }
@@ -160,14 +151,56 @@ namespace ChapeauPOS.Controllers
             return View(item);
         }
 
+        //public IActionResult Toggle(int id, bool isActive)
+        //{
+        //    _service.ToggleMenuItemStatus(id, isActive);
+        //    return RedirectToAction("Index");
+        //}
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Toggle(int id)
+        {
+            try
+            {
+                var item = _service.GetMenuItemById(id);
+                if (item == null)
+                {
+                    TempData["ErrorMessage"] = "Menu item not found.";
+                    return RedirectToAction("Index");
+                }
 
+                bool newStatus = !item.IsActive;
+                _service.ToggleMenuItemStatus(id, newStatus);
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id, bool isActive)
         {
-            _service.ToggleMenuItemStatus(id, isActive);
+            _service.ToggleMenuItemStatus(id, true);
+            TempData["SuccessMessage"] = "Menu item activated successfully!";
             return RedirectToAction("Index");
         }
+
+        public IActionResult Deactivate(int id)
+        {
+            _service.ToggleMenuItemStatus(id, false);
+            TempData["SuccessMessage"] = "Menu item deactivated successfully!";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult UpdateStock(int id, int stock)
+        {
+            _service.UpdateStock(id, stock);
+            TempData["SuccessMessage"] = "Stock updated successfully!";
+            return RedirectToAction("Index", new { course = Request.Query["course"], category = Request.Query["category"] });
+        }
+
+        //[HttpPost]
+        //public IActionResult Toggle(int id, bool isActive)
+        //{
+        //    _service.ToggleMenuItemStatus(id, isActive);
+        //    return Ok(); // important for JS .then() to succeed
+        //}
     }
 }

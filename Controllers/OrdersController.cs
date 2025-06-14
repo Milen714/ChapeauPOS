@@ -334,17 +334,17 @@ namespace ChapeauPOS.Controllers
         public IActionResult Payment(int id)
         {
             Order order = _ordersService.GetOrderByTableId(id);
+
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
-                return NotFound("No order found for this table.");
+                TempData["Error"] = "No active order found for this table. Please create an order first.";
+                return RedirectToAction("CreateOrder", "Orders", new { tableId = id });
             }
+
             PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
-            };
-
-            
-            ViewBag.PaymentModel = viewModel;
+            };           
 
             return View(viewModel);
         }
@@ -417,7 +417,7 @@ namespace ChapeauPOS.Controllers
                     LowVAT = paymentViewModel.LowVAT,
                     HighVAT = paymentViewModel.HighVAT,
                     NumberOfPeople = numberOfPeople,
-                    Payments = Enumerable.Repeat(new EqualIndividualPayment(), numberOfPeople).ToList()
+                    Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList() // Payments = paymentList
                 };
 
                 return View(viewModel);
@@ -428,6 +428,13 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Payment", new { id = tableId }); 
             }
         }
+        // Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
+        // This is basically :
+        // var paymentList = new List<IndividualPayment>();
+        // for (int i = 0; i < numberOfPeople; i++)
+        // {
+        // paymentList.Add(new IndividualPayment());
+        // }
 
 
         [HttpPost]
@@ -494,33 +501,33 @@ namespace ChapeauPOS.Controllers
             try
             {
                 var order = _ordersService.GetOrderByTableId(TableId);
-                var bill = _ordersService.GetBillByOrderId(order.OrderID);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
 
                 var viewModel = new PaymentViewModel
                 {
                     Order = order
                 };
 
-                var payments = JsonConvert.DeserializeObject<List<EqualIndividualPayment>>(PaymentsJson);
+                var payments = JsonConvert.DeserializeObject<List<IndividualPayment>>(PaymentsJson);
 
-                decimal runningTotal = 0;
+                decimal totalPaidSoFar = 0;
 
-                foreach (var p in payments)
+                foreach (var individualPayment in payments)
                 {
-                    runningTotal += p.AmountPaid;
+                    totalPaidSoFar += individualPayment.AmountPaid;
 
-                    var remainingBeforeThis = order.TotalAmount - (runningTotal - p.AmountPaid);
-                    var tip = p.AmountPaid > remainingBeforeThis ? p.AmountPaid - remainingBeforeThis : 0;
+                    var remainingBeforeCurrentPayment = order.TotalAmount - (totalPaidSoFar - individualPayment.AmountPaid);
+                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment: 0;
 
                     var payment = new Payment
                     {
                         Bill = bill,
                         TotalAmount = order.TotalAmount,
-                        GrandTotal = p.AmountPaid,
-                        TipAmount = tip,
-                        FeedBack = p.Feedback,
+                        GrandTotal = individualPayment.AmountPaid,
+                        TipAmount = calculatedTipAmount,
+                        FeedBack = individualPayment.Feedback,
                         PaidAt = DateTime.Now,
-                        PaymentMethod = p.PaymentMethod,
+                        PaymentMethod = individualPayment.PaymentMethod,
                         LowVAT = viewModel.LowVAT,
                         HighVAT = viewModel.HighVAT
                     };

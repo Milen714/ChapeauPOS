@@ -8,10 +8,13 @@ namespace ChapeauPOS.Repositories
     public class EmployeeRepository : IEmployeeRepository
     {
         private readonly string? _connectionString;
+
         public EmployeeRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("ChapeauDB");
         }
+
+        // Reads employee data from SqlDataReader
         private Employee ReadEmployee(SqlDataReader reader)
         {
             int employeeId = reader.GetInt32(0);
@@ -21,9 +24,13 @@ namespace ChapeauPOS.Repositories
             string email = reader.GetString(4);
             Roles role = (Roles)Enum.Parse(typeof(Roles), reader.GetString(5));
             EmployeeGender gender = (EmployeeGender)Enum.Parse(typeof(EmployeeGender), reader.GetString(6));
-            return new Employee(employeeId, firstName, lastName, password, email, role, gender);
+            bool isActive = reader.GetBoolean(7);
+           
+
+            return new Employee(employeeId, firstName, lastName, password, email, role, gender, isActive);
         }
-        List<Employee> IEmployeeRepository.GetAllEmployees()
+
+        public List<Employee> GetAllEmployees()
         {
             List<Employee> employees = new List<Employee>();
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -32,6 +39,8 @@ namespace ChapeauPOS.Repositories
                 string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender " +
                                " FROM Employees " +
                                " WHERE IsActive = 1; ";
+                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive FROM Employees";
+
                 SqlCommand command = new SqlCommand(query, connection);
                 SqlDataReader reader = command.ExecuteReader();
 
@@ -44,18 +53,16 @@ namespace ChapeauPOS.Repositories
             return employees;
         }
 
-        Employee IEmployeeRepository.GetEmployeeByIdAndPassword(LoginModel loginModel)
+        public Employee GetEmployeeByIdAndPassword(LoginModel loginModel)
         {
             Employee employee = new Employee();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = " SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender " +
-                               " FROM Employees " +
-                               " WHERE EmployeeID = @EmployeeID ";
+                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive FROM Employees WHERE EmployeeID = @EmployeeID";
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@EmployeeID", loginModel.EmployeeID);
                 //command.Parameters.AddWithValue("@Password", loginModel.Password);
-                command.Connection.Open();
+                connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
@@ -80,25 +87,42 @@ namespace ChapeauPOS.Repositories
             return employee;
         }
 
-        
-
-        void IEmployeeRepository.UpdateEmployee(Employee employee)
+        public void UpdateEmployee(Employee employee)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+                    string query = "UPDATE Employees SET FirstName=@FirstName, LastName=@LastName, Email=@Email, Role=@Role, Gender=@Gender WHERE EmployeeID=@EmployeeID";
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@FirstName", employee.FirstName);
+                    command.Parameters.AddWithValue("@LastName", employee.LastName);
+                    command.Parameters.AddWithValue("@Email", employee.Email);
+                    command.Parameters.AddWithValue("@Role", employee.Role.ToString());
+                    command.Parameters.AddWithValue("@Gender", employee.Gender.ToString());
+                    command.Parameters.AddWithValue("@EmployeeID", employee.EmployeeId);
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
         }
 
-        void IEmployeeRepository.AddEmployee(Employee employee)
+        public void AddEmployee(Employee employee)
         {
             // Hash the password before storing it
             var hasher = new PasswordHasher<string>();
             string hashedPassword = hasher.HashPassword(null, employee.Password);
             try
             {
-                using (SqlConnection connection = new SqlConnection (_connectionString))
+                using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO Employees (FirstName, LastName, Password, Email, Role, Gender) " +
-                                   "VALUES (@FirstName, @LastName, @Password, @Email, @Role, @Gender)";
+                    string query = "INSERT INTO Employees (FirstName, LastName, Password, Email, Role, Gender, IsActive) " +
+                                   "VALUES (@FirstName, @LastName, @Password, @Email, @Role, @Gender, @IsActive)";
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@FirstName", employee.FirstName);
                     command.Parameters.AddWithValue("@LastName", employee.LastName);
@@ -106,6 +130,7 @@ namespace ChapeauPOS.Repositories
                     command.Parameters.AddWithValue("@Email", employee.Email);
                     command.Parameters.AddWithValue("@Role", employee.Role.ToString());
                     command.Parameters.AddWithValue("@Gender", employee.Gender.ToString());
+                    command.Parameters.AddWithValue("@IsActive", employee.IsActive);
                     command.ExecuteNonQuery();
                 }
             }
@@ -122,20 +147,16 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = " SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender " +
-                                " FROM Employees " +
-                                " WHERE EmployeeID = @EmployeeID ";
+                    string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive FROM Employees WHERE EmployeeID = @EmployeeID";
                     SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@EmployeeID", id);
-                    command.Connection.Open();
+                    connection.Open();
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
                         employee = ReadEmployee(reader);
                     }
-
                 }
-
             }
             catch (SqlException ex)
             {
@@ -146,6 +167,30 @@ namespace ChapeauPOS.Repositories
                 Console.WriteLine("Error: " + ex.Message);
             }
             return employee;
+        }
+
+        public void ActivateEmployee(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "UPDATE Employees SET IsActive = 1 WHERE EmployeeID = @EmployeeID";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@EmployeeID", id);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeactivateEmployee(int id)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "UPDATE Employees SET IsActive = 0 WHERE EmployeeID = @EmployeeID";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@EmployeeID", id);
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

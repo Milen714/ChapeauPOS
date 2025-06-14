@@ -41,19 +41,20 @@
 </table>
 </div>
 <div>
-    <div>
+    <div class ="summary-box">
         <p><strong>Total Amount:</strong> €@Model.TotalAmount.ToString("F2")</p>
         <p><strong>Low VAT (9%):</strong> €@Model.LowVAT.ToString("F2")</p>
         <p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>
     </div>
+
     <div class="PaymentButtons_Container">
         <div class="PaymentButtons_Container">
             <button class="PaymentButtons" data-payment-method="Cash">Cash</button>
-            <button class="PaymentButtons" data-payment-method="Maestro">Maestro</button>
-            <a asp-controller="Orders" asp-action="EqualSplitPayment" asp-route-tableId="@Model.Order.Table.TableNumber">Split Equally</a>
-            <a asp-controller="Orders" asp-action="MultiPartialPayment" asp-route-tableId="@Model.Order.Table.TableNumber">Partial Payment</a>
-            
-            
+            <button class="PaymentButtons" data-payment-method="Maestro">Maestro</button>         
+            <button><a href="/Orders/EqualSplitPayment?tableId=@Model.Order.Table.TableNumber">Split Equally</a></button>
+            <button><a href="/Orders/MultiPartialPayment?tableId=@Model.Order.Table.TableNumber">Partial Payment</a></button>
+             
+                      
         </div>
     </div>
 
