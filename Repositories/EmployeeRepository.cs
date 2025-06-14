@@ -36,10 +36,9 @@ namespace ChapeauPOS.Repositories
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender " +
+                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive " +
                                " FROM Employees " +
                                " WHERE IsActive = 1; ";
-                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive FROM Employees";
 
                 SqlCommand command = new SqlCommand(query, connection);
                 SqlDataReader reader = command.ExecuteReader();

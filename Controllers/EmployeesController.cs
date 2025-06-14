@@ -18,11 +18,6 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
-        [SessionAuthorize(Roles.Manager)]
-
-        public IActionResult Index()
-
-
         // ✅ Helper method to check if the logged-in user is a manager
         private bool IsManagerLoggedIn()
 
@@ -30,7 +25,7 @@ namespace ChapeauPOS.Controllers
             var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             return user != null && user.Role == Roles.Manager;
         }
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Index()
         {
             // ✅ Check if the logged-in user has permission
@@ -69,6 +64,7 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee(Employee employee)
         {
             // ✅ Check if the logged-in user has permission
@@ -92,7 +88,7 @@ namespace ChapeauPOS.Controllers
 
             return View(employee);
         }
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
             // ✅ Check if the logged-in user has permission
@@ -107,6 +103,7 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(Employee employee)
         {
             // ✅ Check if the logged-in user has permission
@@ -139,7 +136,7 @@ namespace ChapeauPOS.Controllers
             TempData["SuccessMessage"] = "Employee activated!";
             return RedirectToAction(nameof(Index)); // ✅ Safer redirect
         }
-
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
             // ✅ Check if the logged-in user has permission
