@@ -138,6 +138,9 @@ html {
     .nav_item {
         height: 100%;
     }
+    #PopupBillContainer{
+        left: 14%;
+    }
 }
 
 @media (min-width: 1365px) {

@@ -22,6 +22,7 @@ namespace ChapeauPOS.Commons
             {
                 var controller = (Controller)context.Controller;
                 controller.TempData["ErrorMessage"] = "You do not have permission to access this page.";
+                httpContext.Session.Remove("LoggedInUser");
                 context.Result = new RedirectToActionResult("Login", "Home", null);
             }
 

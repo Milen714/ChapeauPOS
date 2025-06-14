@@ -324,6 +324,7 @@ namespace ChapeauPOS.Controllers
         [HttpPost]
         public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber, int MovetableNumber)
         {
+            _ordersService.RemoveOrderFromSession(HttpContext, CurrentTableNumber);
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
             return RedirectToAction("Index", "Tables");
@@ -346,6 +347,11 @@ namespace ChapeauPOS.Controllers
             ViewBag.PaymentModel = viewModel;
 
             return View(viewModel);
+        }
+        public IActionResult DisplayBill(int orderId)
+        {
+            Bill bill = _ordersService.GetBillByOrderId(orderId);
+            return PartialView("_Bill", bill);
         }
         public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {

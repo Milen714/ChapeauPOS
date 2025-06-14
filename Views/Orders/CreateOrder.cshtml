@@ -39,6 +39,9 @@
 </header>  
 
 <article class="OrderViewBody">
+    <div class="popupBILLOverlay">
+        <div id="PopupBillContainer"></div>
+    </div>
     <div class="popupMoveOverlay">
         <div class="popupMoveContainer">
             <div id="Move_Table_Container">
@@ -195,6 +198,28 @@
                             }
                         });
                     });
+                        $(document).on('click', '#DisplayBill', function () {
+                              var orderId = document.getElementById('orderId').value;
+                          $.ajax({
+                                    url: "/Orders/DisplayBill?orderId=" + encodeURIComponent(orderId),
+                              type: "GET",
+                              success: function (data) {
+                                    $("#PopupBillContainer").html(data);
+                                    var overlay = document.getElementsByClassName('popupBILLOverlay')[0];
+                                  if (overlay) {
+                                      overlay.style.display = 'block';
+                                      $(overlay).off('click').on('click', function (e) {
+                                          if (e.target === overlay) {
+                                              overlay.style.display = 'none';
+                                          }
+                                      });
+                                  }
+                              },
+                              error: function (error) {
+                                  console.error("Error fetching users:", error);
+                              }
+                          });
+                      });
                     
 
   </script>  
