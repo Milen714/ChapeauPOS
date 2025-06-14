@@ -5,15 +5,15 @@
 }
 
 <div style="margin:0;display:flex;justify-content:center;">
-	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
-	{
-		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light btn-style">Finished</a>
-		<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary btn-style">Running</a>
-	}
-	else
+	@if (Context.Request.Cookies["PreferedTheme"] == "Dark")
 	{
 		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-secondary btn-style">Finished</a>
 		<a href="/KitchenBar/BarRunningOrders" class="btn btn-light btn-style">Running</a>
+	}
+	else
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary btn-style">Running</a>
 	}
 </div>
 <form method="get" action="/KitchenBar/BarRunningOrders">
