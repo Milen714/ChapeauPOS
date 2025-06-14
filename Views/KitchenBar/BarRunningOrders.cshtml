@@ -36,7 +36,7 @@
 				<div class="order-header d-flex justify-content-between align-items-center" style="background-color:#0A60DA;padding:0 15px 15px 15px;border-radius:8px 8px 0 0;color:white">
 					<div style="color:black;background-color:#FF9F40;padding:5px;border-radius:3px 3px 0 0;">Table @order.Table.TableNumber</div>
 					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm tt")</div>
-					<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm")</div>
+					<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm\:ss")</div>
 				</div>
 
 				<!-- Order Items -->
