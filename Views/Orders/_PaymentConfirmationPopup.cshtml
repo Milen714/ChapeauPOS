@@ -1,10 +1,10 @@
 ﻿@using ChapeauPOS.ViewModels
 @model ChapeauPOS.ViewModels.PaymentViewModel
-<h1>THIS IS THE PAYMENT POPUP!!!!!</h1>
+<h1>Payment Summary</h1>
 
 <div class="PaymentPopupContainer_Body">
 	<div class="PaymentPopupContainer_Header">
-		<h3>Bill Number::</h3>
+		
 	</div>
 	<form action="/Orders/FinalizePayment" method="post">
 		<input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
@@ -15,21 +15,12 @@
 			
 			<p>Total to Pay: €@Model.TotalAmount.ToString("F2")</p>
 			<input type="hidden" id="baseTotal" name="total" value="@Model.TotalAmount" />
-
 			
 			<label for="amountPaid">Amount Paid (€):</label>
 			<input type="number" id="amountPaid" name="amountPaid" step="0.01" min="@Model.TotalAmount" value="@Model.TotalAmount" required />
 
-			
-			
-			<label>Tip: € <span id="tipDisplay">0.00</span></label>
-			<input type="hidden" id="tipAmount" name="tipAmount" value="0.00" />
-
-
-
 			<label for="feedBack">FeedBack</label>
 			<input id="feedBack" type="text" name="feedBack" value="" />
-
 			
 			<div class="PaymentPopupContainer_Vats">
 				<p>High VAT: @Model.HighVAT.ToString("F2")</p>
@@ -41,28 +32,5 @@
 	</form>
 </div>
 
-@section Scripts {
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			const baseTotal = parseFloat(document.getElementById("baseTotal").value);
-			const amountPaidInput = document.getElementById("amountPaid");
-			const tipDisplay = document.getElementById("tipDisplay");
-			const tipHidden = document.getElementById("tipAmount");
 
-			amountPaidInput.addEventListener("input", function () {
-				const paid = parseFloat(amountPaidInput.value);
-				const tip = paid - baseTotal;
-				if (isNaN(paid) || paid < baseTotal) {
-					tipDisplay.value = "0.00";
-					tipHidden.value = "0.00";
-					amountPaidInput.setCustomValidity("Cannot be less than total.");
-				} else {
-					tipDisplay.value = tip.toFixed(2);
-					tipHidden.value = tip.toFixed(2);
-					amountPaidInput.setCustomValidity("");
-				}
-			});
-		});
-	</script>
-}
 

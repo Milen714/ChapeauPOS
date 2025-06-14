@@ -2,7 +2,6 @@
 using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
 using ChapeauPOS.ViewModels;
-using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using ChapeauPOS.Hubs;
@@ -10,6 +9,8 @@ using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using ChapeauPOS.Services;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+
 
 namespace ChapeauPOS.Controllers
 {
@@ -31,6 +32,9 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpGet]
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
+        // This method is responsible for creating a new order for the specific table specific table.
+        // Theargument 'id' is the table number for which the order is being created.
         public IActionResult CreateOrder(int id)
         {
             try
@@ -56,7 +60,11 @@ namespace ChapeauPOS.Controllers
                     else if (dbOrder != null && order.OrderStatus != OrderStatus.Pending)
                     {
                         order.OrderItems = dbOrder.OrderItems;
+                        order.Employee = dbOrder.Employee;
+                        order.Table = dbOrder.Table;
+                        order.CreatedAt = dbOrder.CreatedAt;
                         order.OrderID = dbOrder.OrderID;
+                        //order = dbOrder;
                         _ordersService.SaveOrderToSession(HttpContext, table.TableNumber, order);
                     }
                 }
@@ -70,7 +78,8 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Index", "Tables");
             }
         }
-
+        // This method retrieves menu items based on the category provided and returns a partial view with the menu items.
+        // The 'category' parameter can be "Lunch", "Dinner", or "Drinks" and it comes from the AJAX request made by the client-side code.
         public IActionResult GetMenuItems(string category)
         {
             while (category != null)
@@ -98,6 +107,10 @@ namespace ChapeauPOS.Controllers
             return NotFound();
         }
         [HttpPost]
+        // This methiod retrieves menu items based on the search parameters provided by the user.
+        // The 'searchParams' parameter is a string that contains the search query,
+        // and 'tableNumber' is the table number for which the order is being created.
+        // It is used to redirect the user back to the order creation view if no items are found.
         public IActionResult GetMenuItemsBySearch(string searchParams, int tableNumber)
         {
             List<MenuItem> menuItems = _menuService.GetAllMenuItems();
@@ -113,6 +126,8 @@ namespace ChapeauPOS.Controllers
             MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
             return PartialView("_MenuPartial", searchMenu);
         }
+        // This method is responsible for displaying the order view for a specific table.
+        // It returns a partial view with the order details for the specified table.
         public IActionResult DisplayOrderView(string tableId)
         {
             int tableNumber = int.Parse(tableId);
@@ -120,7 +135,13 @@ namespace ChapeauPOS.Controllers
             return PartialView("_OrderListPartial", order);
         }
         [HttpPost]
-
+        // This method is responsible for adding a menu item to an order for a specific table.
+        // It does several things depending on the current state of the table and the order:
+        // 1. It checks if the order already exists in the session for the specified table.
+        // 2. If the order does not exist, it creates a new order and associates it with the table and employee.
+        // 3. It adds the selected menu item to the order.
+        // 4. It updates the table status to "Occupied" if it was previously "Free".
+        //
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
             try
@@ -169,16 +190,16 @@ namespace ChapeauPOS.Controllers
 
                 if (order.OrderStatus != OrderStatus.Pending)
                 {
-                    _ordersService.AddToOrder(order);
                     _menuService.DeductStock(order);
+                    _ordersService.AddToOrder(order);
                     order.InterumOrderItems.Clear();
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
                 else if(order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
-                    _ordersService.AddOrder(order);
                     _menuService.DeductStock(order);
+                    _ordersService.AddOrder(order);
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
 
@@ -303,27 +324,34 @@ namespace ChapeauPOS.Controllers
         [HttpPost]
         public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber, int MovetableNumber)
         {
+            _ordersService.RemoveOrderFromSession(HttpContext, CurrentTableNumber);
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
             return RedirectToAction("Index", "Tables");
         }
         //Nishchal
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult Payment(int id)
         {
             Order order = _ordersService.GetOrderByTableId(id);
+
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
-                return NotFound("No order found for this table.");
+                TempData["Error"] = "No active order found for this table. Please create an order first.";
+                return RedirectToAction("CreateOrder", "Orders", new { tableId = id });
             }
+
             PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
-            };
-
-            
-            ViewBag.PaymentModel = viewModel;
+            };           
 
             return View(viewModel);
+        }
+        public IActionResult DisplayBill(int orderId)
+        {
+            Bill bill = _ordersService.GetBillByOrderId(orderId);
+            return PartialView("_Bill", bill);
         }
         public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {
@@ -332,42 +360,191 @@ namespace ChapeauPOS.Controllers
             var viewModel = new PaymentViewModel { Order = order, PaymentMethod = paymentMethod1 };
             return PartialView("_PaymentConfirmationPopup", viewModel);
         }
-        
         [HttpPost]
-        public IActionResult FinalizePayment( PaymentMethod paymentMethod,int tableID,string feedBack,string total, string amountPaid)
-        {           
-            decimal baseTotal = decimal.Parse(total);              
-            decimal totalPlusTipMaybe = decimal.Parse(amountPaid); 
-           
-            var order = _ordersService.GetOrderByTableId(tableID);
-            Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
-           
-            var viewModel = new PaymentViewModel
+        public IActionResult FinalizePayment(PaymentMethod paymentMethod, int tableID, string feedBack, string total, string amountPaid)
+        {
+            try
             {
-                Order = order,
-                PaymentMethod = paymentMethod
-            };
-          
-            var payment = new Payment
+                decimal baseTotal = decimal.Parse(total);
+                decimal grandTotalPaid = decimal.Parse(amountPaid);
+
+                var order = _ordersService.GetOrderByTableId(tableID);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
+                var viewModel = new PaymentViewModel
+                {
+                    Order = order,
+                    PaymentMethod = paymentMethod
+                };
+
+                var payment = new Payment
+                {
+                    Bill = bill,
+                    PaymentMethod = paymentMethod,
+                    TotalAmount = baseTotal,
+                    GrandTotal = grandTotalPaid,
+                    FeedBack = feedBack,
+                    PaidAt = DateTime.Now,
+                    LowVAT = viewModel.LowVAT,
+                    HighVAT = viewModel.HighVAT
+                };
+
+                _ordersService.FinishOrderAndFreeTable(order, payment);
+                _ordersService.RemoveOrderFromSession(HttpContext, tableID);
+
+                TempData["Success"] = $"Order has been successfully paid! Total: €{payment.TotalAmount}, Paid: €{payment.GrandTotal}, Tip: €{payment.TipAmount}";
+                return RedirectToAction("Index", "Tables");
+            }
+            catch (Exception ex)
             {
-                Bill = bill,
-                PaymentMethod = paymentMethod,
-                TotalAmount = baseTotal,               
-                GrandTotal = totalPlusTipMaybe,       
-                FeedBack = feedBack,
-                PaidAt = DateTime.Now,
-                LowVAT = viewModel.LowVAT,
-                HighVAT = viewModel.HighVAT
-                
+                TempData["Error"] = "Error finalizing payment: " + ex.Message;
+                return RedirectToAction("Payment", new { id = tableID });
+            }
+        }
+        [HttpGet]
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
+        public IActionResult EqualSplitPayment(int tableId, int numberOfPeople = 0)
+        {
+            try
+            {
+                var order = _ordersService.GetOrderByTableId(tableId);
+                var paymentViewModel = new PaymentViewModel { Order = order };
+
+                var viewModel = new EqualSplitPaymentViewModel
+                {
+                    TableId = tableId,
+                    TotalAmount = paymentViewModel.TotalAmount,
+                    LowVAT = paymentViewModel.LowVAT,
+                    HighVAT = paymentViewModel.HighVAT,
+                    NumberOfPeople = numberOfPeople,
+                    Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList() // Payments = paymentList
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Unable to load equal split payment screen: " + ex.Message;
+                return RedirectToAction("Payment", new { id = tableId }); 
+            }
+        }
+        // Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
+        // This is basically :
+        // var paymentList = new List<IndividualPayment>();
+        // for (int i = 0; i < numberOfPeople; i++)
+        // {
+        // paymentList.Add(new IndividualPayment());
+        // }
+
+
+        [HttpPost]
+        public IActionResult FinalizeEqualSplitPayment(EqualSplitPaymentViewModel model)
+        {
+            try
+            {
+                var order = _ordersService.GetOrderByTableId(model.TableId);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
+
+                var viewModel = new PaymentViewModel
+                {
+                    Order = order
+                };
+
+                decimal totalBaseAmount = viewModel.TotalAmount;
+                decimal expectedPerPerson = totalBaseAmount / model.NumberOfPeople;
+
+                foreach (var perPerson in model.Payments)
+                {
+                    var payment = new Payment
+                    {
+                        Bill = bill,
+                        PaymentMethod = perPerson.PaymentMethod,
+                        TotalAmount = expectedPerPerson,
+                        GrandTotal = perPerson.AmountPaid,
+                        FeedBack = perPerson.Feedback,
+                        PaidAt = DateTime.Now,
+                        LowVAT = viewModel.LowVAT / model.NumberOfPeople,
+                        HighVAT = viewModel.HighVAT / model.NumberOfPeople
+                    };
+
+                    _ordersService.FinishOrderAndFreeTable(order, payment);
+                }
+
+                _ordersService.RemoveOrderFromSession(HttpContext, model.TableId);
+
+                TempData["Success"] = "Split payment completed.";
+                return RedirectToAction("Index", "Tables");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error processing equal split payment: " + ex.Message;
+                return RedirectToAction("EqualSplitPayment", new { tableId = model.TableId, numberOfPeople = model.NumberOfPeople });
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult MultiPartialPayment(int tableId)
+        {
+            var order = _ordersService.GetOrderByTableId(tableId);
+            var viewModel = new PartialPaymentViewModel
+            {
+                TableId = tableId,
+                TotalAmount = order.TotalAmount
             };
-           
-            _ordersService.FinishOrderAndFreeTable(order, payment);
-            _ordersService.RemoveOrderFromSession(HttpContext, tableID);
 
-            
-            TempData["Success"] = $"Order has been successfully paid! Total: €{payment.TotalAmount}, Paid: €{payment.GrandTotal}, Tip: €{payment.TipAmount}";
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult FinalizeMultiPartialPayment(int TableId, decimal TotalAmount, string PaymentsJson)
+        {
+            try
+            {
+                var order = _ordersService.GetOrderByTableId(TableId);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
 
-            return RedirectToAction("Index", "Tables");
+                var viewModel = new PaymentViewModel
+                {
+                    Order = order
+                };
+
+                var payments = JsonConvert.DeserializeObject<List<IndividualPayment>>(PaymentsJson);
+
+                decimal totalPaidSoFar = 0;
+
+                foreach (var individualPayment in payments)
+                {
+                    totalPaidSoFar += individualPayment.AmountPaid;
+
+                    var remainingBeforeCurrentPayment = order.TotalAmount - (totalPaidSoFar - individualPayment.AmountPaid);
+                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment: 0;
+
+                    var payment = new Payment
+                    {
+                        Bill = bill,
+                        TotalAmount = order.TotalAmount,
+                        GrandTotal = individualPayment.AmountPaid,
+                        TipAmount = calculatedTipAmount,
+                        FeedBack = individualPayment.Feedback,
+                        PaidAt = DateTime.Now,
+                        PaymentMethod = individualPayment.PaymentMethod,
+                        LowVAT = viewModel.LowVAT,
+                        HighVAT = viewModel.HighVAT
+                    };
+
+                    _ordersService.FinishOrderAndFreeTable(order, payment);
+                }
+
+                _ordersService.RemoveOrderFromSession(HttpContext, TableId);
+
+                TempData["Success"] = "All payments completed.";
+                return RedirectToAction("Index", "Tables");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error finalizing multi partial payment: " + ex.Message;
+                return RedirectToAction("MultiPartialPayment", new { tableId = TableId });
+            }
         }
 
 

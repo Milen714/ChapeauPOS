@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
 using ChapeauPOS.Models;
 
 namespace ChapeauPOS.ViewModels
