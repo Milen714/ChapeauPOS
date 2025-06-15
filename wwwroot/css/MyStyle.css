@@ -486,15 +486,18 @@ footer li a{
 .order_items_Header h4{
     color: white;
 }
+#MoveTableButton:hover{
+    cursor: pointer;
+    color: orangered;
+}
 
 #Actions_Select {
     appearance: none;
     background-color: transparent;
     color: var(--Collection1-TextBlue);
-    text-align:center;
+    text-align: center;
     padding: 7px;
     border: none;
-    
 }
 #Actions_Select option{
     background-color:transparent;

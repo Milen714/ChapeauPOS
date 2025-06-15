@@ -1,14 +1,11 @@
 ﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Hubs;
 using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
-using ChapeauPOS.ViewModels;
 using ChapeauPOS.Services.Interfaces;
+using ChapeauPOS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using ChapeauPOS.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-using ChapeauPOS.Services;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
 
@@ -47,7 +44,7 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    
+
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
                 {
@@ -195,7 +192,7 @@ namespace ChapeauPOS.Controllers
                     order.InterumOrderItems.Clear();
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
-                else if(order.OrderStatus == OrderStatus.Pending)
+                else if (order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
                     _menuService.DeductStock(order);
@@ -317,8 +314,9 @@ namespace ChapeauPOS.Controllers
         }
         public IActionResult MoveTable(int id)
         {
+            Order order = _ordersService.GetOrderByTableId(id);
             List<Table> tables = _tablesService.GetAllUnoccupiedTables();
-            ViewBag.Order = _ordersService.GetOrderByTableId(id);
+            ViewBag.Order = order;
             return PartialView("_MoveTable", tables);
         }
         [HttpPost]
@@ -328,6 +326,23 @@ namespace ChapeauPOS.Controllers
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
             return RedirectToAction("Index", "Tables");
+        }
+        public IActionResult DisplayBill(int orderId)
+        {
+            try
+            {
+                Bill bill = _ordersService.GetBillByOrderId(orderId);
+                if (bill.BillID == 0)
+                {
+                    throw new Exception("Send the order Before printing a bill");
+                }
+                return PartialView("_Bill", bill);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Failed to display the bill: " + ex.Message;
+                return RedirectToAction("Index", "Tables");
+            }
         }
         //Nishchal
         [SessionAuthorize(Roles.Manager, Roles.Waiter)]
@@ -344,15 +359,11 @@ namespace ChapeauPOS.Controllers
             PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
-            };           
+            };
 
             return View(viewModel);
         }
-        public IActionResult DisplayBill(int orderId)
-        {
-            Bill bill = _ordersService.GetBillByOrderId(orderId);
-            return PartialView("_Bill", bill);
-        }
+
         public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {
             PaymentMethod paymentMethod1 = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod);
@@ -425,7 +436,7 @@ namespace ChapeauPOS.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = "Unable to load equal split payment screen: " + ex.Message;
-                return RedirectToAction("Payment", new { id = tableId }); 
+                return RedirectToAction("Payment", new { id = tableId });
             }
         }
         // Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
@@ -517,7 +528,7 @@ namespace ChapeauPOS.Controllers
                     totalPaidSoFar += individualPayment.AmountPaid;
 
                     var remainingBeforeCurrentPayment = order.TotalAmount - (totalPaidSoFar - individualPayment.AmountPaid);
-                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment: 0;
+                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment : 0;
 
                     var payment = new Payment
                     {
