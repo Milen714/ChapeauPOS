@@ -74,8 +74,8 @@ namespace ChapeauPOS.Controllers
 
                 _employeesService.AddEmployee(employee);
 
-                // Save the new employee to the repository
-                // _employeeRepository.AddEmployee(employee);
+                TempData["SuccessMessage"] = "Employee added successfully!"; // ✅ Feedback message
+
                 return RedirectToAction(nameof(Index)); // ✅ Safer redirect
             }
 
@@ -96,7 +96,8 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Employee employee)
+        [ValidateAntiForgeryToken]
+        public IActionResult EditEmployee(Employee employee)
         {
             // ✅ Check if the logged-in user has permission
             if (!IsManagerLoggedIn())
@@ -105,11 +106,13 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
+            ModelState.Remove(nameof(employee.Password)); // ✅ FIX: prevent password validation if not used in edit
+
             if (ModelState.IsValid)
             {
                 _employeesService.UpdateEmployee(employee);
-                TempData["SuccessMessage"] = "Employee updated successfully!";
-                return RedirectToAction(nameof(Index)); // ✅ Safer redirect
+                TempData["SuccessMessage"] = "Employee updated successfully!"; // ✅ Feedback message
+                return RedirectToAction(nameof(Index));
             }
 
             return View("EditEmployee", employee);
@@ -117,7 +120,6 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult Activate(int id)
         {
-            // ✅ Check if the logged-in user has permission
             if (!IsManagerLoggedIn())
             {
                 TempData["ErrorMessage"] = "Access denied.";
@@ -126,12 +128,11 @@ namespace ChapeauPOS.Controllers
 
             _employeesService.ActivateEmployee(id);
             TempData["SuccessMessage"] = "Employee activated!";
-            return RedirectToAction(nameof(Index)); // ✅ Safer redirect
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Deactivate(int id)
         {
-            // ✅ Check if the logged-in user has permission
             if (!IsManagerLoggedIn())
             {
                 TempData["ErrorMessage"] = "Access denied.";
@@ -140,7 +141,7 @@ namespace ChapeauPOS.Controllers
 
             _employeesService.DeactivateEmployee(id);
             TempData["SuccessMessage"] = "Employee deactivated!";
-            return RedirectToAction(nameof(Index)); // ✅ Safer redirect
+            return RedirectToAction(nameof(Index));
         }
     }
 }

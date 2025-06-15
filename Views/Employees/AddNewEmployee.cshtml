@@ -2,40 +2,64 @@
 @{
 	ViewData["Title"] = "Add New Employee";
 }
-<h1>@ViewData["Title"]</h1>
 
-<form action="/Employees/AddNewEmployee" method="POST">
-	<article class="input_group">
-		<label for="FirstName">First Name</label>
-		<input type="text" class="input_field" asp-for="FirstName" required />
-	</article>
-	<article class="input_group">
-		<label for="LastName">Last Name</label>
-		<input type="text" class="input_field" asp-for="LastName" required />
-	</article>
-	<article class="input_group">
-		<label for="Email">Email</label>
-		<input type="email" class="input_field" asp-for="Email" value="@Model.Email" required />
-	</article>
-	<article class="input_group">
-		<label for="Gender">Gender:</label>
-		<select id="Gender" name="Gender" class="input_field">
-			<option value="">Choose:</option>
-			<option value="Female">Female</option>
-			<option value="Male">Male</option>
-		</select>
-	</article>
-	<article class="input_group">
-		<label for="Role">Role</label>
-		<select id="Role" name="Role" class="input_field">
-			<option value="Waiter">Waiter</option>
-			<option value="Bartender">Bartender</option>
-			<option value="Cook">Cook</option>
-		</select>
-	</article>
-	<article class="input_group">
-		<label for="Password">Password</label>
-		<input type="password" class="input_field" asp-for="Password" value="@Model.Password" required />
-	</article>
-	<button type="submit" class="add_entity_main">Add Employee</button>
-</form>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container my-5">
+	<div class="row justify-content-center">
+		<div class="col-md-8">
+			<div class="card shadow">
+				<div class="card-header bg-primary text-white">
+					<h4 class="mb-0">@ViewData["Title"]</h4>
+				</div>
+				<div class="card-body">
+					<form asp-action="AddNewEmployee" method="POST">
+						<div class="mb-3">
+							<label asp-for="FirstName" class="form-label">First Name</label>
+							<input asp-for="FirstName" class="form-control" required />
+						</div>
+
+						<div class="mb-3">
+							<label asp-for="LastName" class="form-label">Last Name</label>
+							<input asp-for="LastName" class="form-control" required />
+						</div>
+
+						<div class="mb-3">
+							<label asp-for="Email" class="form-label">Email</label>
+							<input asp-for="Email" type="email" class="form-control" required />
+						</div>
+
+						<div class="mb-3">
+							<label asp-for="Gender" class="form-label">Gender</label>
+							<select asp-for="Gender" class="form-select" required>
+								<option value="">Choose...</option>
+								<option value="Male">Male</option>
+								<option value="Female">Female</option>
+							</select>
+						</div>
+
+						<div class="mb-3">
+							<label asp-for="Role" class="form-label">Role</label>
+							<select asp-for="Role" class="form-select" required>
+								<option value="">Select role</option>
+								<option value="Waiter">Waiter</option>
+								<option value="Bartender">Bartender</option>
+								<option value="Cook">Cook</option>
+								<option value="Manager">Manager</option>
+							</select>
+						</div>
+
+						<div class="mb-4">
+							<label asp-for="Password" class="form-label">Password</label>
+							<input asp-for="Password" type="password" class="form-control" required />
+						</div>
+
+						<div class="d-grid">
+							<button type="submit" class="btn btn-success">Add Employee</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

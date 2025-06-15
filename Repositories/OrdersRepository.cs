@@ -1,7 +1,8 @@
-﻿using System.Collections;
-using ChapeauPOS.Models;
+﻿using ChapeauPOS.Models;
+using ChapeauPOS.Models.ViewModels;
 using ChapeauPOS.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
+using System.Collections;
 using static Azure.Core.HttpHeader;
 
 namespace ChapeauPOS.Repositories
@@ -598,6 +599,16 @@ namespace ChapeauPOS.Repositories
             }
             return bill;
         }
+
+        //bishwajit 3rd sprint
+        public FinancialOverviewViewModel GetFinancialOverview(DateTime startDate, DateTime endDate)
+        {
+            var overview = new FinancialOverviewViewModel();
+            // SQL logic to SUM by course (Drinks/Lunch/Dinner), grouped and filtered by date
+            // Use Payment.PaidAt and categorize items by MenuCourse
+            return overview;
+        }
+
     }
 
 }
