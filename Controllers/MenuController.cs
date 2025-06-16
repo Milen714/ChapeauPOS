@@ -9,11 +9,11 @@ namespace ChapeauPOS.Controllers
 {
     public class MenuController : BaseController
     {
-        private readonly IMenuService _service;
+        private readonly IMenuService _menuService;
 
         public MenuController(IMenuService service)
         {
-            _service = service;
+            _menuService = service;
         }
 
         //public IActionResult Index(string course, string category)
@@ -25,13 +25,11 @@ namespace ChapeauPOS.Controllers
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Index(string course, string category)
         {
-            //  Using _service instead of _menuService
-            var filteredItems = _service.FilterMenuItems(course, category);
+            //Explicitly include inactive items so that deactivated ones still show
+            var filteredItems = _menuService.FilterMenuItems(course, category, includeInactive: true);
 
-            // Filter drinks separately
             var drinks = filteredItems.Where(i => i.Course == MenuCourse.Drink).ToList();
 
-            //  constructor for MenuViewModel
             var viewModel = new MenuViewModel(
                 categoryName: category ?? "All Categories",
                 category: filteredItems,
@@ -44,11 +42,9 @@ namespace ChapeauPOS.Controllers
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Create()
         {
-            ViewBag.Categories = _service.GetMenuCategories();
+            ViewBag.Categories = _menuService.GetMenuCategories();
             return View(); //  load Views/Menu/Create.cshtml
         }
-
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -62,72 +58,42 @@ namespace ChapeauPOS.Controllers
             if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
                 item.Category.CategoryID = catId;
 
-      
-
             // Validate the model
             if (!ModelState.IsValid)
             {
-                ViewBag.Categories = _service.GetMenuCategories();
+                ViewBag.Categories = _menuService.GetMenuCategories();
                 return View(item);
             }
 
             try
             {
-                _service.AddMenuItem(item); // Save to DB
-            
+                _menuService.AddMenuItem(item); // Save to DB
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Something went wrong: " + ex.Message);
-                ViewBag.Categories = _service.GetMenuCategories();
+                ViewBag.Categories = _menuService.GetMenuCategories();
                 return View(item);
             }
         }
 
-
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
-            var item = _service.GetMenuItemById(id);
+            var item = _menuService.GetMenuItemById(id);
             if (item == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Categories = _service.GetMenuCategories();
+            ViewBag.Categories = _menuService.GetMenuCategories();
             return View(item);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Edit(MenuItem item)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        //  Ensure nested Category is reconstructed
-        //        if (item.Category == null)
-        //        {
-        //            item.Category = new MenuCategory();
-        //        }
-
-        //        //  Get CategoryID from form (it may not bind into item.Category)
-        //        if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
-        //        {
-        //            item.Category.CategoryID = catId;
-        //        }
-
-        //        _service.UpdateMenuItem(item); // this saves to DB
-        //        return RedirectToAction("Index");
-        //    }
-
-        //    // Re-populate dropdown if model state is invalid
-        //    ViewBag.Categories = _service.GetMenuCategories();
-        //    return View(item);
-        //}
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public IActionResult Edit(MenuItem item)
         {
             if (ModelState.IsValid)
@@ -144,8 +110,7 @@ namespace ChapeauPOS.Controllers
                     else
                         throw new Exception("Category ID was not selected.");
 
-
-                    _service.UpdateMenuItem(item); // Update in DB
+                    _menuService.UpdateMenuItem(item); // Update in DB
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
@@ -156,18 +121,64 @@ namespace ChapeauPOS.Controllers
             }
 
             // Repopulate dropdowns if ModelState is invalid
-            ViewBag.Categories = _service.GetMenuCategories();
+            ViewBag.Categories = _menuService.GetMenuCategories();
             return View(item);
         }
 
+        //public IActionResult Toggle(int id, bool isActive)
+        //{
+        //    _service.ToggleMenuItemStatus(id, isActive);
+        //    return RedirectToAction("Index");
+        //}
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Toggle(int id)
+        {
+            try
+            {
+                var item = _menuService.GetMenuItemById(id);
+                if (item == null)
+                {
+                    TempData["ErrorMessage"] = "Menu item not found.";
+                    return RedirectToAction("Index");
+                }
 
+                bool newStatus = !item.IsActive;
+                _menuService.ToggleMenuItemStatus(id, newStatus);
+                TempData["SuccessMessage"] = newStatus ? "Menu item activated successfully!" : "Menu item deactivated successfully!";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error toggling menu item: " + ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id, bool isActive)
         {
-            _service.ToggleMenuItemStatus(id, isActive);
+            _menuService.ToggleMenuItemStatus(id, true);
+            TempData["SuccessMessage"] = "Menu item activated successfully!";
             return RedirectToAction("Index");
         }
+
+        public IActionResult Deactivate(int id)
+        {
+            _menuService.ToggleMenuItemStatus(id, false);
+            TempData["SuccessMessage"] = "Menu item deactivated successfully!";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult UpdateStock(int id, int stock)
+        {
+            _menuService.UpdateStock(id, stock);
+            TempData["SuccessMessage"] = "Stock updated successfully!";
+            return RedirectToAction("Index", new { course = Request.Query["course"], category = Request.Query["category"] });
+        }
+
+        
     }
 }

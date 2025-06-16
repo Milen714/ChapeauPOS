@@ -1,0 +1,33 @@
+﻿@using ChapeauPOS.ViewModels
+@model ChapeauPOS.Models.Bill
+@{
+    PaymentViewModel vats = new PaymentViewModel { Order = Model.Order };
+    decimal subtotal = Model.Order.TotalAmount - (vats.HighVAT + vats.LowVAT);
+}
+<div class="receipt">
+    <img src="/assets/LeChapeau.svg" alt="Alternate Text" />
+    <p>123 Baguette Straat, Zeewolde</p>
+    <p>------------------------------</p>
+    <p>Table: @Model.Order.Table.TableNumber | Server: @Model.Order.Employee.FirstName</p>
+    <p>Date: @Model.CreatedAt </p>
+
+    <div class="items">
+        @{
+            foreach(OrderItem orderItem in Model.Order.OrderItems)
+            {
+                <div class="item"><span>@orderItem.Quantity x @orderItem.MenuItem.ItemName</span><span>€@orderItem.MenuItem.ItemPrice</span></div>
+            }
+        }
+        
+    </div>
+
+    <div class="total"><span>Subtotal</span><span>€@subtotal.ToString("F2")</span></div>
+    <div class="total"><span>Tax (9%)</span><span>€@vats.LowVAT.ToString("F2")</span></div>
+    <div class="total"><span>Tax (21%)</span><span>€@vats.HighVAT.ToString("F2")</span></div>
+    <div class="total"><span><strong>Total</strong></span><span><strong>€@Model.Order.TotalAmount</strong></span></div>
+
+    <div class="thank-you">
+        Thank you for dining with us!<br>
+        Come back soon 🍰
+    </div>
+</div>

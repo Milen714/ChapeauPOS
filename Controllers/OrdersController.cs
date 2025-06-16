@@ -1,15 +1,11 @@
 ﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Hubs;
 using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
-using ChapeauPOS.ViewModels;
-using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
+using ChapeauPOS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using ChapeauPOS.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-using ChapeauPOS.Services;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
 
@@ -33,6 +29,9 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpGet]
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
+        // This method is responsible for creating a new order for the specific table specific table.
+        // Theargument 'id' is the table number for which the order is being created.
         public IActionResult CreateOrder(int id)
         {
             try
@@ -45,7 +44,7 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    
+
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
                 {
@@ -76,7 +75,8 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Index", "Tables");
             }
         }
-
+        // This method retrieves menu items based on the category provided and returns a partial view with the menu items.
+        // The 'category' parameter can be "Lunch", "Dinner", or "Drinks" and it comes from the AJAX request made by the client-side code.
         public IActionResult GetMenuItems(string category)
         {
             while (category != null)
@@ -104,6 +104,10 @@ namespace ChapeauPOS.Controllers
             return NotFound();
         }
         [HttpPost]
+        // This methiod retrieves menu items based on the search parameters provided by the user.
+        // The 'searchParams' parameter is a string that contains the search query,
+        // and 'tableNumber' is the table number for which the order is being created.
+        // It is used to redirect the user back to the order creation view if no items are found.
         public IActionResult GetMenuItemsBySearch(string searchParams, int tableNumber)
         {
             List<MenuItem> menuItems = _menuService.GetAllMenuItems();
@@ -119,6 +123,8 @@ namespace ChapeauPOS.Controllers
             MenuViewModel searchMenu = new MenuViewModel("Search Results", menuItems, menuItems);
             return PartialView("_MenuPartial", searchMenu);
         }
+        // This method is responsible for displaying the order view for a specific table.
+        // It returns a partial view with the order details for the specified table.
         public IActionResult DisplayOrderView(string tableId)
         {
             int tableNumber = int.Parse(tableId);
@@ -126,7 +132,13 @@ namespace ChapeauPOS.Controllers
             return PartialView("_OrderListPartial", order);
         }
         [HttpPost]
-
+        // This method is responsible for adding a menu item to an order for a specific table.
+        // It does several things depending on the current state of the table and the order:
+        // 1. It checks if the order already exists in the session for the specified table.
+        // 2. If the order does not exist, it creates a new order and associates it with the table and employee.
+        // 3. It adds the selected menu item to the order.
+        // 4. It updates the table status to "Occupied" if it was previously "Free".
+        //
         public IActionResult AddItemToOrder(int itemId, int tableId, int employeeId, string? note = null)
         {
             try
@@ -180,7 +192,7 @@ namespace ChapeauPOS.Controllers
                     order.InterumOrderItems.Clear();
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
-                else if(order.OrderStatus == OrderStatus.Pending)
+                else if (order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
                     _menuService.DeductStock(order);
@@ -302,18 +314,38 @@ namespace ChapeauPOS.Controllers
         }
         public IActionResult MoveTable(int id)
         {
+            Order order = _ordersService.GetOrderByTableId(id);
             List<Table> tables = _tablesService.GetAllUnoccupiedTables();
-            ViewBag.Order = _ordersService.GetOrderByTableId(id);
+            ViewBag.Order = order;
             return PartialView("_MoveTable", tables);
         }
         [HttpPost]
         public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber, int MovetableNumber)
         {
+            _ordersService.RemoveOrderFromSession(HttpContext, CurrentTableNumber);
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
             return RedirectToAction("Index", "Tables");
         }
+        public IActionResult DisplayBill(int orderId)
+        {
+            try
+            {
+                Bill bill = _ordersService.GetBillByOrderId(orderId);
+                if (bill.BillID == 0)
+                {
+                    throw new Exception("Send the order Before printing a bill");
+                }
+                return PartialView("_Bill", bill);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Failed to display the bill: " + ex.Message;
+                return RedirectToAction("Index", "Tables");
+            }
+        }
         //Nishchal
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult Payment(int id)
         {
             Order order = _ordersService.GetOrderByTableId(id);
@@ -327,7 +359,7 @@ namespace ChapeauPOS.Controllers
             PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
-            };           
+            };
 
             return View(viewModel);
         }
@@ -381,6 +413,7 @@ namespace ChapeauPOS.Controllers
             }
         }
         [HttpGet]
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult EqualSplitPayment(int tableId, int numberOfPeople = 0)
         {
             try
@@ -403,7 +436,7 @@ namespace ChapeauPOS.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = "Unable to load equal split payment screen: " + ex.Message;
-                return RedirectToAction("Payment", new { id = tableId }); 
+                return RedirectToAction("Payment", new { id = tableId });
             }
         }
         // Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
@@ -495,7 +528,7 @@ namespace ChapeauPOS.Controllers
                     totalPaidSoFar += individualPayment.AmountPaid;
 
                     var remainingBeforeCurrentPayment = order.TotalAmount - (totalPaidSoFar - individualPayment.AmountPaid);
-                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment: 0;
+                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment : 0;
 
                     var payment = new Payment
                     {

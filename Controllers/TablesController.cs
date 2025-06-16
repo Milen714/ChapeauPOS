@@ -1,4 +1,5 @@
-﻿using ChapeauPOS.Models;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
 using ChapeauPOS.Repositories.Interfaces;
 using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace ChapeauPOS.Controllers
             _ordersService = ordersService;
             _kitchenBarService = kitchenBarService;
         }
-
+        [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult Index()
         {
             var tables = _tablesService.GetAllTables();
