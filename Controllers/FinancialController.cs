@@ -1,4 +1,6 @@
-﻿using ChapeauPOS.Models.ViewModels;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
+using ChapeauPOS.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 public class FinancialController : BaseController
@@ -9,14 +11,21 @@ public class FinancialController : BaseController
     {
         _financialService = financialService;
     }
-
     public IActionResult Index(DateTime? start, DateTime? end)
     {
+        var employee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+
+        if (employee == null || employee.Role != Roles.Manager)
+        {
+            TempData["ErrorMessage"] = "Access denied.";
+            return RedirectToAction("Login", "Home");
+        }
+
         DateTime from = start ?? new DateTime(DateTime.Now.Year, 1, 1);
         DateTime to = (end ?? DateTime.Now).Date.AddDays(1).AddTicks(-1);
-
 
         FinancialOverviewViewModel model = _financialService.GetOverview(from, to);
         return View(model);
     }
+
 }

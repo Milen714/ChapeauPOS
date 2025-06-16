@@ -10,7 +10,7 @@
 	@if (!ViewData.ModelState.IsValid)
 	{
 		<div class="alert alert-danger">
-			<strong>Form has errors:</strong> <!-- 🔁 Preserved comment -->
+			<strong>Form has errors:</strong> <!--  Preserved comment -->
 			<ul>
 				@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
 				{
@@ -21,7 +21,7 @@
 	}
 
 	<form asp-action="EditEmployee" method="post">
-		@Html.AntiForgeryToken() <!-- ✅ Critical for POST to work -->
+		@Html.AntiForgeryToken() <!-- Critical for POST to work -->
 
 		<input type="hidden" asp-for="EmployeeId" />
 

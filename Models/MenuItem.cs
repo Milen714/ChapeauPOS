@@ -14,7 +14,7 @@ namespace ChapeauPOS.Models
             VAT = vat;
             Category = category;
             Course = course;
-            IsActive = isActive; //  Fix: assign incoming parameter
+            IsActive = isActive; 
         }
 
         //  Constructor overloading for creating a new MenuItem

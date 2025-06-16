@@ -16,49 +16,52 @@ namespace ChapeauPOS.Controllers
             _service = service;
         }
 
-        //public IActionResult Index(string course, string category)
-        //{
-        //    var items = _service.FilterMenuItems(course, category);
-        //    return View(items);
-        //}
-
-        [SessionAuthorize(Roles.Manager)]
         public IActionResult Index(string course, string category)
         {
-            //Explicitly include inactive items so that deactivated ones still show
-            var filteredItems = _service.FilterMenuItems(course, category, includeInactive: true);
-
-            var drinks = filteredItems.Where(i => i.Course == MenuCourse.Drink).ToList();
+            var items = _service.FilterMenuItems(course, category, includeInactive: true);
 
             var viewModel = new MenuViewModel(
                 categoryName: category ?? "All Categories",
-                category: filteredItems,
-                drinks: drinks
+                category: items,
+                drinks: items.Where(i => i.Course == MenuCourse.Drink).ToList()
             );
 
+            ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             return View(viewModel);
+        }
+
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult Manage(string course, string category)
+        {
+            var items = _service.FilterMenuItems(course, category, includeInactive: true);
+
+            var viewModel = new MenuViewModel(
+                categoryName: category ?? "All Categories",
+                category: items,
+                drinks: items.Where(i => i.Course == MenuCourse.Drink).ToList()
+            );
+
+            ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+            return View("Manage", viewModel);
         }
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Create()
         {
             ViewBag.Categories = _service.GetMenuCategories();
-            return View(); //  load Views/Menu/Create.cshtml
+            return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(MenuItem item)
         {
-            // Make sure Category object exists
             if (item.Category == null)
                 item.Category = new MenuCategory();
 
-            // Manually bind the CategoryID from the form if not bound automatically
             if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
                 item.Category.CategoryID = catId;
 
-            // Validate the model
             if (!ModelState.IsValid)
             {
                 ViewBag.Categories = _service.GetMenuCategories();
@@ -67,7 +70,7 @@ namespace ChapeauPOS.Controllers
 
             try
             {
-                _service.AddMenuItem(item); // Save to DB
+                _service.AddMenuItem(item);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -83,79 +86,39 @@ namespace ChapeauPOS.Controllers
         {
             var item = _service.GetMenuItemById(id);
             if (item == null)
-            {
                 return NotFound();
-            }
 
             ViewBag.Categories = _service.GetMenuCategories();
             return View(item);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Edit(MenuItem item)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        //  Ensure nested Category is reconstructed
-        //        if (item.Category == null)
-        //        {
-        //            item.Category = new MenuCategory();
-        //        }
-
-        //        //  Get CategoryID from form (it may not bind into item.Category)
-        //        if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
-        //        {
-        //            item.Category.CategoryID = catId;
-        //        }
-
-        //        _service.UpdateMenuItem(item); // this saves to DB
-        //        return RedirectToAction("Index");
-        //    }
-
-        //    // Re-populate dropdown if model state is invalid
-        //    ViewBag.Categories = _service.GetMenuCategories();
-        //    return View(item);
-        //}
-
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         public IActionResult Edit(MenuItem item)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    // Ensure Category is constructed if null
                     if (item.Category == null)
                         item.Category = new MenuCategory();
 
-                    // Manually bind CategoryID (if not bound automatically)
                     if (int.TryParse(Request.Form["Category.CategoryID"], out int catId))
                         item.Category.CategoryID = catId;
                     else
                         throw new Exception("Category ID was not selected.");
 
-                    _service.UpdateMenuItem(item); // Update in DB
+                    _service.UpdateMenuItem(item);
                     return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
-                    // Show error message in UI
                     ModelState.AddModelError("", "Update failed: " + ex.Message);
                 }
             }
 
-            // Repopulate dropdowns if ModelState is invalid
             ViewBag.Categories = _service.GetMenuCategories();
             return View(item);
         }
-
-        //public IActionResult Toggle(int id, bool isActive)
-        //{
-        //    _service.ToggleMenuItemStatus(id, isActive);
-        //    return RedirectToAction("Index");
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -173,7 +136,7 @@ namespace ChapeauPOS.Controllers
                 bool newStatus = !item.IsActive;
                 _service.ToggleMenuItemStatus(id, newStatus);
                 TempData["SuccessMessage"] = $"Menu item {(newStatus ? "activated" : "deactivated")} successfully!";
-                return RedirectToAction("Index"); // ✅ ADDED missing return
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
@@ -190,11 +153,26 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction("Index");
         }
 
+        //  Secure POST version of Deactivate
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
             _service.ToggleMenuItemStatus(id, false);
             TempData["SuccessMessage"] = "Menu item deactivated successfully!";
-            return RedirectToAction("Index");
+            return RedirectToAction("Manage");
+        }
+
+        //  Secure POST version of Activate
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult Activate(int id)
+        {
+            _service.ToggleMenuItemStatus(id, true);
+            TempData["SuccessMessage"] = "Menu item activated successfully!";
+            return RedirectToAction("Manage");
         }
 
         [HttpPost]
@@ -204,12 +182,5 @@ namespace ChapeauPOS.Controllers
             TempData["SuccessMessage"] = "Stock updated successfully!";
             return RedirectToAction("Index", new { course = Request.Query["course"], category = Request.Query["category"] });
         }
-
-        //[HttpPost]
-        //public IActionResult Toggle(int id, bool isActive)
-        //{
-        //    _service.ToggleMenuItemStatus(id, isActive);
-        //    return Ok(); // important for JS .then() to succeed
-        //}
     }
 }
