@@ -45,7 +45,7 @@ namespace ChapeauPOS.Repositories
                                    "JOIN MenuCategories AS MC ON MI.CategoryID = MC.CategoryID";
 
                     if (!includeInactive)
-                        query += " WHERE MI.IsActive = 1";
+                        query += " WHERE MI.IsActive = 1";// Filtering and taking only active items
 
                     SqlCommand command = new SqlCommand(query, connection);
                     connection.Open();
