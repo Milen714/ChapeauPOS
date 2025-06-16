@@ -144,7 +144,7 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Index");
             }
         }
-
+        //toggle menu item status (active/deactive) securely
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id, bool isActive)
         {
