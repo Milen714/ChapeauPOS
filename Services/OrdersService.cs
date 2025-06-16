@@ -155,7 +155,9 @@ namespace ChapeauPOS.Services
         public Bill GetBillByOrderId(int orderId)
         {
             return _ordersRepository.GetBillByOrderId(orderId);
-        }
+        }        
+
+
     }
 
 }

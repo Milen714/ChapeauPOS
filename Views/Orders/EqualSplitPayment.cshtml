@@ -1,0 +1,103 @@
+﻿@model ChapeauPOS.ViewModels.EqualSplitPaymentViewModel
+
+
+<h1>Split Payment</h1>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+     @* Step 1: Number of People Selector *@
+@if (Model.NumberOfPeople == 0)
+{
+    <h2>Select how many people will split the bill for Table @Model.TableId.</h2>
+
+    <form method="get" action="/Orders/EqualSplitPayment">
+        <input type="hidden" name="tableId" value="@Model.TableId" />
+        <label for="numberOfPeople">Number of People:</label>        
+        <input type="number"id="numberOfPeople"name="numberOfPeople"min="1"step="1"placeholder="Enter number of people"required />
+        <button type="submit">Next</button>
+    </form>
+}
+else
+{
+        // Split Payment Entry 
+    <hr />
+    <h2>Split Payment for @Model.NumberOfPeople People</h2>
+
+    <p><strong>Total Amount:</strong> €@Model.TotalAmount.ToString("F2")</p>
+    <p><strong>Low VAT (9%):</strong> €@Model.LowVAT.ToString("F2")</p>
+    <p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>
+
+    <form method="post" asp-action="FinalizeEqualSplitPayment">
+        <input type="hidden" name="TableId" value="@Model.TableId" />
+        <input type="hidden" name="TotalAmount" value="@Model.TotalAmount" />
+        <input type="hidden" name="LowVAT" value="@Model.LowVAT" />
+        <input type="hidden" name="HighVAT" value="@Model.HighVAT" />
+        <input type="hidden" name="NumberOfPeople" value="@Model.NumberOfPeople" />
+
+        @for (int i = 0; i < Model.NumberOfPeople; i++)
+        {
+            var share = (Model.TotalAmount / Model.NumberOfPeople);
+            <div class="payment-box">
+                <h3>Person @(i + 1)</h3>
+
+                <label>Payment Method:</label>
+                <select name="Payments[@i].PaymentMethod"> 
+                    <option value="Cash">Cash</option>
+                    <option value="Maestro">Maestro</option>                    
+                </select>
+
+                <label>Amount (€):</label>
+                <input type="number"step="0.01" name="Payments[@i].AmountPaid" value="@share.ToString("F2")"placeholder="@share.ToString("F2")"required />
+
+                <label>Feedback:</label>
+                <input type="text" name="Payments[@i].Feedback" />
+
+                <p>9% VAT Share: €@((Model.LowVAT / Model.NumberOfPeople).ToString("F2"))</p>
+                <p>21% VAT Share: €@((Model.HighVAT / Model.NumberOfPeople).ToString("F2"))</p>
+
+            </div>
+        }
+
+        <button type="submit" id="submitBtn">Submit Split Payment</button>
+    </form>
+
+    @section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputs = document.querySelectorAll("input[name$='AmountPaid']");
+            const total = parseFloat("@Model.TotalAmount");
+            const submitBtn = document.getElementById("submitBtn");
+
+            function validateTotal() {
+                let sum = 0;
+                inputs.forEach(input => {
+                    const val = parseFloat(input.value) || 0;
+                    sum += val;
+                });
+
+                if (sum < total) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = `Underpaid: €${(total - sum).toFixed(2)}`;
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit Split Payment";
+                }
+            }
+
+            inputs.forEach(input => input.addEventListener("input", validateTotal));
+            validateTotal();
+        });
+    </script>
+    }
+}

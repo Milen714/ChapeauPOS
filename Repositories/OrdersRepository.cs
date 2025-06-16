@@ -526,8 +526,7 @@ namespace ChapeauPOS.Repositories
                     string query = @"UPDATE Orders SET OrderStatus=@OrderStatus " +
                                    "WHERE OrderID = @OrderID";
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@OrderStatus", "Finalized");
-                    //command.Parameters.AddWithValue("@ClosedAt", DateTime.Now.ToString());
+                    command.Parameters.AddWithValue("@OrderStatus", "Finalized");                    
                     command.Parameters.AddWithValue("@OrderID", orderID);
 
                     connection.Open();

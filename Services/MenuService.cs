@@ -80,6 +80,43 @@ namespace ChapeauPOS.Services
             _menuRepository.ActivateMenuItem(id); //  Activate directly
         }
 
+        //public void GetWholeMenu()
+        //{
+        //    List<MenuCategory> menuCategories = _menuRepository.GetMenuCategories();
+        //    foreach (MenuCategory menuCategory in menuCategories)
+        //    {
+        //        if (menuCategory.CategoryName == "Lunch")
+        //        {
+        //            List<MenuItem> lunchItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
+        //            foreach (MenuItem menuItem in lunchItems)
+        //            {
+        //                Console.WriteLine($"Lunch Menu Item: {menuItem.ItemName}");
+        //            }
+        //        }
+        //        else if (menuCategory.CategoryName == "Dinner")
+        //        {
+        //            List<MenuItem> dinnerItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
+        //            foreach (MenuItem menuItem in dinnerItems)
+        //            {
+        //                Console.WriteLine($"Dinner Menu Item: {menuItem.ItemName}");
+        //            }
+        //        }
+        //        else if (menuCategory.CategoryName == "Drinks")
+        //        {
+        //            List<MenuItem> drinkItems = _menuRepository.GetMenuItemsByCategory(menuCategory);
+        //            foreach (MenuItem menuItem in drinkItems)
+        //            {
+        //                Console.WriteLine($"Drink Menu Item: {menuItem.ItemName}");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine($"Unknown category: {menuCategory.CategoryName}");
+        //        }
+        //    }
+        //}
+
+
         public void DeactivateMenuItem(int id)
         {
             _menuRepository.DeactivateMenuItem(id); //  Deactivate directly
@@ -97,6 +134,26 @@ namespace ChapeauPOS.Services
 
         public void DeductStock(Order order)
         {
+
+            foreach(OrderItem orderItem in order.OrderItems)
+            {
+                if(orderItem.MenuItem.Stock < orderItem.Quantity)
+                {
+                    throw new Exception("Not enough stock to fullfil your order");
+                }
+            }
+            if (order.InterumOrderItems != null)
+            {
+                foreach (OrderItem orderItem in order.InterumOrderItems) 
+                {
+                    if (orderItem.MenuItem.Stock < orderItem.Quantity)
+                    {
+                        throw new Exception("Not enough stock to fullfil your order");
+                    }
+                }
+            }
+            _menuRepository.DeductStock(order);
+
             _menuRepository.DeductStock(order); // Used in order processing
         }
 

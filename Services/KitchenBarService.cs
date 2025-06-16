@@ -38,25 +38,10 @@ namespace ChapeauPOS.Services
             _kitchenBarRepository.UpdateBarOrderItemStatus(orderItemId, orderItemStatus);
         }
 
-        //public void UpdateBarOrderStatus(int orderId, OrderStatus orderStatus)
-        //{
-        //    _kitchenBarRepository.UpdateBarOrderStatus(orderId, orderStatus);
-        //}
-
         public void UpdateKitchenOrderItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
             _kitchenBarRepository.UpdateKitchenOrderItemStatus(orderItemId, orderItemStatus);
         }
-
-        //public void UpdateKitchenOrderStatus(int orderId, OrderStatus orderStatus)
-        //{
-        //    _kitchenBarRepository.UpdateKitchenOrderStatus(orderId, orderStatus);
-        //}
-
-        //public void UpdateKitchenCourseStatus(int orderId, MenuCourse menuCourse, CourseStatus courseStatus)
-        //{
-        //    _kitchenBarRepository.UpdateKitchenCourseStatus(orderId, menuCourse, courseStatus);
-        //}
 
         public void CloseFoodOrder(int orderId)
         {

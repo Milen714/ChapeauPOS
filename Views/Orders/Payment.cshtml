@@ -1,8 +1,21 @@
 ﻿@model ChapeauPOS.ViewModels.PaymentViewModel
 @{
-                <input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
+   <input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
 }
 <h2>Payment Summary - Table @Model.Order.Table.TableNumber</h2>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
 <div>
 <table class="table">
     <thead>
@@ -11,9 +24,6 @@
             <th>Qty</th>
             <th>Unit Price</th>
             <th>Total</th>
-
-
-
         </tr>
     </thead>
     <tbody>
@@ -40,8 +50,10 @@
         <div class="PaymentButtons_Container">
             <button class="PaymentButtons" data-payment-method="Cash">Cash</button>
             <button class="PaymentButtons" data-payment-method="Maestro">Maestro</button>
-            <button class="PaymentButtons" data-payment-method="Split">Split</button>
-            <button class="PaymentButtons" data-payment-method="Feedback">Feedback</button>
+            <a asp-controller="Orders" asp-action="EqualSplitPayment" asp-route-tableId="@Model.Order.Table.TableNumber">Split Equally</a>
+            <a asp-controller="Orders" asp-action="MultiPartialPayment" asp-route-tableId="@Model.Order.Table.TableNumber">Partial Payment</a>
+            
+            
         </div>
     </div>
 
