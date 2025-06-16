@@ -18,13 +18,19 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
+
+
+        //  Helper method to check if the logged-in user is a manager
+
         private bool IsManagerLoggedIn()
         {
             var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
             return user != null && user.Role == Roles.Manager;
         }
 
+
         //  Read-Only View: Employee Directory
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Index()
         {
@@ -72,7 +78,11 @@ namespace ChapeauPOS.Controllers
 
         //  Add Employee (POST)
         [HttpPost]
+
         [ValidateAntiForgeryToken]
+
+        [SessionAuthorize(Roles.Manager)]
+
         public IActionResult AddNewEmployee(Employee employee)
         {
             if (!IsManagerLoggedIn())
@@ -92,7 +102,9 @@ namespace ChapeauPOS.Controllers
             return View("AddNewEmployee", employee);
         }
 
+
         //  Edit Employee (GET)
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
@@ -108,8 +120,13 @@ namespace ChapeauPOS.Controllers
 
         //  Edit Employee (POST)
         [HttpPost]
+
         [ValidateAntiForgeryToken]
         public IActionResult EditEmployee(Employee employee)
+
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult Edit(Employee employee)
+
         {
             if (!IsManagerLoggedIn())
             {
@@ -144,7 +161,10 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction(nameof(Manage));
         }
 
+
         //  Deactivate
+
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {

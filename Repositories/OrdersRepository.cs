@@ -20,12 +20,15 @@ namespace ChapeauPOS.Repositories
             int orderId = (int)reader["OrderID"];
             int tableNumber = (int)reader["TableNumber"];
             int employeeID = (int)reader["EmployeeID"];
+            string firstName = (string)reader["FirstName"];
+            string lastName = (string)reader["LastName"];
+            Roles role = (Roles)Enum.Parse(typeof(Roles), (string)reader["Role"]);
             OrderStatus orderStatus = reader["OrderStatus"] == DBNull.Value ? OrderStatus.Ordered : (OrderStatus)Enum.Parse(typeof(OrderStatus), reader["OrderStatus"].ToString());
             DateTime createdAt = (DateTime)reader["CreatedAt"];
             DateTime? closedAt = reader["ClosedAt"] == DBNull.Value ? null : (DateTime?)reader["ClosedAt"];
 
             Table table = new Table { TableNumber = tableNumber };
-            Employee employee = new Employee { EmployeeId = employeeID };
+            Employee employee = new Employee { EmployeeId = employeeID, FirstName = firstName, LastName = lastName, Role = role };
 
             return new Order
             {
@@ -85,7 +88,10 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT,  oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.Stock " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, " +
+                                   " ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT,  " +
+                                   " oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, " +
+                                   " mi.Stock, e.FirstName, e.LastName, e.Role  " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -228,7 +234,10 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock " +
+                    string query = " SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, " +
+                                   " Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, " +
+                                   " mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice," +
+                                   " mi.VAT, mi.Stock, e.FirstName, e.LastName, e.Role " +
                    "FROM Orders " +
                    "JOIN Tables t ON Orders.TableID = t.TableID " +
                    "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -273,7 +282,10 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock " +
+                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt," +
+                                   " ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, " +
+                                   " oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, " +
+                                   " mi.VAT, mi.Stock, e.FirstName, e.LastName, e.Role  " +
                    "FROM Orders " +
                    "JOIN Tables t ON Orders.TableID = t.TableID " +
                    "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -320,7 +332,11 @@ namespace ChapeauPOS.Repositories
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock " +
+                    string query = " SELECT Orders.OrderID, t.TableNumber, Orders.EmployeeID, OrderStatus, " +
+                                   " Orders.CreatedAt, ClosedAt, oi.OrderItemID, oi.MenuItemID, " +
+                                   " oi.Quantity, mi.Course, oi.OrderItemStatus, Notes, ItemName, " +
+                                   " ItemDescription, mi.ItemPrice, mi.VAT, mi.Stock, " +
+                                   " e.FirstName, e.LastName, e.Role " +
                     "FROM Orders " +
                     "JOIN Tables t ON Orders.TableID = t.TableID " +
                     "JOIN Employees e ON Orders.EmployeeID = e.EmployeeID " +
@@ -487,6 +503,10 @@ namespace ChapeauPOS.Repositories
         {
             try
             {
+                //if(payment.GrandTotal < payment.TotalAmount)
+                //{
+                //    throw new Exception("PAYYYY UP!!");
+                //}
                 using(SqlConnection connection=new SqlConnection(_connectionString))
                 {
                     string query = @"INSERT INTO Payments ( BillID, Method, TotalAmount, Feedback, PaidAt, TipAmount, LowVAT, HighVAT, GrandTotal)
@@ -553,7 +573,7 @@ namespace ChapeauPOS.Repositories
                     string query = "SELECT B.BillID, B.OrderID, B.CreatedAt, B.ClosedAt, B.Subtotal, B.FinalizedBy, " +
                                    "O.OrderID, t.TableNumber, O.EmployeeID, O.OrderStatus, O.CreatedAt, O.ClosedAt, " +
                                    "oi.OrderItemID, oi.MenuItemID, oi.Quantity, mi.Course, mi.VAT, oi.OrderItemStatus, " +
-                                   "Notes, ItemName, ItemDescription, mi.ItemPrice, mi.Stock " +
+                                   "Notes, ItemName, ItemDescription, mi.ItemPrice, mi.Stock, e.FirstName, e.LastName, e.Role " +
                                    "FROM Bills B " +
                                    "JOIN Orders O ON B.OrderID = O.OrderID " +
                                    "JOIN Tables t ON O.TableID = t.TableID " +

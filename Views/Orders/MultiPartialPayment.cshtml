@@ -65,11 +65,11 @@
                 return;
             }
 
-            payments.push({ AmountPaid: amount, PaymentMethod: method, Feedback: feedback });
+            payments.push({ AmountPaid: amount, PaymentMethod: method, Feedback: feedback }); // Here I am adding payment as on object into the payment array.
             paidSoFar += amount;
 
             document.getElementById("remaining").innerText = (total - paidSoFar).toFixed(2);
-            document.getElementById("PaymentsJson").value = JSON.stringify(payments);
+			document.getElementById("PaymentsJson").value = JSON.stringify(payments); // And here i am Converting the payments array to JSON and store it in a hidden input
 
             document.getElementById("paymentList").innerHTML +=
                 `<li>€${amount.toFixed(2)} via ${method} — ${feedback}</li>`;

@@ -17,6 +17,11 @@
             <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
         </div>
     }
+    string moveTableTrigger = "";
+    if(Model.TableStatus == TableStatus.Occupied)
+    {
+        moveTableTrigger = "MoveTableButton";
+    }
 }
 <input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
 <input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
@@ -34,11 +39,14 @@
             <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
         </form>
     </div>
-    <p id="MoveTableButton">@ViewData["Title"]</p>
+    <p id="@moveTableTrigger">@ViewData["Title"]</p>
 
 </header>  
 
 <article class="OrderViewBody">
+    <div class="popupBILLOverlay">
+        <div id="PopupBillContainer"></div>
+    </div>
     <div class="popupMoveOverlay">
         <div class="popupMoveContainer">
             <div id="Move_Table_Container">
@@ -195,6 +203,28 @@
                             }
                         });
                     });
+                        $(document).on('click', '#DisplayBill', function () {
+                              var orderId = document.getElementById('orderId').value;
+                          $.ajax({
+                                    url: "/Orders/DisplayBill?orderId=" + encodeURIComponent(orderId),
+                              type: "GET",
+                              success: function (data) {
+                                    $("#PopupBillContainer").html(data);
+                                    var overlay = document.getElementsByClassName('popupBILLOverlay')[0];
+                                  if (overlay) {
+                                      overlay.style.display = 'block';
+                                      $(overlay).off('click').on('click', function (e) {
+                                          if (e.target === overlay) {
+                                              overlay.style.display = 'none';
+                                          }
+                                      });
+                                  }
+                              },
+                              error: function (error) {
+                                  console.error("Error fetching users:", error);
+                              }
+                          });
+                      });
                     
 
   </script>  

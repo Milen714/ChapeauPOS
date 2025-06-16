@@ -1,14 +1,11 @@
 ﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Hubs;
 using ChapeauPOS.Models;
 using ChapeauPOS.Models.ViewModels;
-using ChapeauPOS.ViewModels;
 using ChapeauPOS.Services.Interfaces;
+using ChapeauPOS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using ChapeauPOS.Hubs;
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-using ChapeauPOS.Services;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
 
@@ -47,7 +44,7 @@ namespace ChapeauPOS.Controllers
 
                 if (table.TableStatus == TableStatus.Free)
                 {
-                    
+
                 }
                 else if (table.TableStatus == TableStatus.Occupied)
                 {
@@ -195,7 +192,7 @@ namespace ChapeauPOS.Controllers
                     order.InterumOrderItems.Clear();
                     _ordersService.SaveOrderToSession(HttpContext, id, order);
                 }
-                else if(order.OrderStatus == OrderStatus.Pending)
+                else if (order.OrderStatus == OrderStatus.Pending)
                 {
                     order.OrderStatus = OrderStatus.Ordered;
                     _menuService.DeductStock(order);
@@ -317,36 +314,56 @@ namespace ChapeauPOS.Controllers
         }
         public IActionResult MoveTable(int id)
         {
+            Order order = _ordersService.GetOrderByTableId(id);
             List<Table> tables = _tablesService.GetAllUnoccupiedTables();
-            ViewBag.Order = _ordersService.GetOrderByTableId(id);
+            ViewBag.Order = order;
             return PartialView("_MoveTable", tables);
         }
         [HttpPost]
         public IActionResult MoveOrderToTable(Order order, int tableId, int CurrentTableNumber, int MovetableNumber)
         {
+            _ordersService.RemoveOrderFromSession(HttpContext, CurrentTableNumber);
             _ordersService.MoveOrderToAnotherTable(tableId, order);
             TempData["Success"] = $"Table {CurrentTableNumber}'s order has been moved to table: {MovetableNumber}";
             return RedirectToAction("Index", "Tables");
+        }
+        public IActionResult DisplayBill(int orderId)
+        {
+            try
+            {
+                Bill bill = _ordersService.GetBillByOrderId(orderId);
+                if (bill.BillID == 0)
+                {
+                    throw new Exception("Send the order Before printing a bill");
+                }
+                return PartialView("_Bill", bill);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Failed to display the bill: " + ex.Message;
+                return RedirectToAction("Index", "Tables");
+            }
         }
         //Nishchal
         [SessionAuthorize(Roles.Manager, Roles.Waiter)]
         public IActionResult Payment(int id)
         {
             Order order = _ordersService.GetOrderByTableId(id);
+
             if (order == null || order.OrderItems == null || order.OrderItems.Count == 0)
             {
-                return NotFound("No order found for this table.");
+                TempData["Error"] = "No active order found for this table. Please create an order first.";
+                return RedirectToAction("CreateOrder", "Orders", new { tableId = id });
             }
+
             PaymentViewModel viewModel = new PaymentViewModel
             {
                 Order = order
             };
 
-            
-            ViewBag.PaymentModel = viewModel;
-
             return View(viewModel);
         }
+
         public IActionResult PaymentConfirmationPopup(int tableId, string paymentMethod)
         {
             PaymentMethod paymentMethod1 = (PaymentMethod)Enum.Parse(typeof(PaymentMethod), paymentMethod);
@@ -411,7 +428,7 @@ namespace ChapeauPOS.Controllers
                     LowVAT = paymentViewModel.LowVAT,
                     HighVAT = paymentViewModel.HighVAT,
                     NumberOfPeople = numberOfPeople,
-                    Payments = Enumerable.Repeat(new EqualIndividualPayment(), numberOfPeople).ToList()
+                    Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList() // Payments = paymentList
                 };
 
                 return View(viewModel);
@@ -419,9 +436,16 @@ namespace ChapeauPOS.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = "Unable to load equal split payment screen: " + ex.Message;
-                return RedirectToAction("Payment", new { id = tableId }); 
+                return RedirectToAction("Payment", new { id = tableId });
             }
         }
+        // Payments = Enumerable.Range(0, numberOfPeople).Select(i => new IndividualPayment()).ToList()
+        // This is basically :
+        // var paymentList = new List<IndividualPayment>();
+        // for (int i = 0; i < numberOfPeople; i++)
+        // {
+        // paymentList.Add(new IndividualPayment());
+        // }
 
 
         [HttpPost]
@@ -488,33 +512,33 @@ namespace ChapeauPOS.Controllers
             try
             {
                 var order = _ordersService.GetOrderByTableId(TableId);
-                var bill = _ordersService.GetBillByOrderId(order.OrderID);
+                Bill bill = _ordersService.GetBillByOrderId(order.OrderID);
 
                 var viewModel = new PaymentViewModel
                 {
                     Order = order
                 };
 
-                var payments = JsonConvert.DeserializeObject<List<EqualIndividualPayment>>(PaymentsJson);
+                var payments = JsonConvert.DeserializeObject<List<IndividualPayment>>(PaymentsJson);
 
-                decimal runningTotal = 0;
+                decimal totalPaidSoFar = 0;
 
-                foreach (var p in payments)
+                foreach (var individualPayment in payments)
                 {
-                    runningTotal += p.AmountPaid;
+                    totalPaidSoFar += individualPayment.AmountPaid;
 
-                    var remainingBeforeThis = order.TotalAmount - (runningTotal - p.AmountPaid);
-                    var tip = p.AmountPaid > remainingBeforeThis ? p.AmountPaid - remainingBeforeThis : 0;
+                    var remainingBeforeCurrentPayment = order.TotalAmount - (totalPaidSoFar - individualPayment.AmountPaid);
+                    var calculatedTipAmount = individualPayment.AmountPaid > remainingBeforeCurrentPayment ? individualPayment.AmountPaid - remainingBeforeCurrentPayment : 0;
 
                     var payment = new Payment
                     {
                         Bill = bill,
                         TotalAmount = order.TotalAmount,
-                        GrandTotal = p.AmountPaid,
-                        TipAmount = tip,
-                        FeedBack = p.Feedback,
+                        GrandTotal = individualPayment.AmountPaid,
+                        TipAmount = calculatedTipAmount,
+                        FeedBack = individualPayment.Feedback,
                         PaidAt = DateTime.Now,
-                        PaymentMethod = p.PaymentMethod,
+                        PaymentMethod = individualPayment.PaymentMethod,
                         LowVAT = viewModel.LowVAT,
                         HighVAT = viewModel.HighVAT
                     };
