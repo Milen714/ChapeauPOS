@@ -887,6 +887,40 @@ footer li a{
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
     margin-top: 20px;
 }
+.payment-summary-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.payment-summary-box {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    color: white;
+    width: 100%;
+}
+
+.payment-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .payment-summary-table th,
+    .payment-summary-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid #444;
+    }
+
+    .payment-summary-table th {
+        font-weight: bold;
+        text-transform: uppercase;
+        border-bottom: 2px solid #666;
+    }
 
 
 
