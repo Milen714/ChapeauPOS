@@ -35,7 +35,7 @@ namespace ChapeauPOS.Repositories
 
                     SELECT 
                         SUM(TipAmount) AS TotalTips
-                    FROM Payments
+                    FROM Payments   
                     WHERE PaidAt BETWEEN @start AND @end;
                 ";
 

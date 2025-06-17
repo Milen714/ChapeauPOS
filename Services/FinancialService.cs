@@ -12,7 +12,7 @@ namespace ChapeauPOS.Services
             _financialRepository = financialRepository;
         }
 
-        public FinancialOverviewViewModel GetOverview(DateTime startDate, DateTime endDate)
+        public FinancialOverviewViewModel GetFinancialOverview(DateTime startDate, DateTime endDate)
         {
             return _financialRepository.GetFinancialOverview(startDate, endDate);
         }
