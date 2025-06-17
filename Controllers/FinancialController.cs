@@ -11,8 +11,9 @@ public class FinancialController : BaseController
     {
         _financialService = financialService;
     }
+    [HttpGet]
     public IActionResult Index(DateTime? start, DateTime? end)
-    {
+        {
         var employee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
 
         if (employee == null || employee.Role != Roles.Manager)
@@ -24,7 +25,7 @@ public class FinancialController : BaseController
         DateTime from = start ?? new DateTime(DateTime.Now.Year, 1, 1);
         DateTime to = (end ?? DateTime.Now).Date.AddDays(1).AddTicks(-1);
 
-        FinancialOverviewViewModel model = _financialService.GetOverview(from, to);
+        FinancialOverviewViewModel model = _financialService.GetFinancialOverview(from, to);
         return View(model);
     }
 

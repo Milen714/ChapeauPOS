@@ -122,7 +122,6 @@ namespace ChapeauPOS.Controllers
         [HttpPost]
 
         [ValidateAntiForgeryToken]
-        public IActionResult EditEmployee(Employee employee)
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(Employee employee)

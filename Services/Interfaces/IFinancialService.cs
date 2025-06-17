@@ -2,6 +2,6 @@
 
 public interface IFinancialService
 {
-    FinancialOverviewViewModel GetOverview(DateTime startDate, DateTime endDate);
+    FinancialOverviewViewModel GetFinancialOverview(DateTime startDate, DateTime endDate);
 }
 

@@ -39,7 +39,6 @@ namespace ChapeauPOS.Repositories
             {
                 connection.Open();
 
-                string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive FROM Employees";
 
                 string query = "SELECT EmployeeID, FirstName, LastName, Password, Email, Role, Gender, IsActive " +
                                " FROM Employees " +
