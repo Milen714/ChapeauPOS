@@ -18,163 +18,160 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
-
-
-        //  Helper method to check if the logged-in user is a manager
-
-        private bool IsManagerLoggedIn()
-        {
-            var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            return user != null && user.Role == Roles.Manager;
-        }
-
-
-        //  Read-Only View: Employee Directory
-
+        // Employee Directory (Read-Only)
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Index()
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "You do not have permission to access this page.";
-                HttpContext.Session.Remove("LoggedInUser");
-                return RedirectToAction("Login", "Home");
+                var employees = _employeesService.GetAllEmployees();
+                ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+                return View("Index", employees);
             }
-
-            var employees = _employeesService.GetAllEmployees();
-            ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            return View("Index", employees); // Views/Employees/Index.cshtml
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load employee directory: {ex.Message}";
+                return View("Index", new List<Employee>());
+            }
         }
 
-        // Manage View (Edit/Add/Activate/Deactivate)
+        // Manage Employees View
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Manage()
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "You do not have permission to access this page.";
-                HttpContext.Session.Remove("LoggedInUser");
-                return RedirectToAction("Login", "Home");
+                var employees = _employeesService.GetAllEmployees();
+                ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+                return View("Manage", employees);
             }
-
-            var employees = _employeesService.GetAllEmployees();
-            ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            return View("Manage", employees); // Views/Employees/Manage.cshtml
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load manage view: {ex.Message}";
+                return View("Manage", new List<Employee>());
+            }
         }
 
         // Add Employee (GET)
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee()
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                var employee = new Employee();
+                return View("AddNewEmployee", employee);
             }
-
-            var employee = new Employee();
-            return View("AddNewEmployee", employee); // Views/Employees/AddNewEmployee.cshtml
-        }
-
-        //  Add Employee (POST)
-        [HttpPost]
-
-        [ValidateAntiForgeryToken]
-
-        [SessionAuthorize(Roles.Manager)]
-
-        public IActionResult AddNewEmployee(Employee employee)
-        {
-            if (!IsManagerLoggedIn())
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
-            }
-
-            if (ModelState.IsValid)
-            {
-                employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
-                _employeesService.AddEmployee(employee);
-                TempData["SuccessMessage"] = "Employee added successfully!";
+                TempData["Error"] = $"Failed to open Add New Employee form: {ex.Message}";
                 return RedirectToAction(nameof(Manage));
             }
-
-            return View("AddNewEmployee", employee);
         }
 
+        // Add Employee (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult AddNewEmployee(Employee employee)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {//THIS IS WHY I NEED THE PASSWORD HASHER IN THE EMPLOYEE CONTROLLER!!!
+                    employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
+                    _employeesService.AddEmployee(employee);
+                    TempData["SuccessMessage"] = "Employee added successfully!";
+                    return RedirectToAction(nameof(Manage));
+                }
 
-        //  Edit Employee (GET)
+                return View("AddNewEmployee", employee);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to add employee: {ex.Message}";
+                return View("AddNewEmployee", employee);
+            }
+        }
 
+        // Edit Employee (GET)
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                var employee = _employeesService.GetEmployeeById(id);
+                if (employee == null)
+                {
+                    TempData["Error"] = $"Employee not found.";
+                    return RedirectToAction(nameof(Manage));
+                }
+
+                return View("EditEmployee", employee);
             }
-
-            var employee = _employeesService.GetEmployeeById(id);
-            return View("EditEmployee", employee); // Views/Employees/EditEmployee.cshtml
-        }
-
-        //  Edit Employee (POST)
-        [HttpPost]
-
-        [ValidateAntiForgeryToken]
-
-        [SessionAuthorize(Roles.Manager)]
-        public IActionResult Edit(Employee employee)
-
-        {
-            if (!IsManagerLoggedIn())
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
-            }
-
-            ModelState.Remove(nameof(employee.Password)); // Skip password field unless updating
-
-            if (ModelState.IsValid)
-            {
-                _employeesService.UpdateEmployee(employee);
-                TempData["SuccessMessage"] = "Employee updated successfully!";
+                TempData["Error"] = $"Failed to load edit form: {ex.Message}";
                 return RedirectToAction(nameof(Manage));
             }
-
-            return View("EditEmployee", employee);
         }
 
-        //  Activate
+        // Edit Employee (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult Edit(Employee employee)
+        {
+            try
+            {
+                ModelState.Remove(nameof(employee.Password)); // Skip password field unless updating
+
+                if (ModelState.IsValid)
+                {
+                    _employeesService.UpdateEmployee(employee);
+                    TempData["SuccessMessage"] = "Employee updated successfully!";
+                    return RedirectToAction(nameof(Manage));
+                }
+
+                return View("EditEmployee", employee);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to update employee: {ex.Message}";
+                return View("EditEmployee", employee);
+            }
+        }
+
+        // Activate Employee
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Activate(int id)
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                _employeesService.ActivateEmployee(id);
+                TempData["SuccessMessage"] = "Employee activated!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to activate employee: {ex.Message}";
             }
 
-            _employeesService.ActivateEmployee(id);
-            TempData["SuccessMessage"] = "Employee activated!";
             return RedirectToAction(nameof(Manage));
         }
 
-
-        //  Deactivate
-
-
+        // Deactivate Employee
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                _employeesService.DeactivateEmployee(id);
+                TempData["SuccessMessage"] = "Employee deactivated!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to deactivate employee: {ex.Message}";
             }
 
-            _employeesService.DeactivateEmployee(id);
-            TempData["SuccessMessage"] = "Employee deactivated!";
             return RedirectToAction(nameof(Manage));
         }
     }
