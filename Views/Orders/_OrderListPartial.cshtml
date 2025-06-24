@@ -1,0 +1,120 @@
+﻿@model ChapeauPOS.Models.Order
+@{
+    string orderStrokeStyle = "";
+        if (Model.OrderStatus == OrderStatus.Ordered)
+        {
+            orderStrokeStyle = "PrepairingBorder";
+        }
+    else if (Model.OrderStatus == OrderStatus.Pending)
+        {
+            orderStrokeStyle = "OrderedBorder";
+    }
+}
+<input id="orderId" type="hidden" name="orderId" value="@Model.OrderID" />
+<div class="Order_stroke @orderStrokeStyle"></div>
+
+@foreach (var item in Model.OrderItems)
+{
+    
+    <div class="OrderItem_Row">
+    <div class="OrderItem_RowBody">
+        <div>@item.Quantity x</div>
+        <div>@item.MenuItem.ItemName</div>
+        <span class="Notes_span">@item.Notes</span>
+    </div>
+        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
+        <div class="popupOverlay">
+            <div class="popupContainer">
+                <div class="crudWindow_OrderIteRow">
+                    <button class="warning_Button">Close Popup</button>
+                    <div class="remove_Item">
+                            <form action="/Orders/RemoveOrderItem" method="post">
+                                <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                                <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                                <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                                <button class="confirmation_cancelation" type="submit">RemoveItem</button>
+                            </form>
+                        </div>
+                    
+                    <div class="update_item">
+                        <div>
+                            <form action="/Orders/UpdateOrderItem" method="post">
+                                <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                                <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                                <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                                <input class="Password_input form-control" type="number" name="quantity" value="@item.Quantity" />
+                                <input class="Password_input form-control" type="text" name="note" placeholder="Add note..." />
+                                <button class="conf_button" type="submit">UpdateItem</button>
+                            </form>
+                        </div>
+                        
+                    </div>
+        </div>
+        </div>
+        </div>
+    </div>
+}
+@foreach (var item in Model.InterumOrderItems)
+{
+
+    <div class="OrderItem_Row">
+        <div class="OrderItem_RowBody">
+            <div>@item.Quantity x</div>
+            <div>@item.MenuItem.ItemName</div>
+            <span class="Notes_span">@item.Notes</span>
+        </div>
+        <div class="OrderItemRow_Price">@item.MenuItem.ItemPrice.ToString("C")</div>
+        <div class="popupOverlay">
+            <div class="popupContainer">
+                <div class="crudWindow_OrderIteRow">
+                    <button class="warning_Button">Close Popup</button>
+                    <div>
+                        <form action="/Orders/RemoveOrderItem" method="post">
+                            <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                            <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                            <button class="confirmation_cancelation" type="submit">RemoveItem</button>
+                        </form>
+                    </div>
+                    <div>
+                        <form action="/Orders/UpdateOrderItem" method="post">
+                            <input type="hidden" name="tableId" value="@Model.Table.TableNumber" />
+                            <input type="hidden" name="orderItemIdTemp" value="@item.TemporaryId" />
+                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                            <input class="Password_input form-control" type="number" name="quantity" value="@item.Quantity" />
+                            <input class="Password_input form-control" type="text" name="note" placeholder="Add note..." />
+                            <button class="conf_button" type="submit">UpdateItem</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="order_summary">
+    <h4>OrderTotal:</h4>
+    <p><span>@Model.TotalAmount.ToString("C")</span></p>
+</div>
+
+<script>
+    var itemRow = document.getElementsByClassName("OrderItem_Row");
+    var popupOverlays = document.getElementsByClassName("popupOverlay");
+    var confirmationButton = document.getElementById("confirmation_button");
+    var confirmationCancelation = document.getElementsByClassName("warning_Button");
+
+    for (let i = 0; i < itemRow.length; i++)
+    {
+        itemRow[i].addEventListener("click", function () {
+            popupOverlays[i].style.display = "block";
+        });
+
+    }
+
+        for (let i = 0; i < confirmationCancelation.length; i++) {
+        confirmationCancelation[i].addEventListener("click", function (event) {
+        event.stopPropagation(); 
+        popupOverlays[i].style.display = "none";
+        });
+    }
+
+</script>

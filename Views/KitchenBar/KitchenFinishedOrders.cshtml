@@ -1,0 +1,78 @@
+﻿@model List<ChapeauPOS.Models.Order>
+@{
+	ViewData["Title"] = "Kitchen - Finished Orders";
+}
+
+<div style="margin:0;display:flex;justify-content:center;">
+	@if (Context.Request.Cookies["PreferedTheme"] == "Dark")
+	{
+		<a href="/KitchenBar/KitchenFinishedOrders" class="btn btn-light btn-style">Finished</a>
+		<a href="/KitchenBar/KitchenRunningOrders" class="btn btn-secondary btn-style">Running</a>
+	}
+	else
+	{
+		<a href="/KitchenBar/KitchenFinishedOrders" class="btn btn-secondary btn-style">Finished</a>
+		<a href="/KitchenBar/KitchenRunningOrders" class="btn btn-light btn-style">Running</a>
+	}
+</div>
+@if (Model != null && Model.Any())
+{
+	<div class="orders-container d-flex flex-row flex-wrap">
+		@foreach (Order order in Model)
+		{
+			<div class="order-card m-2 p-3">
+				<!-- Header -->
+				<div class="d-flex justify-content-between align-items-center mb-2">
+					<div class="badge bg-warning text-dark">Table @order.Table.TableNumber</div>
+					<b>#@order.OrderID</b>
+					<small>@order.ClosedAt?.ToLocalTime().ToString("HH:mm")</small>
+
+				</div>
+
+				<!-- Order Items -->
+				<div style="height:300px;overflow-y:auto;">
+					@foreach (var course in order.OrderItems.OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+					{
+						<div class="mb-3">
+							<h6>@course.Key</h6>
+							@foreach (OrderItem item in course)
+							{
+								<div class="d-flex justify-content-between align-items-start mb-2">
+									<div>
+										<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+										@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+										{
+											<small class="text-muted">@item.MenuItem.ItemDescription</small>
+											<br />
+										}
+										@if (!string.IsNullOrEmpty(item.Notes))
+										{
+											<em class="text-muted small">@item.Notes</em>
+										}
+									</div>
+
+								</div>
+							}
+						</div>
+					}
+				</div>
+
+				<!-- Order Status -->
+				<div class="mb-2 order-status">
+					@if (order.OrderItems.All(oi => oi.OrderItemStatus == OrderItemStatus.Served))
+					{
+						<strong>Served</strong>
+					}
+					else
+					{
+						<strong>Ready</strong>
+					}
+				</div>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="alert alert-info mt-2">There are no finished orders for today yet.</div>
+}

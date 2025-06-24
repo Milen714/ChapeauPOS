@@ -1,0 +1,132 @@
+﻿@model List<ChapeauPOS.Models.Order>
+@{
+	ViewData["Title"] = "Bar - Running Orders";
+	string? noRunningOrders = (string?)ViewData["NoRunningOrders"];
+}
+
+<div style="margin:0;display:flex;justify-content:center;">
+	@if (Context.Request.Cookies["PreferedTheme"] == "Dark")
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-secondary btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-light btn-style">Running</a>
+	}
+	else
+	{
+		<a href="/KitchenBar/BarFinishedOrders" class="btn btn-light btn-style">Finished</a>
+		<a href="/KitchenBar/BarRunningOrders" class="btn btn-secondary btn-style">Running</a>
+	}
+</div>
+<form method="get" action="/KitchenBar/BarRunningOrders">
+	@if (Context.Request.Cookies["PreferedTheme"] == "Light")
+	{
+		<button type="submit" class="btn btn-dark">Refresh to get new orders</button>
+	}
+	else
+	{
+		<button type="submit" class="btn btn-light">Refresh to get new orders</button>
+	}
+</form>
+@if (Model != null && Model.Any())
+{
+	<div class="orders-container d-flex flex-row flex-wrap">
+		@foreach (Order order in Model)
+		{
+			<div class="order-card m-2">
+				<!-- Header -->
+				<div class="order-header d-flex justify-content-between align-items-center">
+					<div class="table-number">Table @order.Table.TableNumber</div>
+					<div class="fw-bold">@order.CreatedAt.ToString("hh:mm tt")</div>
+					<div data-order-id="@order.OrderID">@order.RunningTime.ToString(@"hh\:mm\:ss")</div>
+				</div>
+
+				<!-- Order Items -->
+				@foreach (var course in order.OrderItems.GroupBy(oi => oi.MenuItem.Course))
+				{
+					<div class="mb-3">
+						<div class="course">
+							<h6>@course.Key</h6>
+						</div>
+						@foreach (OrderItem item in course)
+						{
+							<div class="d-flex justify-content-between align-items-start mb-2" style="padding:6px 15px;">
+								<div style="width:200px;">
+									<strong>@item.Quantity x @item.MenuItem.ItemName</strong><br />
+									@if (!string.IsNullOrEmpty(item.MenuItem.ItemDescription))
+									{
+										<small class="text-muted">@item.MenuItem.ItemDescription</small>
+										<br />
+									}
+									@if (!string.IsNullOrEmpty(item.Notes))
+									{
+										<em class="text-muted small">@item.Notes</em>
+									}
+								</div>
+								<div>
+									<form method="post" action="/KitchenBar/UpdateBarItemStatus">
+										<input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+										@if (item.OrderItemStatus == OrderItemStatus.Ordered)
+										{
+											<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Preparing" class="btn btn-warning">Mark as Preparing</button>
+										}
+										else if (item.OrderItemStatus == OrderItemStatus.Preparing)
+										{
+											<button type="submit" name="orderItemStatus" value="@OrderItemStatus.Ready" class="btn btn-success">Mark as Ready</button>
+										}
+										else
+										{
+											<button type="submit" name="orderItemStatus" class="btn btn-secondary" disabled>Ready</button>
+										}
+									</form>
+								</div>
+							</div>
+						}
+					</div>
+				}
+
+				<!-- Order Status -->
+				<div class="mt-5 mb-2" style="padding:0 15px;">
+					<form action="/KitchenBar/CloseDrinkOrder" method="post">
+						<input type="hidden" name="orderId" value="@order.OrderID" />
+						<button style="width:100%;" type="submit" class="btn btn-success">Mark Order as Ready</button>
+					</form>
+				</div>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="alert alert-info mt-2">There are no running orders at the moment.</div>
+}
+
+
+@section Scripts {
+	<script>
+		const connection = new signalR.HubConnectionBuilder()
+			.withUrl("/restaurantHub?role=Bartender")
+			.build();
+
+		connection.on("NewDrinkOrder", function (drinkItem) {
+			const list = document.getElementById("bar-orders");
+			const li = document.createElement("li");
+			li.innerText = `${drinkItem.drinkName} for Table ${drinkItem.tableNumber}`;
+			list.appendChild(li);
+		});
+		connection.start().catch(err => console.error(err.toString()));
+
+			connection.on("NewOrder", function () {
+			location.reload();
+		});
+
+
+		setInterval(() => {
+			document.querySelectorAll('[data-order-id]').forEach(el => {
+				fetch(`/KitchenBar/GetRunningBarTime?orderId=${el.dataset.orderId}`)
+					.then(response => response.text())
+					.then(time => el.textContent = time);
+			});
+		}, 1000);
+	</script>
+}
+<ul id="bar-orders">
+</ul>

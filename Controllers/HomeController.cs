@@ -1,103 +1,148 @@
+using System.Diagnostics;
 using ChapeauPOS.Commons;
 using ChapeauPOS.Models;
-using ChapeauPOS.Repositories.Interfaces;
+using ChapeauPOS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ChapeauPOS.Controllers
 {
-	public class HomeController : BaseController
-	{
-		private readonly ILogger<HomeController> _logger;
-        private readonly IEmployeeRepository _employeeRepository;
+    public class HomeController : BaseController
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IEmployeesService _employeesService;
         private readonly PasswordHasher<string> _passwordHasher;
 
-        public HomeController(ILogger<HomeController> logger, IEmployeeRepository employeeRepository)
-		{
-			_logger = logger;
-            _employeeRepository = employeeRepository;
+        public HomeController(ILogger<HomeController> logger, IEmployeesService employeesService)
+        {
+            _logger = logger;
+            _employeesService = employeesService;
             _passwordHasher = new PasswordHasher<string>();
         }
 
-		public IActionResult Index()
-		{
-			return View();
-		}
+        public IActionResult Index()
+        {
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load home page: {ex.Message}";
+                return RedirectToAction(nameof(Error));
+            }
+        }
 
-		[HttpGet]
+        [HttpGet]
         public IActionResult Login(string errorMessage)
         {
-            List<Employee> employees = _employeeRepository.GetAllEmployees();
-            ViewBag.Employees = employees;
-            ViewBag.ErrorMessage = errorMessage;
-            return View();
+            try
+            {
+                var employees = _employeesService.GetAllEmployees();
+                ViewBag.Employees = employees;
+                ViewBag.ErrorMessage = errorMessage;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load login page: {ex.Message}";
+                return RedirectToAction(nameof(Error));
+            }
         }
+
         [HttpPost]
         public IActionResult Login(LoginModel loginModel)
         {
-            
-            Employee employee = _employeeRepository.GetEmployeeByIdAndPassword(loginModel);
-            if(employee.EmployeeId == 0)
-			{
-				string errorMessage = "Invalid Password entered Please try again";
-				return RedirectToAction("Login", new { errorMessage });
-			}
-            else
+            try
             {
-                HttpContext.Session.SetObject("LoggedInUser", employee);
-            }
-            
-            switch(employee.Role)
+                var employee = _employeesService.GetEmployeeByIdAndPassword(loginModel);
+                if (employee.EmployeeId == 0)
                 {
-                case Roles.Manager:
-                    Console.WriteLine("Manager logged in");
-                    return RedirectToAction("Index", "Employees");
-                case Roles.Waiter:
-                    Console.WriteLine("Waiter logged in");
-                    return RedirectToAction("Index", "Home");
-                case Roles.Cook:
-                    Console.WriteLine("Cook logged in");
-                    return RedirectToAction("Index", "Home");
-                case Roles.Bartender:
-                    Console.WriteLine("Bartender logged in");
-                    return RedirectToAction("Index", "Home");
+                    string errorMessage = "Invalid password entered. Please try again.";
+                    return RedirectToAction("Login", new { errorMessage });
                 }
-                return View(loginModel);
+
+                HttpContext.Session.SetObject("LoggedInUser", employee);
+
+                switch (employee.Role)
+                {
+                    case Roles.Manager:
+                    case Roles.Waiter:
+                        return RedirectToAction("Index", "Tables");
+                    case Roles.Cook:
+                        return RedirectToAction("KitchenRunningOrders", "KitchenBar");
+                    case Roles.Bartender:
+                        return RedirectToAction("BarRunningOrders", "KitchenBar");
+                    default:
+                        TempData["Error"] = "User role is not recognized.";
+                        return RedirectToAction("Login");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Login failed: {ex.Message}";
+                return RedirectToAction("Login");
+            }
         }
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("LoggedInUser");
-            return RedirectToAction("Login", "Home");
+            try
+            {
+                HttpContext.Session.Remove("LoggedInUser");
+                return RedirectToAction("Login", "Home");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Logout failed: {ex.Message}";
+                return RedirectToAction("Login");
+            }
         }
+
         [HttpPost]
         public IActionResult SetTheme(string? theme)
         {
-            if (theme != null)
+            try
             {
-                CookieOptions options = new CookieOptions()
+                if (theme != null)
                 {
-                    Expires = DateTime.Now.AddDays(5),
-                    Path = "/",
-                    Secure = true,
-                    HttpOnly = true,
-                    IsEssential = true
-                };
-                Response.Cookies.Append("PreferedTheme", theme, options);
-            }
-            return RedirectToAction("Index", "Home");
-        }
-        public IActionResult Privacy()
-		{
-			return View();
-		}
+                    CookieOptions options = new CookieOptions()
+                    {
+                        Expires = DateTime.Now.AddDays(5),
+                        Path = "/",
+                        Secure = false,
+                        HttpOnly = true,
+                        IsEssential = true
+                    };
+                    Response.Cookies.Append("PreferedTheme", theme, options);
+                }
 
-		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
-		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
-	}
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to set theme: {ex.Message}";
+                return RedirectToAction("Login");
+            }
+        }
+
+        public IActionResult Privacy()
+        {
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load privacy policy: {ex.Message}";
+                return RedirectToAction(nameof(Error));
+            }
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
 }

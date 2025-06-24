@@ -1,39 +1,284 @@
 ﻿@model IEnumerable<ChapeauPOS.Models.Table>
 @{
-	ViewData["Title"] = "Tables";
+    ViewData["Title"] = "Tables";
+	Layout = "~/Views/Shared/_TableLayout.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-
+@{
+    if (TempData["Error"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/Property 1=RedCross.svg" alt="Checkmark" /><h4>@TempData["Error"]</h4>
+        </div>
+    }
+    if (TempData["Success"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
+        </div>
+    }
+}
 
 <div class="Table_Overview">
-	@{
-		foreach(Table table in Model)
-		{
-			string tableStatusStyle = "";
-			switch (table.TableStatus)
-			{
-				case TableStatus.Occupied:
-					tableStatusStyle = "background-color: #FF6347;"; // Tomato
-					break;
-				case TableStatus.Reserved:
-					tableStatusStyle = "background-color: #FFD700;"; // Gold
-					break;
-				case TableStatus.Free:
-					tableStatusStyle = "background-color: #90EE90;"; // LightGreen
-					break;
-			}
-			<a href="/Orders/CreateOrder/@table.TableNumber">
-			<div>
-				<div style="@tableStatusStyle" class="table_card">
-					<div class="table_card_body">
-						<h5 class="card-title">Table @table.TableNumber</h5>
-						<p class="card-text">Seats: @table.NumberOfSeats</p>
-						<p class="card-text">Status: @table.TableStatus</p>
-					</div>
-				</div>
-			</div>
-			</a>
-		}
-	}
+    @foreach (var table in Model)
+    {
+        string pointerEventYesNo = "";
+        string tableBorderStatus = "";
+        string tableStatusStyle = table.TableStatus switch
+        {
+            TableStatus.Occupied => "background-color: #FF6347;",   // Tomato
+            TableStatus.Reserved => "background-color: #FFD700;",   // Gold
+            TableStatus.Free => "background-color: #90EE90;",       // LightGreen
+            _ => ""
+        };
+        
+    <div class="Table_Wrap">
+        <div class="TableOrderIcons_Container">
+            @if (ViewBag.KitchenOrders != null)
+            {
+            foreach (Order order in ViewBag.KitchenOrders)
+            {
+
+            if (order.Table.TableNumber == table.TableNumber)
+            {
+            @foreach (var course in order.OrderItems.Where(OrderItem => OrderItem.OrderItemStatus != OrderItemStatus.Served).OrderBy(oi => oi.MenuItem.Course).GroupBy(oi => oi.MenuItem.Course))
+            {
+                                tableBorderStatus = "PrepairingBorder Border1pxSolid";
+                if (course.All(oi => oi.CourseStatus == CourseStatus.Ready))
+                {
+                    pointerEventYesNo = "";
+                    switch (course.Key)
+                    {
+                        case MenuCourse.Starter:
+                            <div class="course-starter">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Starter" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=AppetizerReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                        case MenuCourse.Main:
+                            <div class="course-main">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Main" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=MainReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                        case MenuCourse.Dessert:
+                            <div class="course-dessert">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Dessert" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=DesertReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                        case MenuCourse.Drink:
+                            <div class="course-dessert">
+                                <form action="/Tables/SetOrderItemsAsServed" method="post">
+                                    <input type="hidden" name="orderId" value="@order.OrderID" />
+                                    <input type="hidden" name="menuCourse" value="@MenuCourse.Drink" />
+                                    <input type="hidden" name="orderItemsStatus" value="@OrderItemStatus.Served" />
+                                    <input type="hidden" name="tableNumber" value="@table.TableNumber" />
+                                    <button class="@pointerEventYesNo atag" type="submit"><img src="~/assets/CourseIcons/Property 1=GlassReady.svg" alt="Alternate Text" /></button>
+                                </form>
+                            </div>
+                            break;
+                    }
+
+                }
+                else if (course.All(oi => oi.CourseStatus == CourseStatus.Ordered))
+                {
+                    pointerEventYesNo = "Order_notification_row_ATAG";
+                    switch (course.Key)
+                    {
+                        case MenuCourse.Starter:
+                            <div class="course-starter">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=AppetizerOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Main:
+                            <div class="course-main">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=MainOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Dessert:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=DesertOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Drink:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=GlassOrdered.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                    }
+                }
+                else if (course.All(oi => oi.CourseStatus == CourseStatus.Preparing))
+                {
+                    pointerEventYesNo = "Order_notification_row_ATAG";
+                    switch (course.Key)
+                    {
+                        case MenuCourse.Starter:
+                            <div class="course-starter">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=AppetizerPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Main:
+                            <div class="course-main">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=MainPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Dessert:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=DesertPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                        case MenuCourse.Drink:
+                            <div class="course-dessert">
+                                <a class="@pointerEventYesNo atag" href="#"><img src="~/assets/CourseIcons/Property 1=GlassPrepairing.svg" alt="Alternate Text" /></a>
+                            </div>
+                            break;
+                    }
+                }
+            }
+            }
+            }
+
+
+            }
+        </div>
+        <div class="Restaurant_Table @tableBorderStatus" onclick="location.href='/Orders/CreateOrder/@table.TableNumber'">
+            <div class="chair top" style="@tableStatusStyle"></div>
+            <div class="chair left" style="@tableStatusStyle"></div>
+            <div class="table_card" style="@tableStatusStyle">
+                <div class="table_card_body">
+                    <h5>@table.TableNumber</h5>
+                    <p>@table.TableStatus</p>
+                </div>
+            </div>
+            <div class="chair right" style="@tableStatusStyle"></div>
+            <div class="chair bottom" style="@tableStatusStyle"></div>
+        </div>
+    </div>
+    }
 </div>
+@* <div class="TableView_OrderNotifications">
+    @{
+        string orderNotificationStyle = "";
+        string hreference = "";
+        string pointerEvents = "";
+    }
+    <div class="Kitcthen_Orders">
+        <p>Kitchen</p>
+        <div class="Kitcthen_Orders_Body">
+            @{
+                if (ViewBag.KitchenOrders != null)
+                {
+                    foreach (Order order in ViewBag.KitchenOrders)
+                    {
+                        <div class="Order_notification_row_Body">
+                            <p>@order.Table.TableNumber</p>
+
+                            @{var KitchenItems = order.OrderItems
+                                                        .Where(Ki => Ki.MenuItem.Course != MenuCourse.Drink)  
+                                                        .ToList();}
+                            @foreach (OrderItem orderItem in KitchenItems)
+                            {
+                                if (orderItem.OrderItemStatus != OrderItemStatus.Served)
+                                {
+                                    if (orderItem.OrderItemStatus == OrderItemStatus.Preparing)
+                                    {
+                                        orderNotificationStyle = "PrepairingBorder";
+                                        pointerEvents = "Order_notification_row_ATAG";
+                                    }
+                                    else if (orderItem.OrderItemStatus == OrderItemStatus.Ordered)
+                                    {
+                                        orderNotificationStyle = "OrderedBorder";
+                                        pointerEvents = "Order_notification_row_ATAG";
+                                    }
+                                    else if (orderItem.OrderItemStatus == OrderItemStatus.Ready)
+                                    {
+                                        orderNotificationStyle = "ReadyBorder";
+                                        hreference = $"/Tables/SetOrderItemAsServed/{orderItem.OrderItemId}";
+                                    }
+                                    <div>
+                                            <div>
+                                            <a class="@pointerEvents atag" href="@hreference">
+                                                 <div class="@orderNotificationStyle Order_notification_row">
+                                                     <p>@orderItem.MenuItem.ItemName</p>
+                                                 </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                }   
+                            }
+                    </div>
+                    
+                }
+            }
+        }
+        
+    </div>
+</div>
+
+<div class="Bar_Orders">
+        <p>Bar</p>
+        <div class="Bar_Orders_Body">
+            @{
+                if (ViewBag.KitchenOrders != null)
+                {
+                    foreach (Order order in ViewBag.KitchenOrders)
+                    {
+                        <div>
+                            <p>@order.Table.TableNumber</p>
+
+                            @{
+                                var KitchenItems = order.OrderItems
+                        .Where(Ki => Ki.MenuItem.Course == MenuCourse.Drink)
+                        .ToList();
+                            }
+                            @foreach (OrderItem orderItem in KitchenItems)
+                            {
+                                if (orderItem.OrderItemStatus != OrderItemStatus.Served)
+                                {
+                                    if (orderItem.OrderItemStatus == OrderItemStatus.Preparing)
+                                    {
+                                        orderNotificationStyle = "PrepairingBorder";
+                                        pointerEvents = "Order_notification_row_ATAG";
+                                    }
+                                    else if (orderItem.OrderItemStatus == OrderItemStatus.Ready)
+                                    {
+                                        orderNotificationStyle = "ReadyBorder";
+                                        hreference = $"/Tables/SetOrderItemAsServed/{orderItem.OrderItemId}";
+                                    }
+                                    <div>
+                                        <div>
+                                            <a class="@pointerEvents atag" href="@hreference">
+                                                <div class="@orderNotificationStyle Order_notification_row">
+                                                    <p>@orderItem.MenuItem.ItemName</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                    }
+                }
+            }
+</div>
+</div> *@
+
+
+

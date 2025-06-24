@@ -1,22 +1,219 @@
 html {
-  font-size: 16px;
+    font-size: 16px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+@media only screen and (max-width: 768px) {
+    html {
+        font-size: 12px;
+    }
+
+    body {
+        align-items: flex-start;
+        overflow: scroll;
+    }
+
+    .LogoText {
+        display: none;
+    }
+
+    .OrderViewBody {
+        flex-direction: column;
+        height: 400px;
+    }
+
+    #partialViewContainer {
+        grid-template-columns: 76px auto;
+        height: 325px
+    }
+
+    #courseSidebar button {
+        width: 75px;
+        height: 75px;
+    }
+
+    #courseSidebar {
+        width: 76px;
+    }
+
+    .square {
+        width: 95px;
+        height: 95px;
+    }
+
+    .note-input {
+    }
+
+    .square h4 {
+        font-size: 12px;
+    }
+
+    #menuItemsContainer {
+        width: 75vw;
+    }
+
+    .MenuItemButton_Wrap {
+        font-size: 12px;
+        width: 95px
+    }
+
+    .menu-item-form {
+        flex: 0 0 95px;
+        box-sizing: border-box;
+    }
+
+    #menuItemsContainer {
+    }
+
+    #mealType {
+        font-size: 14px;
+    }
+
+    #MoveTableButton {
+        font-size: 14px;
+    }
+
+    .MenuItem_Header {
+        width: 100.5%;
+    }
+
+    #MenuSearchBar {
+        display: flex;
+        align-items: center;
+    }
+
+    #Menu_SearchBar {
+        width: 100px;
+    }
+
+    .order_items_Header {
+        margin-top: 10px;
+        width: 100.5%;
+        padding: 5px;
+    }
+
+        .order_items_Header h4 {
+            /*        display: none;*/
+        }
+
+    #orderList {
+        width: 100.5%;
+        height: 277px;
+    }
+
+    .order_summary {
+        width: 96%;
+        top: 84%;
+    }
+
+    .popupMoveOverlay {
+        overflow: scroll;
+    }
+
+    .popupMoveContainer {
+        width: 100%;
+        top: 15%;
+        overflow: scroll;
+    }
+
+    .Table_Overview {
+        gap: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav_item a {
+        font-size: 13px;
+    }
+
+    .nav_status_Right {
+        gap: 5px;
+    }
+
+    .nav_ul {
+        height: 100%;
+        padding-left: 10px;
+        justify-content: center;
+    }
+
+    .nav_item {
+        height: 100%;
+    }
+    #PopupBillContainer{
+        left: 14%;
+    }
+}
+
+@media (min-width: 1365px) {
+    .container {
+        margin: 0;
+    }
+
+    body {
+        align-items: flex-start;
+        overflow: scroll;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 60px;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav_bar {
+    width: 100vw;
+    align-items: center;
+}
+
+.order-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    width: 400px;
+
+}
+
+.btn-style {
+    border-radius: 10px 10px 0 0;
+    width: 120px;
+}
+
+.course {
+    background-color: #d5d5d5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 15px;
+}
+
+.order-status {
+    text-align: center;
+    background-color: grey;
+    margin-top: 30px;
+    padding: 10px;
+}
+
+.order-header {
+    background-color: #0A60DA;
+    padding: 0 15px 15px 15px;
+    border-radius: 8px 8px 0 0;
+    color: white;
+}
+
+.table-number {
+    color: black;
+    background-color: #FF9F40;
+    padding: 5px;
+    border-radius: 3px 3px 0 0;
 }

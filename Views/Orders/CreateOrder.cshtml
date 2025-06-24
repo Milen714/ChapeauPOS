@@ -1,4 +1,231 @@
-﻿@{
-	ViewData["Title"] = "Create Order";
+﻿@model ChapeauPOS.Models.Table
+@{
+    ViewData["Title"] = $"Table: {Model.TableNumber} {Model.TableStatus.ToString()}";
+    Layout = "~/Views/Shared/_OrderLayout.cshtml";
+    ViewBag.TableNumber = Model.TableNumber;
+}  
+@{
+    if (TempData["Error"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/Property 1=RedCross.svg" alt="Checkmark" /><h4>@TempData["Error"]</h4>
+        </div>
+    }
+    if (TempData["Success"] != null)
+    {
+        <div id="SuccesMessage">
+            <img src="~/assets/Smallicons/GreenCheckmark.svg" alt="Checkmark" /><h4>@TempData["Success"]</h4>
+        </div>
+    }
+    string moveTableTrigger = "";
+    if(Model.TableStatus == TableStatus.Occupied)
+    {
+        moveTableTrigger = "MoveTableButton";
+    }
 }
-<h1>@ViewData["Title"]- Table: @ViewBag.TableNumber</h1>
+<input id="tableId" type="hidden" name="tableId" value="@Model.TableNumber" />
+<input id="employeeId" type="hidden" name="employeeId" value="@ViewBag.LoggedInEmployee.EmployeeId" />
+<input id="table" name="table" type="hidden" value="@Model.TableNumber" placeholder="Search...">
+<header class="MenuItem_Header">  
+  <select id="mealType" onload="loadPartialView()" onchange="loadPartialView()">  
+      <option value="Lunch">Lunch</option>  
+      <option value="Dinner">Dinner</option>  
+        
+  </select>  
+    <div>
+        <form  id="MenuSearchBar" action="/Orders/GetMenuItemsBySearch" method="post">
+            <input type="hidden" name="tableNumber" value="@Model.TableNumber" />
+            <input type="text" id="Menu_SearchBar" name="searchParams" value="" placeholder="SearchMenu" />
+            <button id="Menu_SearchBar_Button" type="submit"><img src="/assets/Search24x24White.svg" alt="Alternate Text" /></button>
+        </form>
+    </div>
+    <p id="@moveTableTrigger">@ViewData["Title"]</p>
+
+</header>  
+
+<article class="OrderViewBody">
+    <div class="popupBILLOverlay">
+        <div id="PopupBillContainer"></div>
+    </div>
+    <div class="popupMoveOverlay">
+        <div class="popupMoveContainer">
+            <div id="Move_Table_Container">
+            </div>
+        </div>
+    </div>
+<div id="partialViewContainer">  
+  <!-- Partial view will be loaded here -->  
+</div>  
+
+<div class="order_container">
+        <div class="order_items_Header">
+            <p>@DateTime.Now.ToString("dd/MM/yyyy, hh:mm tt")</p>
+
+            <h4 class="OrdersH4">Order Items</h4>
+            <select id="Actions_Select">
+                <option value="value">Actions</option>
+                <option value="value">MoveTable</option>
+                <option value="/Orders/DeleteOrder/@Model.TableNumber">CancelOrder</option>
+            </select>
+        </div>
+	  <div id="orderList">  
+		  <!-- Order items will be dynamically added here -->  
+	  </div>
+      </div>
+			
+    
+  
+</article>
+
+@section Scripts {  
+  <script>  
+      function loadPartialView() {  
+          const selectedValue = document.getElementById('mealType').value;  
+          const container = document.getElementById('partialViewContainer');  
+
+          fetch(`/Orders/GetMenuItems?category=${selectedValue}`)  
+              .then(response => {  
+                  if (!response.ok) {  
+                      throw new Error('Network response was not ok');  
+                  }  
+                  return response.text();  
+              })  
+              .then(html => {  
+                  container.innerHTML = html;
+                    filterCourse('starter');
+                       // attachMenuItemClickHandlers();
+              })  
+              .catch(error => console.error('Error loading partial view:', error));  
+      }  
+          
+      function filterCourse(course) {
+              document.querySelectorAll('.menu-item, .note-input').forEach(item => {
+                item.style.display = item.dataset.course === course ? 'block' : 'none';
+            });
+                
+        }
+
+
+
+        $(document).ready(function () {
+            loadPartialView();
+        });
+
+              $(document).ready(function () {
+                  var tableId = document.getElementById('tableId').value;
+                  $.ajax({
+                      url: "/Orders/DisplayOrderView?tableId=" + encodeURIComponent(tableId),
+                      type: "GET",
+                      success: function (data) {
+                          $("#orderList").html(data);
+                      },
+                      error: function (error) {
+                          console.error("Error fetching users:", error);
+                      }
+                  });
+              });
+
+                 $(document).ready(function () {
+                    $('#MenuSearchBar').on('submit', function (event) {
+                        event.preventDefault();
+                        var SearchParameters = document.getElementById('Menu_SearchBar').value;
+                        $.ajax({
+                            url: "/Orders/GetMenuItemsBySearch",
+                            type: "POST",
+                            data: {
+                                searchParams: SearchParameters
+                            },
+                            success: function (data) {
+                                $("#partialViewContainer").html(data);
+                            },
+                            error: function (error) {
+                                console.error("Error fetching users:", error);
+                            }
+                        });
+                    });
+                });
+
+				  
+            
+
+            $(document).on('click', '.clickable-item', function () {
+                const itemId = $(this).closest('.menu-item-form').find('.item-id').val();
+                var tableId = document.getElementById('tableId').value;
+                var employeeId = document.getElementById('employeeId').value;
+                let note = $(this).closest('.menu-item-form').find('.note-input').val();
+                if (note && note.trim() !== "") {
+                    note = `"${note}"`;
+                }
+                $.ajax({
+                    url: '/Orders/AddItemToOrder',
+                    type: 'POST',
+                    data: {
+                        itemId: parseInt(itemId),
+                        tableId: parseInt(tableId),
+                        employeeId: parseInt(employeeId),
+                        note: note
+                    },
+                    success: function (html) {
+                        $('#orderList').html(html); 
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+            });
+
+            document.getElementById("Actions_Select").addEventListener("change", function () {
+                const selectedValue = this.value;
+                if (selectedValue) {
+                    window.location.href = selectedValue; 
+                }
+            });
+
+                    $(document).on('click', '#MoveTableButton', function () {
+                        var tableId = document.getElementById('tableId').value;
+                        $.ajax({
+                            url: "/Orders/MoveTable?id=" + encodeURIComponent(tableId),
+                            type: "GET",
+                            success: function (data) {
+                                $("#Move_Table_Container").html(data);
+                                var overlay = document.getElementsByClassName('popupMoveOverlay')[0];
+                                if (overlay) {
+                                    overlay.style.display = 'block';
+                                    $(overlay).off('click').on('click', function (e) {
+                                        if (e.target === overlay) {
+                                            overlay.style.display = 'none';
+                                        }
+                                    });
+                                }
+                            },
+                            error: function (error) {
+                                console.error("Error fetching users:", error);
+                            }
+                        });
+                    });
+                        $(document).on('click', '#DisplayBill', function () {
+                              var orderId = document.getElementById('orderId').value;
+                          $.ajax({
+                                    url: "/Orders/DisplayBill?orderId=" + encodeURIComponent(orderId),
+                              type: "GET",
+                              success: function (data) {
+                                    $("#PopupBillContainer").html(data);
+                                    var overlay = document.getElementsByClassName('popupBILLOverlay')[0];
+                                  if (overlay) {
+                                      overlay.style.display = 'block';
+                                      $(overlay).off('click').on('click', function (e) {
+                                          if (e.target === overlay) {
+                                              overlay.style.display = 'none';
+                                          }
+                                      });
+                                  }
+                              },
+                              error: function (error) {
+                                  console.error("Error fetching users:", error);
+                              }
+                          });
+                      });
+                    
+
+  </script>  
+}

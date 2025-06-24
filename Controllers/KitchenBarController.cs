@@ -1,20 +1,121 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ChapeauPOS.Commons;
+using ChapeauPOS.Models;
+using ChapeauPOS.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ChapeauPOS.Controllers
 {
     public class KitchenBarController : BaseController
     {
-        public IActionResult Index()
+
+        private readonly IKitchenBarService _kitchenBarService;
+
+        public KitchenBarController(IKitchenBarService kitchenBarService)
         {
-            return View();
+            _kitchenBarService = kitchenBarService;
         }
-        public IActionResult Kitchen()
+
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        public IActionResult KitchenRunningOrders()
         {
-            return View();
+            List<Order> orders = _kitchenBarService.GetRunningKitchenOrders();
+            return View(orders);
         }
-        public IActionResult Bar()
+
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        [HttpPost]
+        public IActionResult UpdateKitchenItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
         {
-            return View();
+            _kitchenBarService.UpdateKitchenOrderItemStatus(orderItemId, orderItemStatus);
+            return RedirectToAction("KitchenRunningOrders");
         }
+
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        public IActionResult KitchenFinishedOrders()
+        {
+            List<Order> orders = _kitchenBarService.GetFinishedKitchenOrders();
+            return View(orders);
+        }
+
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
+        public IActionResult BarRunningOrders()
+        {
+            List<Order> orders = _kitchenBarService.GetRunningBarOrders();
+            return View(orders);
+        }
+
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
+        [HttpPost]
+        public IActionResult UpdateBarItemStatus(int orderItemId, OrderItemStatus orderItemStatus)
+        {
+            _kitchenBarService.UpdateBarOrderItemStatus(orderItemId, orderItemStatus);
+            return RedirectToAction("BarRunningOrders");
+        }
+
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
+        public IActionResult BarFinishedOrders()
+        {
+            List<Order> orders = _kitchenBarService.GetFinishedBarOrders();
+            return View(orders);
+        }
+
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        [HttpPost]
+        public IActionResult CloseFoodOrder(int orderId)
+        {
+            _kitchenBarService.CloseFoodOrder(orderId);
+            return RedirectToAction("KitchenRunningOrders");
+        }
+
+        [SessionAuthorize(Roles.Manager, Roles.Bartender)]
+        [HttpPost]
+        public IActionResult CloseDrinkOrder(int orderId)
+        {
+            _kitchenBarService.CloseDrinkOrder(orderId);
+            return RedirectToAction("BarRunningOrders");
+        }
+
+        [SessionAuthorize(Roles.Manager, Roles.Cook)]
+        [HttpPost]
+        public IActionResult UpdateItemStatusBasedOnCourse(int orderId, MenuCourse course, CourseStatus courseStatus)
+        {
+            OrderItemStatus orderItemStatus;
+            if (courseStatus == CourseStatus.Ordered)
+            {
+                orderItemStatus = OrderItemStatus.Ordered;
+            }
+            else if (courseStatus == CourseStatus.Preparing)
+            {
+                orderItemStatus = OrderItemStatus.Preparing;
+            }
+            else
+            {
+                orderItemStatus = OrderItemStatus.Ready;
+            }
+
+            _kitchenBarService.UpdateItemStatusBasedOnCourse(orderId, course, orderItemStatus);
+            return RedirectToAction("KitchenRunningOrders");
+        }
+
+        public IActionResult GetRunningKitchenTime(int orderId)
+        {
+            Order? order = _kitchenBarService.GetRunningKitchenOrders().FirstOrDefault(o => o.OrderID == orderId);
+
+            if (order?.CreatedAt == null)
+                return Content("00:00:00");
+
+            return Content((DateTime.Now - order.CreatedAt).ToString(@"hh\:mm\:ss"));
+        }
+
+        public IActionResult GetRunningBarTime(int orderId)
+        {
+            Order? order = _kitchenBarService.GetRunningBarOrders().FirstOrDefault(o => o.OrderID == orderId);
+
+            if (order?.CreatedAt == null)
+                return Content("00:00:00");
+
+            return Content((DateTime.Now - order.CreatedAt).ToString(@"hh\:mm\:ss"));
+        }
+
     }
 }

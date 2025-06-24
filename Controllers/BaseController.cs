@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ChapeauPOS.Models; // Adjust namespace to match your project
+using ChapeauPOS.Models; 
 using ChapeauPOS.Commons;
-using Microsoft.AspNetCore.Mvc.Filters; // For session extensions
+using Microsoft.AspNetCore.Mvc.Filters; 
 
 public class BaseController : Controller
 {

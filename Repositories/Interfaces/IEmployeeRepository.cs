@@ -10,6 +10,9 @@ namespace ChapeauPOS.Repositories.Interfaces
         
         void UpdateEmployee(Employee employee);
         void AddEmployee(Employee employee);
+        Employee GetEmployeeById(int id);
+        void ActivateEmployee(int id);
+        void DeactivateEmployee(int id);
 
     }
 }

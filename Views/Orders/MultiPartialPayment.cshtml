@@ -1,0 +1,85 @@
+﻿@model ChapeauPOS.ViewModels.PartialPaymentViewModel
+
+
+<h2>Multi-Person Partial Payment</h2>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<p><strong>Total:</strong> €<span id="total">@Model.TotalAmount.ToString("F2")</span></p>
+<p><strong>Remaining:</strong> €<span id="remaining">@Model.TotalAmount.ToString("F2")</span></p>
+
+<input type="hidden" id="totalAmount" value="@Model.TotalAmount" />
+
+<div>
+    <label>Amount:</label>
+    <input type="number" id="amountPaid" step="0.01" required />
+
+    <label>Payment Method:</label>
+    <select id="paymentMethod">
+        <option value="Cash">Cash</option>
+        <option value="Maestro">Maestro</option>
+    </select>
+
+    <label>Feedback:</label>
+    <input type="text" id="feedback" />
+
+    <button type="button" onclick="addPayment()">Add Payment</button>
+</div>
+
+<hr />
+<h3>Payments</h3>
+<ul id="paymentList"></ul>
+
+<form method="post" asp-action="FinalizeMultiPartialPayment">
+    <input type="hidden" name="TableId" value="@Model.TableId" />
+    <input type="hidden" name="TotalAmount" value="@Model.TotalAmount" />
+    <input type="hidden" name="PaymentsJson" id="PaymentsJson" />
+    <button type="submit" id="submitBtn" disabled>Submit All Payments</button>
+</form>
+
+@section Scripts {
+    <script>
+        const total = parseFloat(document.getElementById("totalAmount").value);
+        let paidSoFar = 0;
+        const payments = [];
+
+        function addPayment() {
+            const amount = parseFloat(document.getElementById("amountPaid").value);
+            const method = document.getElementById("paymentMethod").value;
+            const feedback = document.getElementById("feedback").value;
+
+            if (isNaN(amount) || amount <=0)
+            {
+                alert("Invalid amount");
+                return;
+            }
+
+            payments.push({ AmountPaid: amount, PaymentMethod: method, Feedback: feedback }); // Here I am adding payment as on object into the payment array.
+            paidSoFar += amount;
+
+            document.getElementById("remaining").innerText = (total - paidSoFar).toFixed(2);
+			document.getElementById("PaymentsJson").value = JSON.stringify(payments); // And here i am Converting the payments array to JSON and store it in a hidden input
+
+            document.getElementById("paymentList").innerHTML +=
+                `<li>€${amount.toFixed(2)} via ${method} — ${feedback}</li>`;
+
+            document.getElementById("amountPaid").value = "";
+            document.getElementById("feedback").value = "";
+
+            if (paidSoFar >= total) {
+                document.getElementById("submitBtn").disabled = false;
+            }
+        }
+    </script>
+}

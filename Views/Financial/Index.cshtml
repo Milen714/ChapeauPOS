@@ -1,0 +1,114 @@
+﻿@model ChapeauPOS.Models.ViewModels.FinancialOverviewViewModel
+
+@{
+    ViewData["Title"] = "Financial Overview";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4">Financial Overview</h2>
+
+<!-- These buttons help us quickly choose a time period -->
+<div class="mb-3">
+    <label class="form-label fw-bold">Quick Time Range:</label>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('month')">This Month</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('quarter')">This Quarter</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="setQuickRange('year')">This Year</button>
+    </div>
+</div>
+
+<!-- Here the user can choose a custom date range -->
+<form method="get" class="row g-3 align-items-end mb-4">
+    <div class="col-md-3">
+        <label for="start" class="form-label">Start Date</label>
+        <input type="date" id="start" name="start" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <label for="end" class="form-label">End Date</label>
+        <input type="date" id="end" name="end" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Show Overview</button>
+    </div>
+</form>
+
+<!-- This section shows sales and income data by course -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Drinks</h5>
+            <p><strong>Sales:</strong> €@Model.TotalSalesDrinks.ToString("F2")</p>
+            <p><strong>Income:</strong> €@Model.TotalIncomeDrinks.ToString("F2")</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Lunch</h5>
+            <p><strong>Sales:</strong> €@Model.TotalSalesLunch.ToString("F2")</p>
+            <p><strong>Income:</strong> €@Model.TotalIncomeLunch.ToString("F2")</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+            <h5>Dinner</h5>
+            <p><strong>Sales:</strong> €@Model.TotalSalesDinner.ToString("F2")</p>
+            <p><strong>Income:</strong> €@Model.TotalIncomeDinner.ToString("F2")</p>
+        </div>
+    </div>
+</div>
+
+<!-- This part shows how much tip we collected -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm p-3 bg-light">
+            <h5>Total Tips</h5>
+            <h3 class="text-success">€@Model.TotalTips.ToString("F2")</h3>
+        </div>
+    </div>
+</div>
+
+<!-- This script fills in the dates when a quick button is clicked -->
+<script>
+    // This function updates the start and end dates
+    // based on which quick-range button (month, quarter, year) is clicked.
+    function setQuickRange(type) {
+        // Set current date for reference
+        let start = new Date();
+        let end = new Date(); // We assume today is the end of the period
+
+        // If user clicks "This Month"
+        if (type === "month") {
+            // Start = 1st day of current month
+            start = new Date(end.getFullYear(), end.getMonth(), 1);
+            // End = last day of current month
+            end = new Date(end.getFullYear(), end.getMonth() + 1, 0);
+        }
+        // If user clicks "This Quarter"
+        else if (type === "quarter") {
+            // Figure out which quarter we are in (0–3)
+            const q = Math.floor(end.getMonth() / 3);
+            // Start = 1st day of that quarter
+            start = new Date(end.getFullYear(), q * 3, 1);
+            // End = last day of that quarter
+            end = new Date(end.getFullYear(), q * 3 + 3, 0);
+        }
+        // If user clicks "This Year"
+        else if (type === "year") {
+            // Start = January 1st
+            start = new Date(end.getFullYear(), 0, 1);
+            // End = December 31st
+            end = new Date(end.getFullYear(), 11, 31);
+        }
+
+        // Convert date to format accepted by <input type="date"> — e.g. "2025-06-14"
+        const formatDate = d => d.toISOString().split('T')[0];
+
+        // Update the start and end date input fields in the form
+        document.querySelector('input[name="start"]').value = formatDate(start);
+        document.querySelector('input[name="end"]').value = formatDate(end);
+
+        // Automatically submit the form so the new values refresh the financial overview
+        document.querySelector('form').submit();
+    }
+</script>
+
