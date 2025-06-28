@@ -18,6 +18,9 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
+
+        // Employee Directory (Read-Only)
+
         //  Helper method to check if the logged-in user is a manager
         //private bool IsManagerLoggedIn()
         //{
@@ -79,6 +82,18 @@ namespace ChapeauPOS.Controllers
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee()
         {
+
+            try
+            {
+                var employee = new Employee();
+                return View("AddNewEmployee", employee);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to open Add New Employee form: {ex.Message}";
+                return RedirectToAction(nameof(Manage));
+            }
+
             var employee = new Employee();
             return View("AddNewEmployee", employee);
         }
@@ -86,21 +101,38 @@ namespace ChapeauPOS.Controllers
 
         //  Add Employee (POST)
         [HttpPost]
+
+        [ValidateAntiForgeryToken]
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult AddNewEmployee(Employee employee)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {//THIS IS WHY I NEED THE PASSWORD HASHER IN THE EMPLOYEE CONTROLLER!!!
+                    employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
+                    _employeesService.AddEmployee(employee);
+                    TempData["SuccessMessage"] = "Employee added successfully!";
+                    return RedirectToAction(nameof(Manage));
+                }
+
+                return View("AddNewEmployee", employee);
+            }
+            catch (Exception ex)
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee(Employee employee)
         {
             if (ModelState.IsValid)
-            {
-                employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
-                _employeesService.AddEmployee(employee);
-                TempData["SuccessMessage"] = "Employee added successfully!";
-                return RedirectToAction(nameof(Manage));
-            }
 
-            return View("AddNewEmployee", employee);
+            {
+                TempData["Error"] = $"Failed to add employee: {ex.Message}";
+                return View("AddNewEmployee", employee);
+            }
         }
 
 
+        // Edit Employee (GET)
 
         // Edit Employee (GET)
         [HttpGet]
@@ -109,6 +141,8 @@ namespace ChapeauPOS.Controllers
         public IActionResult Edit(int id)
         {
             try
+
+
             {
                 var employee = _employeesService.GetEmployeeById(id);
 
@@ -121,6 +155,7 @@ namespace ChapeauPOS.Controllers
                 return View("EditEmployee", employee); // Views/Employees/EditEmployee.cshtml
             }
             catch (Exception ex)
+
             {
                 // Log the error if you have logging set up (optional)
                 TempData["ErrorMessage"] = "An error occurred while trying to load the employee.";
@@ -131,6 +166,9 @@ namespace ChapeauPOS.Controllers
         // Edit Employee (POST)
         // Handles form submission to update an existing employee
         [HttpPost]
+
+        [ValidateAntiForgeryToken]
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult EditEmployee(Employee employee)
         {

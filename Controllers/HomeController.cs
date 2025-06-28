@@ -22,71 +22,121 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load home page: {ex.Message}";
+                return RedirectToAction(nameof(Error));
+            }
         }
 
         [HttpGet]
         public IActionResult Login(string errorMessage)
         {
-            List<Employee> employees = _employeesService.GetAllEmployees();
-            ViewBag.Employees = employees;
-            ViewBag.ErrorMessage = errorMessage;
-            return View();
+            try
+            {
+                var employees = _employeesService.GetAllEmployees();
+                ViewBag.Employees = employees;
+                ViewBag.ErrorMessage = errorMessage;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load login page: {ex.Message}";
+                return RedirectToAction(nameof(Error));
+            }
         }
+
         [HttpPost]
         public IActionResult Login(LoginModel loginModel)
         {
+            try
+            {
+                var employee = _employeesService.GetEmployeeByIdAndPassword(loginModel);
+                if (employee.EmployeeId == 0)
+                {
+                    string errorMessage = "Invalid password entered. Please try again.";
+                    return RedirectToAction("Login", new { errorMessage });
+                }
 
-            Employee employee = _employeesService.GetEmployeeByIdAndPassword(loginModel);
-            if (employee.EmployeeId == 0)
-            {
-                string errorMessage = "Invalid Password entered Please try again";
-                return RedirectToAction("Login", new { errorMessage });
-            }
-            else
-            {
                 HttpContext.Session.SetObject("LoggedInUser", employee);
-            }
 
-            switch (employee.Role)
-            {
-                case Roles.Manager:
-                    return RedirectToAction("Index", "Tables");
-                case Roles.Waiter:
-                    return RedirectToAction("Index", "Tables");
-                case Roles.Cook:
-                    return RedirectToAction("KitchenRunningOrders", "KitchenBar");
-                case Roles.Bartender:
-                    return RedirectToAction("BarRunningOrders", "KitchenBar");
+                switch (employee.Role)
+                {
+                    case Roles.Manager:
+                    case Roles.Waiter:
+                        return RedirectToAction("Index", "Tables");
+                    case Roles.Cook:
+                        return RedirectToAction("KitchenRunningOrders", "KitchenBar");
+                    case Roles.Bartender:
+                        return RedirectToAction("BarRunningOrders", "KitchenBar");
+                    default:
+                        TempData["Error"] = "User role is not recognized.";
+                        return RedirectToAction("Login");
+                }
             }
-            return View(loginModel);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Login failed: {ex.Message}";
+                return RedirectToAction("Login");
+            }
         }
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("LoggedInUser");
-            return RedirectToAction("Login", "Home");
+            try
+            {
+                HttpContext.Session.Remove("LoggedInUser");
+                return RedirectToAction("Login", "Home");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Logout failed: {ex.Message}";
+                return RedirectToAction("Login");
+            }
         }
+
         [HttpPost]
         public IActionResult SetTheme(string? theme)
         {
-            if (theme != null)
+            try
             {
-                CookieOptions options = new CookieOptions()
+                if (theme != null)
                 {
-                    Expires = DateTime.Now.AddDays(5),
-                    Path = "/",
-                    Secure = false,
-                    HttpOnly = true,
-                    IsEssential = true
-                };
-                Response.Cookies.Append("PreferedTheme", theme, options);
+                    CookieOptions options = new CookieOptions()
+                    {
+                        Expires = DateTime.Now.AddDays(5),
+                        Path = "/",
+                        Secure = false,
+                        HttpOnly = true,
+                        IsEssential = true
+                    };
+                    Response.Cookies.Append("PreferedTheme", theme, options);
+                }
+
+                return RedirectToAction("Login");
             }
-            return RedirectToAction("Login");
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to set theme: {ex.Message}";
+                return RedirectToAction("Login");
+            }
         }
+
         public IActionResult Privacy()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Failed to load privacy policy: {ex.Message}";
+                return RedirectToAction(nameof(Error));
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
