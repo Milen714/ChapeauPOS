@@ -18,8 +18,6 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
-
-
         //  Helper method to check if the logged-in user is a manager
 
         private bool IsManagerLoggedIn()
@@ -66,31 +64,15 @@ namespace ChapeauPOS.Controllers
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee()
         {
-            if (!IsManagerLoggedIn())
-            {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
-            }
-
             var employee = new Employee();
             return View("AddNewEmployee", employee); // Views/Employees/AddNewEmployee.cshtml
         }
 
         //  Add Employee (POST)
         [HttpPost]
-
-        [ValidateAntiForgeryToken]
-
         [SessionAuthorize(Roles.Manager)]
-
         public IActionResult AddNewEmployee(Employee employee)
         {
-            if (!IsManagerLoggedIn())
-            {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
-            }
-
             if (ModelState.IsValid)
             {
                 employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
@@ -103,26 +85,31 @@ namespace ChapeauPOS.Controllers
         }
 
 
-        //  Edit Employee (GET)
 
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
-            if (!IsManagerLoggedIn())
+            try
+            {
+                var employee = _employeesService.GetEmployeeById(id);
+
+                if (employee == null)
+                {
+                    TempData["ErrorMessage"] = "Employee not found.";
+                    return RedirectToAction("Manage");
+                }
+
+                return View("EditEmployee", employee); // Views/Employees/EditEmployee.cshtml
+            }
+            catch (Exception ex)
             {
                 TempData["ErrorMessage"] = "Access denied.";
                 return RedirectToAction("Login", "Home");
             }
 
-            var employee = _employeesService.GetEmployeeById(id);
-            return View("EditEmployee", employee); // Views/Employees/EditEmployee.cshtml
-        }
 
         //  Edit Employee (POST)
         [HttpPost]
-
-        [ValidateAntiForgeryToken]
-
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(Employee employee)
 
@@ -155,8 +142,6 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            _employeesService.ActivateEmployee(id);
-            TempData["SuccessMessage"] = "Employee activated!";
             return RedirectToAction(nameof(Manage));
         }
 
@@ -173,8 +158,6 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
-            _employeesService.DeactivateEmployee(id);
-            TempData["SuccessMessage"] = "Employee deactivated!";
             return RedirectToAction(nameof(Manage));
         }
     }
