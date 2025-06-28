@@ -52,7 +52,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(MenuItem item)
         {
             if (item.Category == null)
@@ -79,21 +78,34 @@ namespace ChapeauPOS.Controllers
                 return View(item);
             }
         }
-
+        
+        [HttpGet]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
-            var item = _menuService.GetMenuItemById(id);
-            if (item == null)
-                return NotFound();
+            try
+            {
+                var item = _menuService.GetMenuItemById(id);
+                if (item == null)
+                {
+                    TempData["ErrorMessage"] = "Menu item not found.";
+                    return RedirectToAction("Manage");
+                }
 
-            ViewBag.Categories = _menuService.GetMenuCategories();
-            return View(item);
+                ViewBag.Categories = _menuService.GetMenuCategories();
+                return View(item);
+            }
+            catch (Exception ex)
+            {
+                // Optional: log error
+                TempData["ErrorMessage"] = "An error occurred while loading the item.";
+                return RedirectToAction("Manage");
+            }
         }
 
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(MenuItem item)
+        public IActionResult EditMenuItem(MenuItem item)
         {
             if (!ModelState.IsValid)
             {
@@ -123,7 +135,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id)
         {
@@ -153,7 +164,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
@@ -163,7 +173,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Activate(int id)
         {
@@ -173,7 +182,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult UpdateStock(int id, int stock)
         {
             _menuService.UpdateStock(id, stock);

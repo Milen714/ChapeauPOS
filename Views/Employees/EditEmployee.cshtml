@@ -3,7 +3,18 @@
 @{
 	ViewData["Title"] = "Edit Employee";
 }
-
+@* @if (TempData["EmployeeSuccessMessage"] != null)
+{
+	<div class="alert alert-success">
+		@TempData["EmployeeSuccessMessage"]
+	</div>
+} *@
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger">
+		@TempData["ErrorMessage"]
+	</div>
+}
 <div class="container mt-4">
 	<h2>@ViewData["Title"]</h2>
 
