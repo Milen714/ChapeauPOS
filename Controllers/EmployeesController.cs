@@ -19,54 +19,70 @@ namespace ChapeauPOS.Controllers
         }
 
         //  Helper method to check if the logged-in user is a manager
+        //private bool IsManagerLoggedIn()
+        //{
+        //    var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+        //    return user != null && user.Role == Roles.Manager;
+        //}
 
-        private bool IsManagerLoggedIn()
-        {
-            var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            return user != null && user.Role == Roles.Manager;
-        }
-
-
-        //  Read-Only View: Employee Directory
-
+        // Employee Directory (Read-Only View)
+        // Accessible only to logged-in users with the Manager role
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Index()
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "You do not have permission to access this page.";
-                HttpContext.Session.Remove("LoggedInUser");
-                return RedirectToAction("Login", "Home");
-            }
+                // Retrieve all employees to display in the read-only Index view
+                var employees = _employeesService.GetAllEmployees();
 
-            var employees = _employeesService.GetAllEmployees();
-            ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            return View("Index", employees); // Views/Employees/Index.cshtml
+                // Pass the currently logged-in employee info to the view ( for displaying in header)
+                ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+
+                // Return the Index view with the list of employees
+                return View("Index", employees); // Views/Employees/Index.cshtml
+            }
+            catch (Exception ex)
+            {
+                //  log error (Failed to load employee directory)
+                TempData["ErrorMessage"] = "An error occurred while loading the employee directory.";
+                return RedirectToAction("Index", "Home"); // Or a dedicated error page
+            }
         }
 
-        // Manage View (Edit/Add/Activate/Deactivate)
+        // Manage Employees View (Edit/Add/Activate/Deactivate)
+        // Accessible only to logged-in users with the Manager role
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Manage()
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "You do not have permission to access this page.";
-                HttpContext.Session.Remove("LoggedInUser");
-                return RedirectToAction("Login", "Home");
-            }
+                // Get all employees to display in the Manage view
+                var employees = _employeesService.GetAllEmployees();
 
-            var employees = _employeesService.GetAllEmployees();
-            ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-            return View("Manage", employees); // Views/Employees/Manage.cshtml
+                // Pass logged-in manager's info to the view (for header display)
+                ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+
+                // Return the Manage view with the employee list
+                return View("Manage", employees); // Views/Employees/Manage.cshtml
+            }
+            catch (Exception ex)
+            {
+                //  log error 
+                TempData["ErrorMessage"] = "An error occurred while loading the employee list.";
+                return RedirectToAction("Index", "Home"); // Or a dedicated error page
+            }
         }
 
+
         // Add Employee (GET)
+        [HttpGet]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee()
         {
             var employee = new Employee();
-            return View("AddNewEmployee", employee); // Views/Employees/AddNewEmployee.cshtml
+            return View("AddNewEmployee", employee);
         }
+
 
         //  Add Employee (POST)
         [HttpPost]
@@ -86,7 +102,10 @@ namespace ChapeauPOS.Controllers
 
 
 
+        // Edit Employee (GET)
+        [HttpGet]
         [SessionAuthorize(Roles.Manager)]
+        
         public IActionResult Edit(int id)
         {
             try
@@ -103,62 +122,79 @@ namespace ChapeauPOS.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                // Log the error if you have logging set up (optional)
+                TempData["ErrorMessage"] = "An error occurred while trying to load the employee.";
+                return RedirectToAction("Manage");
             }
+        }
 
-
-        //  Edit Employee (POST)
+        // Edit Employee (POST)
+        // Handles form submission to update an existing employee
         [HttpPost]
         [SessionAuthorize(Roles.Manager)]
-        public IActionResult Edit(Employee employee)
-
+        public IActionResult EditEmployee(Employee employee)
         {
-            if (!IsManagerLoggedIn())
-            {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
-            }
-
-            ModelState.Remove(nameof(employee.Password)); // Skip password field unless updating
+            // Exclude password from validation during edit unless it's explicitly being updated
+            ModelState.Remove(nameof(employee.Password));
 
             if (ModelState.IsValid)
             {
-                _employeesService.UpdateEmployee(employee);
-                TempData["SuccessMessage"] = "Employee updated successfully!";
-                return RedirectToAction(nameof(Manage));
+                try
+                {
+                    _employeesService.UpdateEmployee(employee);
+                    //TempData["SuccessMessage"] = "Employee updated successfully!";
+                    TempData["EmployeeSuccessMessage"] = "Employee updated successfully!";
+                    return RedirectToAction(nameof(Manage));
+                }
+                catch (Exception ex)
+                {
+                    // Optional: log the exception
+                    TempData["ErrorMessage"] = "An error occurred while updating the employee.";
+                    return RedirectToAction(nameof(Manage));
+                }
             }
 
+            // If validation fails, return the same view with validation messages
             return View("EditEmployee", employee);
         }
 
-        //  Activate
+
+        // Activate Employee by ID
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Activate(int id)
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                _employeesService.ActivateEmployee(id);
+                TempData["SuccessMessage"] = "Employee activated!";
+            }
+            catch (Exception ex)
+            {
+                // Optional: log the exception (e.g., _logger.LogError(ex, ...))
+                TempData["ErrorMessage"] = "An error occurred while activating the employee.";
             }
 
             return RedirectToAction(nameof(Manage));
         }
 
 
-        //  Deactivate
-
-
+        // Deactivate Employee by ID
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
-            if (!IsManagerLoggedIn())
+            try
             {
-                TempData["ErrorMessage"] = "Access denied.";
-                return RedirectToAction("Login", "Home");
+                _employeesService.DeactivateEmployee(id);
+                TempData["SuccessMessage"] = "Employee deactivated!";
+            }
+            catch (Exception ex)
+            {
+                //log the error(ex, "Failed to deactivate employee with ID: " + id))
+                TempData["ErrorMessage"] = "An error occurred while deactivating the employee.";
             }
 
             return RedirectToAction(nameof(Manage));
         }
+
     }
 }
