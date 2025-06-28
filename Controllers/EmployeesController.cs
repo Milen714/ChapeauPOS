@@ -18,7 +18,21 @@ namespace ChapeauPOS.Controllers
             _passwordHasher = new PasswordHasher<string>();
         }
 
+
         // Employee Directory (Read-Only)
+
+        //  Helper method to check if the logged-in user is a manager
+
+        private bool IsManagerLoggedIn()
+        {
+            var user = HttpContext.Session.GetObject<Employee>("LoggedInUser");
+            return user != null && user.Role == Roles.Manager;
+        }
+
+
+        //  Read-Only View: Employee Directory
+
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Index()
         {
@@ -56,6 +70,7 @@ namespace ChapeauPOS.Controllers
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee()
         {
+
             try
             {
                 var employee = new Employee();
@@ -66,10 +81,15 @@ namespace ChapeauPOS.Controllers
                 TempData["Error"] = $"Failed to open Add New Employee form: {ex.Message}";
                 return RedirectToAction(nameof(Manage));
             }
+
+            var employee = new Employee();
+            return View("AddNewEmployee", employee); // Views/Employees/AddNewEmployee.cshtml
+
         }
 
         // Add Employee (POST)
         [HttpPost]
+
         [ValidateAntiForgeryToken]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee(Employee employee)
@@ -87,17 +107,43 @@ namespace ChapeauPOS.Controllers
                 return View("AddNewEmployee", employee);
             }
             catch (Exception ex)
+
+        [SessionAuthorize(Roles.Manager)]
+        public IActionResult AddNewEmployee(Employee employee)
+        {
+            if (ModelState.IsValid)
+
             {
                 TempData["Error"] = $"Failed to add employee: {ex.Message}";
                 return View("AddNewEmployee", employee);
             }
         }
 
+
         // Edit Employee (GET)
+
+
+
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
         {
             try
+
+
+            {
+                var employee = _employeesService.GetEmployeeById(id);
+
+                if (employee == null)
+                {
+                    TempData["ErrorMessage"] = "Employee not found.";
+                    return RedirectToAction("Manage");
+                }
+
+                return View("EditEmployee", employee); // Views/Employees/EditEmployee.cshtml
+            }
+            catch (Exception ex)
+
             {
                 var employee = _employeesService.GetEmployeeById(id);
                 if (employee == null)
@@ -113,11 +159,15 @@ namespace ChapeauPOS.Controllers
                 TempData["Error"] = $"Failed to load edit form: {ex.Message}";
                 return RedirectToAction(nameof(Manage));
             }
+
         }
+
 
         // Edit Employee (POST)
         [HttpPost]
+
         [ValidateAntiForgeryToken]
+
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(Employee employee)
         {
