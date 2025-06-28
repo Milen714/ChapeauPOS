@@ -52,7 +52,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-      
         public IActionResult Create(MenuItem item)
         {
             if (item.Category == null)
@@ -106,7 +105,6 @@ namespace ChapeauPOS.Controllers
 
 
         [HttpPost]
-    
         public IActionResult EditMenuItem(MenuItem item)
         {
             if (!ModelState.IsValid)
@@ -137,7 +135,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-    
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Toggle(int id)
         {
@@ -167,7 +164,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-    
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
@@ -177,7 +173,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
-   
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Activate(int id)
         {
@@ -187,7 +182,6 @@ namespace ChapeauPOS.Controllers
         }
 
         [HttpPost]
- 
         public IActionResult UpdateStock(int id, int stock)
         {
             _menuService.UpdateStock(id, stock);
