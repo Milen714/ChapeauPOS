@@ -232,5 +232,23 @@ namespace ChapeauPOS.Repositories
                 Console.WriteLine("Error deactivating employee: " + ex.Message);
             }
         }
+
+         public bool EmailAddressExists(string email)
+        {
+            if (string.IsNullOrEmpty(_connectionString)) return false;
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                string query = "SELECT COUNT(*) FROM Employees WHERE Email = @Email";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Email", email);
+
+                connection.Open();
+                int count = (int)command.ExecuteScalar();
+                return count > 0;
+            }
+         }
+
     }
 }
+

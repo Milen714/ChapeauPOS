@@ -48,7 +48,7 @@ namespace ChapeauPOS.Controllers
         public IActionResult Create()
         {
             ViewBag.Categories = _menuService.GetMenuCategories();
-            return View(); // Loads Views/Menu/Create.cshtml
+            return View();
         }
 
         [HttpPost]
@@ -69,6 +69,7 @@ namespace ChapeauPOS.Controllers
             try
             {
                 _menuService.AddMenuItem(item);
+                TempData["MenuSuccessMessage"] = "Menu item created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -78,7 +79,7 @@ namespace ChapeauPOS.Controllers
                 return View(item);
             }
         }
-        
+
         [HttpGet]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Edit(int id)
@@ -88,21 +89,19 @@ namespace ChapeauPOS.Controllers
                 var item = _menuService.GetMenuItemById(id);
                 if (item == null)
                 {
-                    TempData["ErrorMessage"] = "Menu item not found.";
+                    TempData["MenuErrorMessage"] = "Menu item not found.";
                     return RedirectToAction("Manage");
                 }
 
                 ViewBag.Categories = _menuService.GetMenuCategories();
                 return View(item);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Optional: log error
-                TempData["ErrorMessage"] = "An error occurred while loading the item.";
+                TempData["MenuErrorMessage"] = "An error occurred while loading the item.";
                 return RedirectToAction("Manage");
             }
         }
-
 
         [HttpPost]
         public IActionResult EditMenuItem(MenuItem item)
@@ -124,6 +123,7 @@ namespace ChapeauPOS.Controllers
                     throw new Exception("Category ID was not selected.");
 
                 _menuService.UpdateMenuItem(item);
+                TempData["MenuSuccessMessage"] = "Menu item updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -143,14 +143,14 @@ namespace ChapeauPOS.Controllers
                 var item = _menuService.GetMenuItemById(id);
                 if (item == null)
                 {
-                    TempData["ErrorMessage"] = "Menu item not found.";
+                    TempData["MenuErrorMessage"] = "Menu item not found.";
                     return RedirectToAction(nameof(Index));
                 }
 
                 bool newStatus = !item.IsActive;
                 _menuService.ToggleMenuItemStatus(id, newStatus);
 
-                TempData["SuccessMessage"] = newStatus
+                TempData["MenuSuccessMessage"] = newStatus
                     ? "Menu item activated successfully!"
                     : "Menu item deactivated successfully!";
 
@@ -158,7 +158,7 @@ namespace ChapeauPOS.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred: " + ex.Message;
+                TempData["MenuErrorMessage"] = "An error occurred: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -168,7 +168,7 @@ namespace ChapeauPOS.Controllers
         public IActionResult Deactivate(int id)
         {
             _menuService.ToggleMenuItemStatus(id, false);
-            TempData["SuccessMessage"] = "Menu item deactivated successfully!";
+            TempData["MenuSuccessMessage"] = "Menu item deactivated successfully!";
             return RedirectToAction(nameof(Manage));
         }
 
@@ -177,7 +177,7 @@ namespace ChapeauPOS.Controllers
         public IActionResult Activate(int id)
         {
             _menuService.ToggleMenuItemStatus(id, true);
-            TempData["SuccessMessage"] = "Menu item activated successfully!";
+            TempData["MenuSuccessMessage"] = "Menu item activated successfully!";
             return RedirectToAction(nameof(Manage));
         }
 
@@ -185,7 +185,7 @@ namespace ChapeauPOS.Controllers
         public IActionResult UpdateStock(int id, int stock)
         {
             _menuService.UpdateStock(id, stock);
-            TempData["SuccessMessage"] = "Stock updated successfully!";
+            TempData["MenuSuccessMessage"] = "Stock updated successfully!";
             return RedirectToAction(nameof(Index), new { course = Request.Query["course"], category = Request.Query["category"] });
         }
     }
