@@ -103,7 +103,6 @@ namespace ChapeauPOS.Controllers
             }
         }
 
-
         [HttpPost]
         public IActionResult EditMenuItem(MenuItem item)
         {
