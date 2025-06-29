@@ -17,7 +17,7 @@ namespace ChapeauPOS.Models
         }
 
         public int CategoryID { get; set; }
-        [ValidateNever] 
+        [ValidateNever]
         public string CategoryName { get; set; }
     }
 }

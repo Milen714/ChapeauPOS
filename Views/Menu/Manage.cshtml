@@ -53,14 +53,14 @@
             <a asp-controller="Menu" asp-action="Create" class="btn btn-success">➕ Add New Item</a>
         </div>
 
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-        }
+     @if (TempData["MenuSuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["MenuSuccessMessage"]</div>
+}
+@if (TempData["MenuErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["MenuErrorMessage"]</div>
+}
 
         <form method="get" asp-action="Index" asp-controller="Menu" class="row g-3 align-items-end mb-3">
             <div class="col-md-4">

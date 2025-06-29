@@ -26,34 +26,29 @@ namespace ChapeauPOS.Controllers
             {
                 var employees = _employeesService.GetAllEmployees();
                 ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-
-                // Return the Index view with the list of employees
-                return View("Index", employees); // Views/Employees/Index.cshtml
+                return View("Index", employees);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while loading the employee directory.";
-                return RedirectToAction("Index", "Home"); // Or a dedicated error page
+                return RedirectToAction("Index", "Home");
             }
         }
 
-        // Manage Employees View (Edit/Add/Activate/Deactivate)
-        // Accessible only to logged-in users with the Manager role
+        // Manage Employees View
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Manage()
         {
             try
             {
                 var employees = _employeesService.GetAllEmployees();
-                ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser");
-
-                // Return the Manage view with the employee list
-                return View("Manage", employees); // Views/Employees/Manage.cshtml
+                ViewBag.LoggedInEmployee = HttpContext.Session.GetObject<Employee>("LoggedInUser"); 
+                return View("Manage", employees);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while loading the employee list.";
-                return RedirectToAction("Index", "Home"); // Or a dedicated error page
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -73,31 +68,33 @@ namespace ChapeauPOS.Controllers
                 return RedirectToAction(nameof(Manage));
             }
         }
-
-
-        //  Add Employee (POST)
+        // Add Employee (POST)
         [HttpPost]
         [SessionAuthorize(Roles.Manager)]
         public IActionResult AddNewEmployee(Employee employee)
         {
-            try
+            // Check if the email address already exists
+            if (_employeesService.EmailAddressExists(employee.Email))
             {
-                if (ModelState.IsValid)
-                {//THIS IS WHY I NEED THE PASSWORD HASHER IN THE EMPLOYEE CONTROLLER!!!
-                    employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
-                    _employeesService.AddEmployee(employee);
-                    TempData["SuccessMessage"] = "Employee added successfully!";
-                    return RedirectToAction(nameof(Manage));
-                }
+                ModelState.AddModelError("Email", "This email address is already in use.");
+                return View("AddNewEmployee", employee);
+            }
 
-                return View("AddNewEmployee", employee);
-            }
-            catch (Exception ex)
+            if (ModelState.IsValid)
             {
-                TempData["Error"] = $"Failed to add employee: {ex.Message}";
-                return View("AddNewEmployee", employee);
+                // Hash the password using email as the salt
+                employee.Password = _passwordHasher.HashPassword(employee.Email, employee.Password);
+
+                // Save the new employee
+                _employeesService.AddEmployee(employee);
+                TempData["SuccessMessage"] = "Employee added successfully!";
+                return RedirectToAction(nameof(Manage));
             }
+
+            // If validation fails, return view with error messages
+            return View("AddNewEmployee", employee);
         }
+
 
         // Edit Employee (GET)
         [HttpGet]
@@ -114,10 +111,9 @@ namespace ChapeauPOS.Controllers
                     return RedirectToAction("Manage");
                 }
 
-                return View("EditEmployee", employee); // Views/Employees/EditEmployee.cshtml
+                return View("EditEmployee", employee);
             }
-            catch (Exception ex)
-
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while trying to load the employee.";
                 return RedirectToAction("Manage");
@@ -139,7 +135,7 @@ namespace ChapeauPOS.Controllers
                     TempData["EmployeeSuccessMessage"] = "Employee updated successfully!";
                     return RedirectToAction(nameof(Manage));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     TempData["ErrorMessage"] = "An error occurred while updating the employee.";
                     return RedirectToAction(nameof(Manage));
@@ -149,8 +145,7 @@ namespace ChapeauPOS.Controllers
             return View("EditEmployee", employee);
         }
 
-
-        // Activate Employee by ID
+        // Activate Employee
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Activate(int id)
         {
@@ -159,7 +154,7 @@ namespace ChapeauPOS.Controllers
                 _employeesService.ActivateEmployee(id);
                 TempData["SuccessMessage"] = "Employee activated!";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while activating the employee.";
             }
@@ -167,8 +162,7 @@ namespace ChapeauPOS.Controllers
             return RedirectToAction(nameof(Manage));
         }
 
-
-        // Deactivate Employee by ID
+        // Deactivate Employee
         [SessionAuthorize(Roles.Manager)]
         public IActionResult Deactivate(int id)
         {
@@ -177,7 +171,7 @@ namespace ChapeauPOS.Controllers
                 _employeesService.DeactivateEmployee(id);
                 TempData["SuccessMessage"] = "Employee deactivated!";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "An error occurred while deactivating the employee.";
             }

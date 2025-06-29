@@ -31,11 +31,29 @@
             <span asp-validation-for="ItemPrice" class="text-danger"></span>
         </div>
 
-        <div class="form-check mb-3">
+        @* <div class="form-check mb-3">
             <input asp-for="VAT" type="checkbox" class="form-check-input" />
             <label asp-for="VAT" class="form-check-label"></label>
             <span asp-validation-for="VAT" class="text-danger"></span>
+        </div> *@
+        @* <div class="mb-3">
+            <label asp-for="VAT" class="form-label">VAT Rate</label>
+            <select asp-for="VAT" class="form-select" required>
+                <option value="">-- Select VAT Rate --</option>
+                <option value="Low">Low VAT</option>
+                <option value="High">High VAT</option>
+            </select>
+            <span asp-validation-for="VAT" class="text-danger"></span>
+        </div> *@
+        <div class="mb-3">
+            <label class="form-label">VAT Rate</label>
+            <select asp-for="VAT" class="form-select" required>
+                <option value="false">Low VAT (9%)</option>
+                <option value="true">High VAT (21%)</option>
+            </select>
+            <span asp-validation-for="VAT" class="text-danger"></span>
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Category.CategoryID" class="form-label">Category</label>

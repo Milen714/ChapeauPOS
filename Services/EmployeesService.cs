@@ -42,5 +42,11 @@ namespace ChapeauPOS.Services
             _employeeRepository.DeactivateEmployee(id);
         }
 
+        public bool EmailAddressExists(string email)
+        {
+            return _employeeRepository.EmailAddressExists(email);
+        }
+
+
     }
 }
