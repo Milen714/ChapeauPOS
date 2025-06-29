@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ChapeauPOS.Controllers.EmployeesController">
+    <Position X="7.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAEAQAAAAAA=</HashCode>
+      <FileName>Controllers\EmployeesController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Controllers.HomeController">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAQAAAQAAAAAAAAIAIAAAAQAAAAEQQAAAAAA=</HashCode>
+      <FileName>Controllers\HomeController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Controllers.TablesController">
+    <Position X="9.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAQAAAgAAAAAAIAAQAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>Controllers\TablesController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Repositories.EmployeeRepository" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgABIMAAIAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Repositories\EmployeeRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ChapeauPOS.Repositories.OrdersRepository" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAgAAgAAAAAQAIAAIQAACAEAQAsAEGAACAEAEg=</HashCode>
+      <FileName>Repositories\OrdersRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.356" Collapsed="true" />
+  </Class>
+  <Class Name="ChapeauPOS.Repositories.TableRepository" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAgAEAAAAAAAAAAAQAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Repositories\TableRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ChapeauPOS.Services.EmployeesService" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgEAAAAAAAAAAAAAAIEAAAAAAAAAIACAAAAAAAAA=</HashCode>
+      <FileName>Services\EmployeesService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ChapeauPOS.Services.OrdersService" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAgAAgAAhAABAAUAAAAIQAACAMAwAEAEEAAAAEAMg=</HashCode>
+      <FileName>Services\OrdersService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ChapeauPOS.Services.TablesService" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAiAAAAAAEAAAAAAAAAAAAAAIAAAAABAAAIA=</HashCode>
+      <FileName>Services\TablesService.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="ChapeauPOS.Models.Employee">
+    <Position X="11.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAACAAAACAEAAAAAAAAAAAAAACAAAAAAACAAg=</HashCode>
+      <FileName>Models\Employee.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Models.Order">
+    <Position X="13.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAABIAAAESAAAAACAQSAAACAAAACAhAAAABAAAAAA=</HashCode>
+      <FileName>Models\Order.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Models.Table">
+    <Position X="14.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAAAAgAAAgAAAAAAAAAAAEAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Table.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Models.OrderItem">
+    <Position X="11.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACgBAAAAAAAABAAAAgAgAAAAAQAAAAAAAIAgAAAAAA=</HashCode>
+      <FileName>Models\OrderItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ChapeauPOS.Models.MenuItem">
+    <Position X="13.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAgAABAAAAAAAEIABAAAAgAACAAABAAAAAAAACAA=</HashCode>
+      <FileName>Models\MenuItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="ChapeauPOS.Repositories.Interfaces.IEmployeeRepository" Collapsed="true">
+    <Position X="2.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgEAAAAAAAAAAAAAAIEAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Repositories\Interfaces\IEmployeeRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ChapeauPOS.Repositories.Interfaces.IOrdersRepository" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAgAAAAAQAAAAIQAACAEAQAkAEEAACAEAEg=</HashCode>
+      <FileName>Repositories\Interfaces\IOrdersRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ChapeauPOS.Repositories.Interfaces.ITableRepository" Collapsed="true">
+    <Position X="4" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAACAAAAAAAAAAAAAAAAAAAAAIAAAAABAAAAA=</HashCode>
+      <FileName>Repositories\Interfaces\ITableRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ChapeauPOS.Services.Interfaces.IEmployeesService">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgEAAAAAAAAAAAAAAIEAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Services\Interfaces\IEmployeesService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ChapeauPOS.Services.Interfaces.IOrdersService">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAgAAhAABAAQAAAAIQAACAMAwAEAEEAAAAEAEg=</HashCode>
+      <FileName>Services\Interfaces\IOrdersService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="ChapeauPOS.Services.Interfaces.ITablesService">
+    <Position X="4" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAiAAAAAAAAAAAAAAAAAAAAAIAAAAABAAAAA=</HashCode>
+      <FileName>Services\Interfaces\ITablesService.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="ChapeauPOS.Models.CourseStatus" Collapsed="true">
+    <Position X="8.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAEAAAAgAAAAA=</HashCode>
+      <FileName>Models\CourseStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ChapeauPOS.Models.OrderStatus" Collapsed="true">
+    <Position X="8.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAEAAAAAAAAAAAAAgAAAEAAAIgAAAAA=</HashCode>
+      <FileName>Models\OrderStatus.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

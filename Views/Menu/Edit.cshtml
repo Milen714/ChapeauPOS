@@ -1,67 +1,88 @@
 ﻿@model ChapeauPOS.Models.MenuItem
+
 @{
     ViewData["Title"] = "Edit Menu Item";
 }
 
-<h2>Edit Menu Item</h2>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-<form asp-action="Edit" method="post">
-    
-     <div asp-validation-summary="All" class="text-danger"></div>  
-    <input type="hidden" asp-for="MenuItemID" />
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
 
-    <div>
-        <label asp-for="ItemName"></label>
-        <input asp-for="ItemName" />
-        <span asp-validation-for="ItemName" class="text-danger"></span>
-    </div>
+    <form asp-action="EditMenuItem" method="post" class="needs-validation" novalidate>
+        <div asp-validation-summary="All" class="alert alert-danger"></div>
+        <input type="hidden" asp-for="MenuItemID" />
 
-    <div>
-        <label asp-for="ItemDescription"></label>
-        <input asp-for="ItemDescription" />
-        <span asp-validation-for="ItemDescription" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="ItemName" class="form-label"></label>
+            <input asp-for="ItemName" class="form-control" required />
+            <span asp-validation-for="ItemName" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="ItemPrice"></label>
-        <input asp-for="ItemPrice" type="number" step="0.01" />
-        <span asp-validation-for="ItemPrice" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="ItemDescription" class="form-label"></label>
+            <input asp-for="ItemDescription" class="form-control" />
+            <span asp-validation-for="ItemDescription" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="VAT"></label>
-        <input asp-for="VAT" type="checkbox" />
-        <span asp-validation-for="VAT" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="ItemPrice" class="form-label"></label>
+            <input asp-for="ItemPrice" type="number" step="0.01" class="form-control" required />
+            <span asp-validation-for="ItemPrice" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="Category.CategoryID">Category</label>
-        <select asp-for="Category.CategoryID" asp-items="@(new SelectList(ViewBag.Categories, "CategoryID", "CategoryName", Model.Category?.CategoryID))">
-            <option value="">-- Select Category --</option>
-        </select>
-        <span asp-validation-for="Category.CategoryID" class="text-danger"></span>
-    </div>
+        @* <div class="form-check mb-3">
+            <input asp-for="VAT" type="checkbox" class="form-check-input" />
+            <label asp-for="VAT" class="form-check-label"></label>
+            <span asp-validation-for="VAT" class="text-danger"></span>
+        </div> *@
+        @* <div class="mb-3">
+            <label asp-for="VAT" class="form-label">VAT Rate</label>
+            <select asp-for="VAT" class="form-select" required>
+                <option value="">-- Select VAT Rate --</option>
+                <option value="Low">Low VAT</option>
+                <option value="High">High VAT</option>
+            </select>
+            <span asp-validation-for="VAT" class="text-danger"></span>
+        </div> *@
+        <div class="mb-3">
+            <label class="form-label">VAT Rate</label>
+            <select asp-for="VAT" class="form-select" required>
+                <option value="false">Low VAT (9%)</option>
+                <option value="true">High VAT (21%)</option>
+            </select>
+            <span asp-validation-for="VAT" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="Course"></label>
-        <select asp-for="Course" asp-items="Html.GetEnumSelectList<ChapeauPOS.Models.MenuCourse>()">
-            <option value="">-- Select Course --</option>
-        </select>
-        <span asp-validation-for="Course" class="text-danger"></span>
-    </div>
 
-    <div>
-        <label asp-for="IsActive">Is Active</label>
-        <input asp-for="IsActive" type="checkbox" />
-        <span asp-validation-for="IsActive" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Category.CategoryID" class="form-label">Category</label>
+            <select asp-for="Category.CategoryID" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, "CategoryID", "CategoryName", Model.Category?.CategoryID))" required>
+                <option value="">-- Select Category --</option>
+            </select>
+            <span asp-validation-for="Category.CategoryID" class="text-danger"></span>
+        </div>
 
-    <button type="submit">Update</button>
-    <a asp-action="Index">Cancel</a>
-</form>
+        <div class="mb-3">
+            <label asp-for="Course" class="form-label"></label>
+            <select asp-for="Course" class="form-select" asp-items="Html.GetEnumSelectList<ChapeauPOS.Models.MenuCourse>()" required>
+                <option value="">-- Select Course --</option>
+            </select>
+            <span asp-validation-for="Course" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-4">
+            <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label">Is Active</label>
+            <span asp-validation-for="IsActive" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

@@ -1,59 +1,55 @@
 ﻿@model IEnumerable<ChapeauPOS.Models.Employee>
 
 @{
-	ViewData["Title"] = "Employees";
+    ViewData["Title"] = "Employee Directory";
+    int loggedInEmployeeId = -1;
 
-	int loggedInEmployeeId = -1;
-	if (ViewBag.LoggedInEmployee != null)
-	{
-		loggedInEmployeeId = ViewBag.LoggedInEmployee.EmployeeId;
-	}
+    var empObj = ViewBag.LoggedInEmployee as ChapeauPOS.Models.Employee;
+    if (empObj != null)
+    {
+        loggedInEmployeeId = empObj.EmployeeId;
+    }
 }
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        <a href="@Url.Action("Manage", "Employees")" class="btn btn-primary">
+            Manage Employees
+        </a>
+    </div>
 
-<h1>@ViewData["Title"]</h1>
-<a href="/Employees/AddNewEmployee">Add Employees</a>
-<table class="table">
-	<thead>
-		<tr>
-			<th>
-				FirstName
-			</th>
-			<th>
-				LastName
-			</th>
-			<th>
-				Role
-			</th>
-			<th></th>
-		</tr>
-	</thead>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var emp in Model)
+                {
+                    string rowClass = emp.EmployeeId == loggedInEmployeeId ? "table-info" : "";
 
-	<tbody>	
-		@foreach (Employee employee in Model)
-	{
-		string loggedInStyle = "";
-		if(employee.EmployeeId == loggedInEmployeeId)
-			{
-				loggedInStyle = "background-color: #87CEEB;";
-			}
-			<tr style="@loggedInStyle">
-			<td>
-				@employee.FirstName
-			</td>
-			<td>
-				@employee.LastName
-			</td>
-			<td>
-				@employee.Role
-			</td>
-			<td>
-				<a asp-action="Edit" asp-route-id="@employee.EmployeeId">Edit</a> |
-				<a asp-action="Details" asp-route-id="@employee.EmployeeId">Details</a> |
-				<a asp-action="Delete" asp-route-id="@employee.EmployeeId">Delete</a>
-			</td>
-		</tr>
-	}
-	</tbody>
-	</table>
+                    <tr class="@rowClass">
+                        <td>@emp.FirstName</td>
+                        <td>@emp.LastName</td>
+                        <td>@emp.Email</td>
+                        <td>@emp.Role</td>
+                        <td>
+                            <span class="badge bg-@(emp.IsActive ? "success" : "secondary")">
+                                @(emp.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

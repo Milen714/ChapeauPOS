@@ -99,7 +99,7 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult GetRunningKitchenTime(int orderId)
         {
-            var order = _kitchenBarService.GetRunningKitchenOrders().FirstOrDefault(o => o.OrderID == orderId);
+            Order? order = _kitchenBarService.GetRunningKitchenOrders().FirstOrDefault(o => o.OrderID == orderId);
 
             if (order?.CreatedAt == null)
                 return Content("00:00:00");
@@ -109,7 +109,7 @@ namespace ChapeauPOS.Controllers
 
         public IActionResult GetRunningBarTime(int orderId)
         {
-            var order = _kitchenBarService.GetRunningBarOrders().FirstOrDefault(o => o.OrderID == orderId);
+            Order? order = _kitchenBarService.GetRunningBarOrders().FirstOrDefault(o => o.OrderID == orderId);
 
             if (order?.CreatedAt == null)
                 return Content("00:00:00");

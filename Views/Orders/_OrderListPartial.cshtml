@@ -10,6 +10,7 @@
             orderStrokeStyle = "OrderedBorder";
     }
 }
+<input id="orderId" type="hidden" name="orderId" value="@Model.OrderID" />
 <div class="Order_stroke @orderStrokeStyle"></div>
 
 @foreach (var item in Model.OrderItems)

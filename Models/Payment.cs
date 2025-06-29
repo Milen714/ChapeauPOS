@@ -44,10 +44,5 @@
             FeedBack = feedBack;
         }
     }
-    public enum PaymentMethod
-    {
-        Cash,
-        Maestro,
-        Voucher
-    }
+  
 }

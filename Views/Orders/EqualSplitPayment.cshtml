@@ -2,6 +2,19 @@
 
 
 <h1>Split Payment</h1>
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
 
      @* Step 1: Number of People Selector *@
 @if (Model.NumberOfPeople == 0)
@@ -45,10 +58,13 @@ else
                 </select>
 
                 <label>Amount (€):</label>
-                <input type="number"step="0.01" name="Payments[@i].AmountPaid" value="@share.ToString("F2")"placeholder="@share.ToString("F2")"required />
+                <input type="number"step="0.01" name="Payments[@i].AmountPaid" value="@share.ToString("F2")"placeholder="@share.ToString("F2")" min="@share.ToString("F2")"required />
 
                 <label>Feedback:</label>
                 <input type="text" name="Payments[@i].Feedback" />
+
+                <p id="tipDisplay-@i" style="margin: 4px 0; color: lightgreen;">Tip: €0.00</p>
+
 
                 <p>9% VAT Share: €@((Model.LowVAT / Model.NumberOfPeople).ToString("F2"))</p>
                 <p>21% VAT Share: €@((Model.HighVAT / Model.NumberOfPeople).ToString("F2"))</p>
@@ -60,31 +76,49 @@ else
     </form>
 
     @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const inputs = document.querySelectorAll("input[name$='AmountPaid']");
-            const total = parseFloat("@Model.TotalAmount");
-            const submitBtn = document.getElementById("submitBtn");
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const inputs = document.querySelectorAll("input[name$='AmountPaid']"); // Here it looks through the page and finds every input whose name ends in 
+                const total = parseFloat("@Model.TotalAmount");                        //  amountPaid and store them in a (list like array).
+                const numberOfPeople = @Model.NumberOfPeople;
+                const expectedShare = total / numberOfPeople;
+                const submitBtn = document.getElementById("submitBtn");
 
-            function validateTotal() {
-                let sum = 0;
-                inputs.forEach(input => {
-                    const val = parseFloat(input.value) || 0;
-                    sum += val;
+                function validateTotal() {
+                    let sum = 0;
+                    inputs.forEach(input => {
+                        const val = parseFloat(input.value) || 0;
+                        sum += val;
+                    });
+
+                    if (sum < total) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerText = `Underpaid: €${(total - sum).toFixed(2)}`;
+                    } else {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Submit Split Payment";
+                    }
+                }
+
+                inputs.forEach((input, i) => {                                       // After that For each person's amount field,
+                    const tipElement = document.getElementById(`tipDisplay-${i}`);   // finds the HTML element that displays this person’s tip.
+
+                    input.addEventListener("input", function () {
+                        validateTotal();
+
+                        const val = parseFloat(input.value) || 0;
+                        const tip = val > expectedShare ? val - expectedShare : 0;
+                        tipElement.innerText = `Tip: €${tip.toFixed(2)}`;
+                    });
+
+
+                    input.dispatchEvent(new Event('input')); // here this simulates the user typing, so the tip and validation are done immediately when the page loads.
                 });
 
-                if (sum < total) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerText = `Underpaid: €${(total - sum).toFixed(2)}`;
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Submit Split Payment";
-                }
-            }
-
-            inputs.forEach(input => input.addEventListener("input", validateTotal));
-            validateTotal();
-        });
-    </script>
+                validateTotal(); 
+            });
+        </script>
     }
+
+
 }

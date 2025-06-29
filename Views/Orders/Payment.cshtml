@@ -2,13 +2,27 @@
 @{
    <input id="tableId" type="hidden" name="tableId" value="@Model.Order.Table.TableNumber" />
 }
+<div class="payment-summary-container">
 <h2>Payment Summary - Table @Model.Order.Table.TableNumber</h2>
-<div>
-<table class="table">
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+    <div class="payment-summary-box">
+        <table class="payment-summary-table" "
     <thead>
         <tr>
             <th>Item</th>
-            <th>Qty</th>
+            <th>Quantity</th>
             <th>Unit Price</th>
             <th>Total</th>
         </tr>
@@ -27,19 +41,22 @@
     </tbody>
 </table>
 </div>
+</div>
 <div>
-    <div>
+    <div class ="summary-box">
         <p><strong>Total Amount:</strong> €@Model.TotalAmount.ToString("F2")</p>
         <p><strong>Low VAT (9%):</strong> €@Model.LowVAT.ToString("F2")</p>
         <p><strong>High VAT (21%):</strong> €@Model.HighVAT.ToString("F2")</p>
     </div>
+
     <div class="PaymentButtons_Container">
         <div class="PaymentButtons_Container">
             <button class="PaymentButtons" data-payment-method="Cash">Cash</button>
-            <button class="PaymentButtons" data-payment-method="Maestro">Maestro</button>
-            <a asp-controller="Orders" asp-action="EqualSplitPayment" asp-route-tableId="@Model.Order.Table.TableNumber">Split Equally</a>
-            
-            
+            <button class="PaymentButtons" data-payment-method="Maestro">Maestro</button>         
+            <button><a href="/Orders/EqualSplitPayment?tableId=@Model.Order.Table.TableNumber">Split Equally</a></button>
+            <button><a href="/Orders/MultiPartialPayment?tableId=@Model.Order.Table.TableNumber">Partial Payment</a></button>
+             
+                      
         </div>
     </div>
 
