@@ -27,6 +27,8 @@ namespace ChapeauPOS
             builder.Services.AddSingleton<IFinancialRepository, FinancialRepository>();
             builder.Services.AddSingleton<IFinancialService, FinancialService>();
 
+			builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    		options.UseSqlServer(Environment.GetEnvironmentVariable("ChapeauDB_CONNECTION")));
 
 
 
